@@ -1,0 +1,328 @@
+msgid ""
+msgstr ""
+"Language-Team: English\n"
+"Language: en\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "\n\nSanitized %d hardware keys for device compatibility."
+msgstr "\n\nSanitized %d hardware keys for device compatibility."
+
+msgid "%d backups found in this folder"
+msgstr "%d backups found in this folder"
+
+msgid "(No subfolders)"
+msgstr "(No subfolders)"
+
+msgid "+ New"
+msgstr "+ New"
+
+msgid ".. (Parent Folder)"
+msgstr ".. (Parent Folder)"
+
+msgid "Archive: %s"
+msgstr "Archive: %s"
+
+msgid "Are you sure you want to restore this backup?\n\nAn automatic safety rollback snapshot will be created before any files are updated."
+msgstr "Are you sure you want to restore this backup?\n\nAn automatic safety rollback snapshot will be created before any files are updated."
+
+msgid "Backup & Restore Settings"
+msgstr "Backup & Restore Settings"
+
+msgid "Backup Folder:\n%s"
+msgstr "Backup Folder:\n%s"
+
+msgid "Backup Name"
+msgstr "Backup Name"
+
+msgid "Backup created successfully!\n\nFile: %s\nSize: %s\nArchived files: %d"
+msgstr "Backup created successfully!\n\nFile: %s\nSize: %s\nArchived files: %d"
+
+msgid "Backup received successfully!\n\nFile: %s"
+msgstr "Backup received successfully!\n\nFile: %s"
+
+msgid "Backup restored successfully!"
+msgstr "Backup restored successfully!"
+
+msgid "Beam Relay Server"
+msgstr "Beam Relay Server"
+
+msgid "Beam code expired or not found. Please verify the 6-digit code on the sending device."
+msgstr "Beam code expired or not found. Please verify the 6-digit code on the sending device."
+
+msgid "Beam code must be exactly %d digits."
+msgstr "Beam code must be exactly %d digits."
+
+msgid "Beam code ready!"
+msgstr "Beam code ready!"
+
+msgid "Beam reception failed:\n%s"
+msgstr "Beam reception failed:\n%s"
+
+msgid "Beam to Device"
+msgstr "Beam to Device"
+
+msgid "Beam transfer canceled."
+msgstr "Beam transfer canceled."
+
+msgid "Beam upload failed:\n%s"
+msgstr "Beam upload failed:\n%s"
+
+msgid "Browse Folder"
+msgstr "Browse Folder"
+
+msgid "Cancel"
+msgstr "Cancel"
+
+msgid "Clean Slate (Remove unlisted plugins)"
+msgstr "Clean Slate (Remove unlisted plugins)"
+
+msgid "Clear All"
+msgstr "Clear All"
+
+msgid "Close"
+msgstr "Close"
+
+msgid "Code expires in 15 minutes\nSingle-use end-to-end encrypted"
+msgstr "Code expires in 15 minutes\nSingle-use end-to-end encrypted"
+
+msgid "Connecting and downloading backup archive..."
+msgstr "Connecting and downloading backup archive..."
+
+msgid "Connecting to Beam relay..."
+msgstr "Connecting to Beam relay..."
+
+msgid "Corrupted or empty Beam payload."
+msgstr "Corrupted or empty Beam payload."
+
+msgid "Could not read file: %s"
+msgstr "Could not read file: %s"
+
+msgid "Could not write file: %s"
+msgstr "Could not write file: %s"
+
+msgid "Create"
+msgstr "Create"
+
+msgid "Create Backup"
+msgstr "Create Backup"
+
+msgid "Create subfolder in '%s':"
+msgstr "Create subfolder in '%s':"
+
+msgid "Create, manage, and restore modular KOReader backups with intelligent cross-device hardware sanitization and disaster recovery."
+msgstr "Create, manage, and restore modular KOReader backups with intelligent cross-device hardware sanitization and disaster recovery."
+
+msgid "Created '%s'"
+msgstr "Created '%s'"
+
+msgid "Creating backup archive...\nPlease wait."
+msgstr "Creating backup archive...\nPlease wait."
+
+msgid "Delete"
+msgstr "Delete"
+
+msgid "Delete backup '%s'?\nThis action cannot be undone."
+msgstr "Delete backup '%s'?\nThis action cannot be undone."
+
+msgid "Device Backup & Restore"
+msgstr "Device Backup & Restore"
+
+msgid "Dictionaries & OCR Data"
+msgstr "Dictionaries & OCR Data"
+
+msgid "Done"
+msgstr "Done"
+
+msgid "Download failed (HTTP %s): %s"
+msgstr "Download failed (HTTP %s): %s"
+
+msgid "Encrypting backup archive..."
+msgstr "Encrypting backup archive..."
+
+msgid "Enter custom filename (without extension):"
+msgstr "Enter custom filename (without extension):"
+
+msgid "Enter the 6-digit Beam code from the sending device:"
+msgstr "Enter the 6-digit Beam code from the sending device:"
+
+msgid "Extraction failed: %s"
+msgstr "Extraction failed: %s"
+
+msgid "Failed to create backup:\n%s"
+msgstr "Failed to create backup:\n%s"
+
+msgid "Failed to create folder."
+msgstr "Failed to create folder."
+
+msgid "Failed to inspect archive:\n%s"
+msgstr "Failed to inspect archive:\n%s"
+
+msgid "Folder"
+msgstr "Folder"
+
+msgid "Fonts"
+msgstr "Fonts"
+
+msgid "Format: .%s"
+msgstr "Format: .%s"
+
+msgid "HTTPS address of the ephemeral Beam relay:"
+msgstr "HTTPS address of the ephemeral Beam relay:"
+
+msgid "Invalid Beam archive format."
+msgstr "Invalid Beam archive format."
+
+msgid "Invalid Beam code or corrupted data."
+msgstr "Invalid Beam code or corrupted data."
+
+msgid "Invalid filename in Beam payload."
+msgstr "Invalid filename in Beam payload."
+
+msgid "Manage Backups"
+msgstr "Manage Backups"
+
+msgid "Name: %s"
+msgstr "Name: %s"
+
+msgid "New Folder"
+msgstr "New Folder"
+
+msgid "Next"
+msgstr "Next"
+
+msgid "No backup files found in:\n%s"
+msgstr "No backup files found in:\n%s"
+
+msgid "No rollback snapshot available to undo."
+msgstr "No rollback snapshot available to undo."
+
+msgid "No subfolders in this directory.\nTap 'Select Folder' below to use it, or '+ New' to create a subfolder."
+msgstr "No subfolders in this directory.\nTap 'Select Folder' below to use it, or '+ New' to create a subfolder."
+
+msgid "Number of rolling backups to keep (0 = unlimited):"
+msgstr "Number of rolling backups to keep (0 = unlimited):"
+
+msgid "OK"
+msgstr "OK"
+
+msgid "On the receiving device, open\n'Receive via Beam Code' and enter:"
+msgstr "On the receiving device, open\n'Receive via Beam Code' and enter:"
+
+msgid "Page %d of %d"
+msgstr "Page %d of %d"
+
+msgid "Patches"
+msgstr "Patches"
+
+msgid "Please enter a 6-digit Beam code."
+msgstr "Please enter a 6-digit Beam code."
+
+msgid "Pre-flight check failed: %s"
+msgstr "Pre-flight check failed: %s"
+
+msgid "Previous"
+msgstr "Previous"
+
+msgid "Reading History & Stats"
+msgstr "Reading History & Stats"
+
+msgid "Reading Progress & Notes"
+msgstr "Reading Progress & Notes"
+
+msgid "Receive & Restore"
+msgstr "Receive & Restore"
+
+msgid "Receive via Beam Code"
+msgstr "Receive via Beam Code"
+
+msgid "Recommended"
+msgstr "Recommended"
+
+msgid "Registering code with Beam relay..."
+msgstr "Registering code with Beam relay..."
+
+msgid "Reset Default"
+msgstr "Reset Default"
+
+msgid "Restart"
+msgstr "Restart"
+
+msgid "Restart KOReader now to apply all changes?"
+msgstr "Restart KOReader now to apply all changes?"
+
+msgid "Restore Backup"
+msgstr "Restore Backup"
+
+msgid "Restore completed."
+msgstr "Restore completed."
+
+msgid "Restore failed: %s"
+msgstr "Restore failed: %s"
+
+msgid "Restoring backup...\nPlease wait."
+msgstr "Restoring backup...\nPlease wait."
+
+msgid "Retention Limit"
+msgstr "Retention Limit"
+
+msgid "Retention Limit: Keep newest %d backups"
+msgstr "Retention Limit: Keep newest %d backups"
+
+msgid "Revert to the pre-restore rollback snapshot?\n\nThis will undo the last restore and return your settings and patches to their prior state.\n\nKOReader will restart immediately."
+msgstr "Revert to the pre-restore rollback snapshot?\n\nThis will undo the last restore and return your settings and patches to their prior state.\n\nKOReader will restart immediately."
+
+msgid "Reverting to rollback snapshot..."
+msgstr "Reverting to rollback snapshot..."
+
+msgid "Sanitize Hardware Settings"
+msgstr "Sanitize Hardware Settings"
+
+msgid "Save"
+msgstr "Save"
+
+msgid "Screensavers"
+msgstr "Screensavers"
+
+msgid "Select All"
+msgstr "Select All"
+
+msgid "Select Backup Folder"
+msgstr "Select Backup Folder"
+
+msgid "Select Folder"
+msgstr "Select Folder"
+
+msgid "Select This Folder"
+msgstr "Select This Folder"
+
+msgid "Settings & UI Gestures"
+msgstr "Settings & UI Gestures"
+
+msgid "Source directory does not exist: %s"
+msgstr "Source directory does not exist: %s"
+
+msgid "Style Tweaks"
+msgstr "Style Tweaks"
+
+msgid "Successfully reverted to rollback snapshot."
+msgstr "Successfully reverted to rollback snapshot."
+
+msgid "Undo Last Restore"
+msgstr "Undo Last Restore"
+
+msgid "Undo failed: %s"
+msgstr "Undo failed: %s"
+
+msgid "Upload failed (HTTP %s): %s"
+msgstr "Upload failed (HTTP %s): %s"
+
+msgid "Uploading backup archive..."
+msgstr "Uploading backup archive..."
+
+msgid "User Plugins"
+msgstr "User Plugins"
+
+msgid "[Up]  ..  (Parent folder)"
+msgstr "[Up]  ..  (Parent folder)"
+

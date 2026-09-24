@@ -1,0 +1,6 @@
+return {
+    _default = {
+        pattern = "_test%.lua",
+        ROOT = { "tests" },
+    }
+}

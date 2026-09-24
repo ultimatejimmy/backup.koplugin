@@ -1,0 +1,435 @@
+msgid ""
+msgstr ""
+"Language-Team: Spanish\n"
+"Language: es\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+# en-hash: 70c51e7dd752a850c00f47e4b01c3f51
+msgid "\n\nSanitized %d hardware keys for device compatibility."
+msgstr "\n\nSe sanitizaron %d claves de hardware para compatibilidad con el dispositivo."
+
+# en-hash: fe1fbcda8ba5fec0916c1f3900a722fb
+msgid "%d backups found in this folder"
+msgstr "Se encontraron %d copias de seguridad en esta carpeta"
+
+# en-hash: e03f74ce0bdcf1ac3325ee7cf2cc5e5e
+msgid "(No subfolders)"
+msgstr "(Sin subcarpetas)"
+
+# en-hash: 4bc56877a98a3b5f59735f579cf735a6
+msgid "+ New"
+msgstr "+ Nuevo"
+
+# en-hash: d28fdd75f93893891fb2d7e3b40683de
+msgid ".. (Parent Folder)"
+msgstr ".. (Carpeta superior)"
+
+# en-hash: fcbaff9ec755238920363a1fff9402a5
+msgid "Archive: %s"
+msgstr "Archivo: %s"
+
+# en-hash: 6eee210465fd5fe3081cbdc035faf4ea
+msgid "Are you sure you want to restore this backup?\n\nAn automatic safety rollback snapshot will be created before any files are updated."
+msgstr "¿Seguro que desea restaurar esta copia?\n\nSe creará una copia de seguridad automática antes de actualizar cualquier archivo."
+
+# en-hash: bc0e2e2755cb8ab261980312b1cdd604
+msgid "Backup & Restore Settings"
+msgstr "Ajustes de copia y restauración"
+
+# en-hash: 89ae327082969ac88c567110a84d86f6
+msgid "Backup Folder:\n%s"
+msgstr "Carpeta de copias:\n%s"
+
+# en-hash: fb062769d9d546b0e921d27f871671b1
+msgid "Backup Name"
+msgstr "Nombre de copia"
+
+# en-hash: 5e9f37fad626c515ba7b36e74c42e17d
+msgid "Backup created successfully!\n\nFile: %s\nSize: %s\nArchived files: %d"
+msgstr "¡Copia creada con éxito!\n\nArchivo: %s\nTamaño: %s\nArchivos guardados: %d"
+
+# en-hash: 8c9b5c30039246df4e284265e575ce06
+msgid "Backup received successfully!\n\nFile: %s"
+msgstr "¡Copia recibida con éxito!\n\nArchivo: %s"
+
+# en-hash: f0699014af9b966071d5d9021dd1a9f2
+msgid "Backup restored successfully!"
+msgstr "¡Copia restaurada con éxito!"
+
+# en-hash: de8e8367246b437c6b06b7b257933d07
+msgid "Beam Relay Server"
+msgstr "Servidor de retransmisión Beam"
+
+# en-hash: e6da1ea23eee05a70698d9baa4b735c2
+msgid "Beam code expired or not found. Please verify the 6-digit code on the sending device."
+msgstr "El código Beam ha caducado o no se encuentra. Verifique el código de 6 dígitos en el dispositivo emisor."
+
+# en-hash: 926d930cd63fdbd90213bdb92a32e1b5
+msgid "Beam code must be exactly %d digits."
+msgstr "El código Beam debe tener exactamente %d dígitos."
+
+# en-hash: d4ac6f48928bec1ece1a351429b36f90
+msgid "Beam code ready!"
+msgstr "¡Código Beam listo!"
+
+# en-hash: d4f694ffc4d55b9a34dafcb0414eaccc
+msgid "Beam reception failed:\n%s"
+msgstr "Error en recepción Beam:\n%s"
+
+# en-hash: a2dfd5b2b712024422f80f476f46e4fc
+msgid "Beam to Device"
+msgstr "Transmitir a dispositivo"
+
+# en-hash: 2ec4c674b475eae9dde6bceff111e386
+msgid "Beam transfer canceled."
+msgstr "Transferencia Beam cancelada."
+
+# en-hash: f6f68fae5f22dce049f4f4ab51ff8ee4
+msgid "Beam upload failed:\n%s"
+msgstr "Error al subir a Beam:\n%s"
+
+# en-hash: 12d72fb625ec7cee14aac12f2392eee1
+msgid "Browse Folder"
+msgstr "Explorar carpeta"
+
+# en-hash: ea4788705e6873b424c65e91c2846b19
+msgid "Cancel"
+msgstr "Cancelar"
+
+# en-hash: 34df780f0cf9e2d543d9fe64fbfdeee4
+msgid "Clean Slate (Remove unlisted plugins)"
+msgstr "Instalación limpia (eliminar complementos no listados)"
+
+# en-hash: e77fef0167598bb39846637ac3915f4e
+msgid "Clear All"
+msgstr "Deseleccionar todo"
+
+# en-hash: d3d2e617335f08df83599665eef8a418
+msgid "Close"
+msgstr "Cerrar"
+
+# en-hash: e04433a9dbc7f8a04dfa1bad54d8e186
+msgid "Code expires in 15 minutes\nSingle-use end-to-end encrypted"
+msgstr "El código caduca en 15 minutos\nCifrado de extremo a extremo de un solo uso"
+
+# en-hash: 1bef0388877dbf64dcd100acd4a793db
+msgid "Connecting and downloading backup archive..."
+msgstr "Conectando y descargando archivo de copia..."
+
+# en-hash: 1f84a8ea2266a66e6be5f03f9b78e800
+msgid "Connecting to Beam relay..."
+msgstr "Conectando al servidor Beam..."
+
+# en-hash: a71b94dc9954c63441159856938be723
+msgid "Corrupted or empty Beam payload."
+msgstr "Carga de Beam dañada o vacía."
+
+# en-hash: c17e50618f4af14444fec4b88f4df96d
+msgid "Could not read file: %s"
+msgstr "No se pudo leer el archivo: %s"
+
+# en-hash: 8bfcc5c4e47d762b0b2137ec67644e3d
+msgid "Could not write file: %s"
+msgstr "No se pudo escribir el archivo: %s"
+
+# en-hash: 686e697538050e4664636337cc3b834f
+msgid "Create"
+msgstr "Crear"
+
+# en-hash: c14ce86aeadca087a22896b2a64a5c58
+msgid "Create Backup"
+msgstr "Crear copia"
+
+# en-hash: 96cb7ae49077c528192c2bba40c42c69
+msgid "Create subfolder in '%s':"
+msgstr "Crear subcarpeta en '%s':"
+
+# en-hash: 3e60b1ef34760b5c3d3fa7387f255beb
+msgid "Create, manage, and restore modular KOReader backups with intelligent cross-device hardware sanitization and disaster recovery."
+msgstr "Crea, gestiona y restaura copias de seguridad modulares de KOReader con sanitización inteligente entre dispositivos y recuperación ante fallos."
+
+# en-hash: e6818edb27f4a7711ea452befaa5efd4
+msgid "Created '%s'"
+msgstr "Creado '%s'"
+
+# en-hash: 0d325b507ae70a0aa07aa62c9415cdd4
+msgid "Creating backup archive...\nPlease wait."
+msgstr "Creando archivo de copia...\nEspere, por favor."
+
+# en-hash: f2a6c498fb90ee345d997f888fce3b18
+msgid "Delete"
+msgstr "Eliminar"
+
+# en-hash: 50066985329b0d209fe38b46b356a969
+msgid "Delete backup '%s'?\nThis action cannot be undone."
+msgstr "¿Eliminar la copia '%s'?\nEsta acción no se puede deshacer."
+
+# en-hash: 3eba76dec995960162d99251c4685a72
+msgid "Device Backup & Restore"
+msgstr "Copia de seguridad y restauración"
+
+# en-hash: 8584b34b65ac94e8c9c012d769803e17
+msgid "Dictionaries & OCR Data"
+msgstr "Diccionarios y datos OCR"
+
+# en-hash: f92965e2c8a7afb3c1b9a5c09a263636
+msgid "Done"
+msgstr "Hecho"
+
+# en-hash: 0f71ee70a18dcad9e268820ae88283fc
+msgid "Download failed (HTTP %s): %s"
+msgstr "Error de descarga (HTTP %s): %s"
+
+# en-hash: f7a124dce93e38381ea3023a4f0aa14e
+msgid "Encrypting backup archive..."
+msgstr "Cifrando archivo de copia..."
+
+# en-hash: dfc7523a11a7e11b2c7f51cfafdf139c
+msgid "Enter custom filename (without extension):"
+msgstr "Introduzca nombre de archivo (sin extensión):"
+
+# en-hash: 54e8a9f101fc87da7d8cd250dadae2ef
+msgid "Enter the 6-digit Beam code from the sending device:"
+msgstr "Introduzca el código Beam de 6 dígitos del dispositivo emisor:"
+
+# en-hash: c634f151487ff6ed8f7f69f634b5e455
+msgid "Extraction failed: %s"
+msgstr "Error de extracción: %s"
+
+# en-hash: 03218619387d6343c9b47de134287947
+msgid "Failed to create backup:\n%s"
+msgstr "Error al crear la copia:\n%s"
+
+# en-hash: 96310b2cf48706c28110688622ac2cf2
+msgid "Failed to create folder."
+msgstr "Error al crear la carpeta."
+
+# en-hash: 689450633204759bf63bdef8d58160bf
+msgid "Failed to inspect archive:\n%s"
+msgstr "Error al inspeccionar el archivo:\n%s"
+
+# en-hash: b0f2b97dc5d2b76b26e040408bb1d8af
+msgid "Folder"
+msgstr "Carpeta"
+
+# en-hash: 59c4ad3f3cb3d812d68fab7a354d4a63
+msgid "Fonts"
+msgstr "Fuentes"
+
+# en-hash: 97e9ea0d3280470d874bfd2fb34c4b5c
+msgid "Format: .%s"
+msgstr "Formato: .%s"
+
+# en-hash: a2b02708ccda68b79f863991a35b186c
+msgid "HTTPS address of the ephemeral Beam relay:"
+msgstr "Dirección HTTPS del servidor efímero Beam:"
+
+# en-hash: 185fdf3f043056d88a297a1a45e410f1
+msgid "Invalid Beam archive format."
+msgstr "Formato de archivo Beam no válido."
+
+# en-hash: 59718b661c677a617f68808887db6664
+msgid "Invalid Beam code or corrupted data."
+msgstr "Código Beam no válido o datos corruptos."
+
+# en-hash: 102800baa7564cf03c0fe98c672f9cbd
+msgid "Invalid filename in Beam payload."
+msgstr "Nombre de archivo no válido en carga Beam."
+
+# en-hash: e79ab781ed465b50b2570988208270b9
+msgid "Manage Backups"
+msgstr "Gestionar copias"
+
+# en-hash: 13bf411eeaa84dca3afaa4730dbe6d8a
+msgid "Name: %s"
+msgstr "Nombre: %s"
+
+# en-hash: 5148905edb46ca87df979cbb369c403d
+msgid "New Folder"
+msgstr "Nueva carpeta"
+
+# en-hash: 10ac3d04253ef7e1ddc73e6091c0cd55
+msgid "Next"
+msgstr "Siguiente"
+
+# en-hash: ff40c126b8b46780477108211fcf70a6
+msgid "No backup files found in:\n%s"
+msgstr "No se encontraron copias en:\n%s"
+
+# en-hash: 9257ea893e1902fd67376e7ec30c29aa
+msgid "No rollback snapshot available to undo."
+msgstr "No hay copia de seguridad anterior para deshacer."
+
+# en-hash: 4911d39dfeb5093032e4317a04cef4c1
+msgid "No subfolders in this directory.\nTap 'Select Folder' below to use it, or '+ New' to create a subfolder."
+msgstr "No hay subcarpetas en este directorio.\nToca 'Seleccionar carpeta' abajo para usarla, o '+ Nueva' para crear una subcarpeta."
+
+# en-hash: 6344e7b1aeee585a87bad4d8613c0075
+msgid "Number of rolling backups to keep (0 = unlimited):"
+msgstr "Número de copias rotativas a conservar (0 = sin límite):"
+
+# en-hash: e0aa021e21dddbd6d8cecec71e9cf564
+msgid "OK"
+msgstr "Aceptar"
+
+# en-hash: f9eedd2311cf95a0d780865f9d915a48
+msgid "On the receiving device, open\n'Receive via Beam Code' and enter:"
+msgstr "En el dispositivo receptor, abra\n'Recibir mediante código Beam' e introduzca:"
+
+# en-hash: b8065ad2628f1f82f3167af0947b3e43
+msgid "Page %d of %d"
+msgstr "Página %d de %d"
+
+# en-hash: c4d283323af70979073f5cb6145f3a4b
+msgid "Patches"
+msgstr "Parches"
+
+# en-hash: 0ccb89d730d0e13ef9f2ce026ae2f68a
+msgid "Please enter a 6-digit Beam code."
+msgstr "Por favor, introduzca un código Beam de 6 dígitos."
+
+# en-hash: 0463c331120b4965a80dfbe694d5b55b
+msgid "Pre-flight check failed: %s"
+msgstr "Comprobación previa fallida: %s"
+
+# en-hash: dd1f775e443ff3b9a89270713580a51b
+msgid "Previous"
+msgstr "Anterior"
+
+# en-hash: 4fe018c28e35e662f93f36f498cc3e12
+msgid "Reading History & Stats"
+msgstr "Historial de lectura y estadísticas"
+
+# en-hash: 82673499134caf0204fb6bf7e2ace4a4
+msgid "Reading Progress & Notes"
+msgstr "Progreso de lectura y notas"
+
+# en-hash: af99c2d6b1f524f525ec77d46b92d9d8
+msgid "Receive & Restore"
+msgstr "Recibir y restaurar"
+
+# en-hash: 77e519ddae046885036c01bb8c3787f7
+msgid "Receive via Beam Code"
+msgstr "Recibir mediante código Beam"
+
+# en-hash: 654866693fd91ce8e9764a218f569918
+msgid "Recommended"
+msgstr "Recomendado"
+
+# en-hash: 1cd49e2c32c4da2646f94fd0ebc17307
+msgid "Registering code with Beam relay..."
+msgstr "Registrando código en servidor Beam..."
+
+# en-hash: d6ed253ff449bbd9606eff83124f1f2e
+msgid "Reset Default"
+msgstr "Restablecer"
+
+# en-hash: 51cfbcff36da74a9fc47f3a5140f99f2
+msgid "Restart"
+msgstr "Reiniciar"
+
+# en-hash: 81eb5ecb77b1b927fe2faf6a12559f86
+msgid "Restart KOReader now to apply all changes?"
+msgstr "¿Reiniciar KOReader ahora para aplicar los cambios?"
+
+# en-hash: 6b57c8193bf71b9818408e839220a139
+msgid "Restore Backup"
+msgstr "Restaurar copia"
+
+# en-hash: c9f2b9e4673b26c89d8bf11abf2248ae
+msgid "Restore completed."
+msgstr "Restauración completada."
+
+# en-hash: fca563e14598ea95a2c1bd367cfb15da
+msgid "Restore failed: %s"
+msgstr "Error al restaurar: %s"
+
+# en-hash: 94ab523be5c63c972b0b889df91f061c
+msgid "Restoring backup...\nPlease wait."
+msgstr "Restaurando copia...\nEspere, por favor."
+
+# en-hash: 0c3b566bc621cb23ac19bc5a8309064c
+msgid "Retention Limit"
+msgstr "Límite de retención"
+
+# en-hash: 8cf857e68c82670f25c36a1648d648d6
+msgid "Retention Limit: Keep newest %d backups"
+msgstr "Retención: conservar las %d copias más recientes"
+
+# en-hash: ed5c2c8b4c48bb6a2b8a8cbbcb6ec4a3
+msgid "Revert to the pre-restore rollback snapshot?\n\nThis will undo the last restore and return your settings and patches to their prior state.\n\nKOReader will restart immediately."
+msgstr "¿Revertir a la instantánea previa a la restauración?\n\nEsto deshará la última restauración y devolverá los ajustes y parches a su estado anterior.\n\nKOReader se reiniciará inmediatamente."
+
+# en-hash: e59c629f88ff9b3d6b64de5fe3d9382e
+msgid "Reverting to rollback snapshot..."
+msgstr "Revirtiendo a instantánea previa..."
+
+# en-hash: 3a5690f3a280a4a323983b5a294a17b7
+msgid "Sanitize Hardware Settings"
+msgstr "Sanitizar ajustes de hardware"
+
+# en-hash: c9cc8cce247e49bae79f15173ce97354
+msgid "Save"
+msgstr "Guardar"
+
+# en-hash: cb95f5f307c64043351b5125571b350a
+msgid "Screensavers"
+msgstr "Salvapantallas"
+
+# en-hash: 45e96c0a422ce8a1a6ec1bd5eb9625c6
+msgid "Select All"
+msgstr "Seleccionar todo"
+
+# en-hash: 409b6ffa21e6e70cedc0d0c79410b25c
+msgid "Select Backup Folder"
+msgstr "Seleccionar carpeta de copias"
+
+# en-hash: deffb03a57b0deaf912f04da4575848f
+msgid "Select Folder"
+msgstr "Seleccionar carpeta"
+
+# en-hash: 02f466f9f6c775fa86eb8910f13eb67d
+msgid "Select This Folder"
+msgstr "Seleccionar esta carpeta"
+
+# en-hash: dcc9b974ef5d851dac22de0e12385955
+msgid "Settings & UI Gestures"
+msgstr "Ajustes y gestos de interfaz"
+
+# en-hash: 022304b329e3f8ec0baa1b0dff584aae
+msgid "Source directory does not exist: %s"
+msgstr "El directorio de origen no existe: %s"
+
+# en-hash: 6fa373b3bf8a90deffa023b29b27752b
+msgid "Style Tweaks"
+msgstr "Ajustes de estilo"
+
+# en-hash: ee93a26a833941b352c88605dad981d6
+msgid "Successfully reverted to rollback snapshot."
+msgstr "Reversión a instantánea completada con éxito."
+
+# en-hash: c7fcadfb9d8d33e697f394cf22598623
+msgid "Undo Last Restore"
+msgstr "Deshacer última restauración"
+
+# en-hash: 70708f49ce9f2126eff1a042468ed746
+msgid "Undo failed: %s"
+msgstr "Error al deshacer: %s"
+
+# en-hash: 47e6e74ed1394da91cdf1d7baa6d7212
+msgid "Upload failed (HTTP %s): %s"
+msgstr "Error de subida (HTTP %s): %s"
+
+# en-hash: 55c11e4b0000b4cf083ae1ff648d5946
+msgid "Uploading backup archive..."
+msgstr "Subiendo archivo de copia..."
+
+# en-hash: 86650eb950d0e08a5dd35fbcd4303482
+msgid "User Plugins"
+msgstr "Complementos de usuario"
+
+# en-hash: 742ff424eccffa81c499d67699805075
+msgid "[Up]  ..  (Parent folder)"
+msgstr "[Arriba]  ..  (Carpeta superior)"
+
