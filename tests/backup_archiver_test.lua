@@ -126,6 +126,57 @@ describe("backup_archiver", function()
             os.execute("rm -rf " .. data_dir)
         end)
 
+        it("excludes statistics.sqlite3 from settings and routes it to history", function()
+            local lfs = require("libs/libkoreader-lfs")
+            local data_dir = "/tmp/test_stats_backup_data"
+            os.execute("mkdir -p " .. data_dir .. "/settings")
+            local sf = io.open(data_dir .. "/settings/settings.reader.lua", "w")
+            if sf then sf:write("return {}"); sf:close() end
+            local stat_f = io.open(data_dir .. "/settings/statistics.sqlite3", "w")
+            if stat_f then stat_f:write("fake_statistics_db"); stat_f:close() end
+            local vocab_f = io.open(data_dir .. "/settings/vocabulary_builder.sqlite3", "w")
+            if vocab_f then vocab_f:write("fake_vocab_db"); vocab_f:close() end
+
+            -- 1. Backup with only SETTINGS: should NOT include statistics.sqlite3 or vocabulary_builder.sqlite3
+            local settings_only_out = "/tmp/test_settings_only.tar"
+            local ok1, res1 = ArchiverMgr.createBackup{
+                archive_path = settings_only_out,
+                format = "tar",
+                backup_name = "test_settings_only",
+                data_dir = data_dir,
+                components = { settings = true, history = false },
+            }
+            assert.is_true(ok1)
+            local f1 = io.open(settings_only_out, "rb")
+            local c1 = f1:read("*all")
+            f1:close()
+            os.remove(settings_only_out)
+
+            assert.is_not_nil(c1:find("settings/settings.reader.lua"))
+            assert.is_nil(c1:find("statistics.sqlite3"))
+            assert.is_nil(c1:find("vocabulary_builder.sqlite3"))
+
+            -- 2. Backup with HISTORY: should include statistics.sqlite3 and vocabulary_builder.sqlite3
+            local history_out = "/tmp/test_history.tar"
+            local ok2, res2 = ArchiverMgr.createBackup{
+                archive_path = history_out,
+                format = "tar",
+                backup_name = "test_history",
+                data_dir = data_dir,
+                components = { settings = false, history = true },
+            }
+            assert.is_true(ok2)
+            local f2 = io.open(history_out, "rb")
+            local c2 = f2:read("*all")
+            f2:close()
+            os.remove(history_out)
+
+            assert.is_not_nil(c2:find("settings/statistics.sqlite3"))
+            assert.is_not_nil(c2:find("settings/vocabulary_builder.sqlite3"))
+
+            os.execute("rm -rf " .. data_dir)
+        end)
+
         it("gracefully fails when given invalid archive path", function()
             local ok, err = ArchiverMgr.createBackup{
                 archive_path = nil,

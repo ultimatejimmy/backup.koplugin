@@ -13,10 +13,6 @@ msgstr "\n\nBonificate %d chiavi hardware per compatibilità dispositivo."
 msgid "%d backups found in this folder"
 msgstr "%d backup trovati in questa cartella"
 
-# en-hash: e03f74ce0bdcf1ac3325ee7cf2cc5e5e
-msgid "(No subfolders)"
-msgstr "(Nessuna sottocartella)"
-
 # en-hash: 4bc56877a98a3b5f59735f579cf735a6
 msgid "+ New"
 msgstr "+ Nuovo"
@@ -249,10 +245,6 @@ msgstr "Nome: %s"
 msgid "New Folder"
 msgstr "Nuova cartella"
 
-# en-hash: 10ac3d04253ef7e1ddc73e6091c0cd55
-msgid "Next"
-msgstr "Avanti"
-
 # en-hash: ff40c126b8b46780477108211fcf70a6
 msgid "No backup files found in:\n%s"
 msgstr "Nessun backup trovato in:\n%s"
@@ -292,10 +284,6 @@ msgstr "Inserisci un codice Beam di 6 cifre."
 # en-hash: 0463c331120b4965a80dfbe694d5b55b
 msgid "Pre-flight check failed: %s"
 msgstr "Controllo preliminare fallito: %s"
-
-# en-hash: dd1f775e443ff3b9a89270713580a51b
-msgid "Previous"
-msgstr "Indietro"
 
 # en-hash: 4fe018c28e35e662f93f36f498cc3e12
 msgid "Reading History & Stats"
@@ -389,10 +377,6 @@ msgstr "Seleziona cartella backup"
 msgid "Select Folder"
 msgstr "Seleziona cartella"
 
-# en-hash: 02f466f9f6c775fa86eb8910f13eb67d
-msgid "Select This Folder"
-msgstr "Seleziona questa cartella"
-
 # en-hash: dcc9b974ef5d851dac22de0e12385955
 msgid "Settings & UI Gestures"
 msgstr "Impostazioni e gesti interfaccia"
@@ -408,6 +392,10 @@ msgstr "Regolazioni stile"
 # en-hash: ee93a26a833941b352c88605dad981d6
 msgid "Successfully reverted to rollback snapshot."
 msgstr "Ripristino dell'istantanea riuscito con successo."
+
+# en-hash: a4553656986f259dd20e32fc7b204b71
+msgid "This backup is %s, which exceeds the 100MB Beam transfer limit.\n\nBeam is designed for fast wireless transfer of settings and plugins. For full backups with reading statistics, dictionaries, or fonts, please transfer via USB or create a lighter backup."
+msgstr "Questo backup è %s, che supera il limite di trasferimento Beam di 100 MB.\n\nBeam è progettato per il trasferimento wireless veloce di impostazioni e plugin. Per backup completi con statistiche di lettura, dizionari o font, trasferire tramite USB o creare un backup più leggero."
 
 # en-hash: c7fcadfb9d8d33e697f394cf22598623
 msgid "Undo Last Restore"
@@ -428,8 +416,4 @@ msgstr "Invio dell'archivio in corso..."
 # en-hash: 86650eb950d0e08a5dd35fbcd4303482
 msgid "User Plugins"
 msgstr "Plugin utente"
-
-# en-hash: 742ff424eccffa81c499d67699805075
-msgid "[Up]  ..  (Parent folder)"
-msgstr "[Su]  ..  (Cartella superiore)"
 

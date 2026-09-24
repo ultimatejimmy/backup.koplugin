@@ -21,7 +21,19 @@ Save your reading settings, custom fonts, plugins, sleep screens, and book progr
 
 ---
 
-## Quick Installation
+## Installation
+
+### Option 1: Via Storefront (Recommended)
+
+If you have [Storefront](https://github.com/ultimatejimmy/storefront.koplugin) installed on your device:
+
+1. Open KOReader → **Tools** → **Storefront**.
+2. In the **Plugins** tab, find **Device Backup & Restore**.
+3. Tap **Install** and restart KOReader when prompted.
+
+---
+
+### Option 2: Manual Installation
 
 1. Download the latest release from the [Releases page](https://github.com/ultimatejimmy/backup.koplugin/releases).
 2. Copy the `backup.koplugin` folder into your KOReader `plugins` directory:

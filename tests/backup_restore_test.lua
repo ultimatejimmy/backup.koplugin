@@ -122,5 +122,56 @@ describe("backup_restore", function()
             local sf = io.open(staging, "r")
             assert.is_nil(sf)
         end)
+
+        it("restores statistics.sqlite3 only when history component is selected", function()
+            local archive_path = backup_dir .. "/history_test_backup.tar"
+            local writer = ArchiverMgr.createWriter(archive_path, "tar")
+
+            writer:addMemory("settings/settings.reader.lua", "return { test = 123 }")
+            writer:addMemory("settings/statistics.sqlite3", "restored_statistics_content")
+            local manifest = Manifest.create{
+                backup_name = "Stats Test Backup",
+                components = {
+                    [Constants.COMPONENTS.SETTINGS] = true,
+                    [Constants.COMPONENTS.HISTORY] = true,
+                },
+            }
+            writer:addMemory(Constants.MANIFEST_FILE_NAME, Manifest.serialize(manifest))
+            writer:close()
+
+            -- Write existing local statistics file
+            local local_stat_file = data_dir .. "/settings/statistics.sqlite3"
+            local f = io.open(local_stat_file, "wb")
+            f:write("original_local_statistics")
+            f:close()
+
+            -- 1. Restore with SETTINGS=true, HISTORY=false: local stats MUST NOT be overwritten
+            local ok1 = RestoreEngine.executeRestore(archive_path, {
+                mode = Sanitizer.MODE_RAW,
+                selected_components = {
+                    [Constants.COMPONENTS.SETTINGS] = true,
+                    [Constants.COMPONENTS.HISTORY] = false,
+                },
+            })
+            assert.is_true(ok1)
+            local rf1 = io.open(local_stat_file, "rb")
+            local content1 = rf1:read("*all")
+            rf1:close()
+            assert.are.equal("original_local_statistics", content1)
+
+            -- 2. Restore with HISTORY=true: local stats MUST be restored
+            local ok2 = RestoreEngine.executeRestore(archive_path, {
+                mode = Sanitizer.MODE_RAW,
+                selected_components = {
+                    [Constants.COMPONENTS.SETTINGS] = false,
+                    [Constants.COMPONENTS.HISTORY] = true,
+                },
+            })
+            assert.is_true(ok2)
+            local rf2 = io.open(local_stat_file, "rb")
+            local content2 = rf2:read("*all")
+            rf2:close()
+            assert.are.equal("restored_statistics_content", content2)
+        end)
     end)
 end)

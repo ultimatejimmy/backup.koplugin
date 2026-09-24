@@ -11,9 +11,6 @@ msgstr "\n\nSanitized %d hardware keys for device compatibility."
 msgid "%d backups found in this folder"
 msgstr "%d backups found in this folder"
 
-msgid "(No subfolders)"
-msgstr "(No subfolders)"
-
 msgid "+ New"
 msgstr "+ New"
 
@@ -188,9 +185,6 @@ msgstr "Name: %s"
 msgid "New Folder"
 msgstr "New Folder"
 
-msgid "Next"
-msgstr "Next"
-
 msgid "No backup files found in:\n%s"
 msgstr "No backup files found in:\n%s"
 
@@ -220,9 +214,6 @@ msgstr "Please enter a 6-digit Beam code."
 
 msgid "Pre-flight check failed: %s"
 msgstr "Pre-flight check failed: %s"
-
-msgid "Previous"
-msgstr "Previous"
 
 msgid "Reading History & Stats"
 msgstr "Reading History & Stats"
@@ -293,9 +284,6 @@ msgstr "Select Backup Folder"
 msgid "Select Folder"
 msgstr "Select Folder"
 
-msgid "Select This Folder"
-msgstr "Select This Folder"
-
 msgid "Settings & UI Gestures"
 msgstr "Settings & UI Gestures"
 
@@ -307,6 +295,9 @@ msgstr "Style Tweaks"
 
 msgid "Successfully reverted to rollback snapshot."
 msgstr "Successfully reverted to rollback snapshot."
+
+msgid "This backup is %s, which exceeds the 100MB Beam transfer limit.\n\nBeam is designed for fast wireless transfer of settings and plugins. For full backups with reading statistics, dictionaries, or fonts, please transfer via USB or create a lighter backup."
+msgstr "This backup is %s, which exceeds the 100MB Beam transfer limit.\n\nBeam is designed for fast wireless transfer of settings and plugins. For full backups with reading statistics, dictionaries, or fonts, please transfer via USB or create a lighter backup."
 
 msgid "Undo Last Restore"
 msgstr "Undo Last Restore"
@@ -322,7 +313,4 @@ msgstr "Uploading backup archive..."
 
 msgid "User Plugins"
 msgstr "User Plugins"
-
-msgid "[Up]  ..  (Parent folder)"
-msgstr "[Up]  ..  (Parent folder)"
 

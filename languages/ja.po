@@ -13,10 +13,6 @@ msgstr "\n\nデバイス互換性のため %d 個のハードウェアキーを�
 msgid "%d backups found in this folder"
 msgstr "このフォルダ内で %d 個のバックアップが見つかりました"
 
-# en-hash: e03f74ce0bdcf1ac3325ee7cf2cc5e5e
-msgid "(No subfolders)"
-msgstr "(サブフォルダなし)"
-
 # en-hash: 4bc56877a98a3b5f59735f579cf735a6
 msgid "+ New"
 msgstr "+ 新規"
@@ -249,10 +245,6 @@ msgstr "名前: %s"
 msgid "New Folder"
 msgstr "新規フォルダ"
 
-# en-hash: 10ac3d04253ef7e1ddc73e6091c0cd55
-msgid "Next"
-msgstr "次へ"
-
 # en-hash: ff40c126b8b46780477108211fcf70a6
 msgid "No backup files found in:\n%s"
 msgstr "次にバックアップファイルが見つかりません:\n%s"
@@ -292,10 +284,6 @@ msgstr "6桁のビームコードを入力してください。"
 # en-hash: 0463c331120b4965a80dfbe694d5b55b
 msgid "Pre-flight check failed: %s"
 msgstr "事前チェック失敗: %s"
-
-# en-hash: dd1f775e443ff3b9a89270713580a51b
-msgid "Previous"
-msgstr "前へ"
 
 # en-hash: 4fe018c28e35e662f93f36f498cc3e12
 msgid "Reading History & Stats"
@@ -389,10 +377,6 @@ msgstr "バックアップフォルダを選択"
 msgid "Select Folder"
 msgstr "フォルダを選択"
 
-# en-hash: 02f466f9f6c775fa86eb8910f13eb67d
-msgid "Select This Folder"
-msgstr "このフォルダを選択"
-
 # en-hash: dcc9b974ef5d851dac22de0e12385955
 msgid "Settings & UI Gestures"
 msgstr "設定と操作ジェスチャー"
@@ -408,6 +392,10 @@ msgstr "スタイル調整"
 # en-hash: ee93a26a833941b352c88605dad981d6
 msgid "Successfully reverted to rollback snapshot."
 msgstr "スナップショットへのロールバックが完了しました。"
+
+# en-hash: a4553656986f259dd20e32fc7b204b71
+msgid "This backup is %s, which exceeds the 100MB Beam transfer limit.\n\nBeam is designed for fast wireless transfer of settings and plugins. For full backups with reading statistics, dictionaries, or fonts, please transfer via USB or create a lighter backup."
+msgstr "このバックアップは %s であり、100MB の Beam 転送制限を超えています。\n\nBeam は、設定やプラグインの高速ワイヤレス転送用に設計されています。読書統計、辞書、フォントを含む完全なバックアップについては、USB 経由で転送するか、より軽量なバックアップを作成してください。"
 
 # en-hash: c7fcadfb9d8d33e697f394cf22598623
 msgid "Undo Last Restore"
@@ -428,8 +416,4 @@ msgstr "アーカイブをアップロード中..."
 # en-hash: 86650eb950d0e08a5dd35fbcd4303482
 msgid "User Plugins"
 msgstr "ユーザープラグイン"
-
-# en-hash: 742ff424eccffa81c499d67699805075
-msgid "[Up]  ..  (Parent folder)"
-msgstr "[上へ]  ..  (親フォルダ)"
 

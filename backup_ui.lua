@@ -1311,6 +1311,17 @@ function BackupUI.showBeamSendDialog(filepath, on_finish_cb)
             file_size = lfs.attributes(filepath, "size") or 0
         end
 
+        local max_beam_size = 100 * 1024 * 1024 -- 100MB Cloudflare relay limit
+        if file_size > max_beam_size then
+            local size_str = Retention.formatSize(file_size)
+            UIManager:show(InfoMessage:new{
+                text = string.format(_("This backup is %s, which exceeds the 100MB Beam transfer limit.\n\nBeam is designed for fast wireless transfer of settings and plugins. For full backups with reading statistics, dictionaries, or fonts, please transfer via USB or create a lighter backup."), size_str),
+                timeout = 8,
+            })
+            if on_finish_cb then UIManager:nextTick(on_finish_cb) end
+            return
+        end
+
         local pbar = nil
         if ok_pbd and ProgressbarDialog then
             pbar = ProgressbarDialog:new{

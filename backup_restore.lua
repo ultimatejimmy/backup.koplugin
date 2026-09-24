@@ -58,7 +58,10 @@ function RestoreEngine.removeDir(dir_path)
 end
 
 --- Recursively copies all files from src_dir to dest_dir.
-function RestoreEngine.copyDir(src_dir, dest_dir)
+-- @param src_dir string
+-- @param dest_dir string
+-- @param exclude_filter function(filename)|string: optional filter function or lua pattern to skip matching filenames
+function RestoreEngine.copyDir(src_dir, dest_dir, exclude_filter)
     if not lfs or not lfs.attributes or lfs.attributes(src_dir, "mode") ~= "directory" then
         return false, string.format(_("Source directory does not exist: %s"), tostring(src_dir))
     end
@@ -68,21 +71,30 @@ function RestoreEngine.copyDir(src_dir, dest_dir)
 
     for item in lfs.dir(src_dir) do
         if item ~= "." and item ~= ".." then
-            local src_item = src_dir .. "/" .. item
-            local dest_item = dest_dir .. "/" .. item
-            local mode = lfs.attributes(src_item, "mode")
+            local skip = false
+            if type(exclude_filter) == "function" then
+                skip = exclude_filter(item)
+            elseif type(exclude_filter) == "string" then
+                skip = item:match(exclude_filter)
+            end
 
-            if mode == "directory" then
-                RestoreEngine.copyDir(src_item, dest_item)
-            elseif mode == "file" then
-                local sf = io.open(src_item, "rb")
-                if sf then
-                    local content = sf:read("*all")
-                    sf:close()
-                    local df = io.open(dest_item, "wb")
-                    if df then
-                        df:write(content)
-                        df:close()
+            if not skip then
+                local src_item = src_dir .. "/" .. item
+                local dest_item = dest_dir .. "/" .. item
+                local mode = lfs.attributes(src_item, "mode")
+
+                if mode == "directory" then
+                    RestoreEngine.copyDir(src_item, dest_item, exclude_filter)
+                elseif mode == "file" then
+                    local sf = io.open(src_item, "rb")
+                    if sf then
+                        local content = sf:read("*all")
+                        sf:close()
+                        local df = io.open(dest_item, "wb")
+                        if df then
+                            df:write(content)
+                            df:close()
+                        end
                     end
                 end
             end
@@ -273,10 +285,16 @@ function RestoreEngine.executeRestore(archive_path, options)
             end
         end
 
-        -- Process plugin-specific settings directory
+        -- Process plugin-specific settings directory (excluding stats databases if HISTORY not selected)
         local staged_settings_dir = staging_dir .. "/settings"
         if lfs.attributes(staged_settings_dir, "mode") == "directory" then
-            RestoreEngine.copyDir(staged_settings_dir, data_dir .. "/settings")
+            local exclude_fn = nil
+            if not selected_components[Constants.COMPONENTS.HISTORY] then
+                exclude_fn = function(name)
+                    return name:match("^statistics%.sqlite3") or name:match("^vocabulary_builder%.sqlite3")
+                end
+            end
+            RestoreEngine.copyDir(staged_settings_dir, data_dir .. "/settings", exclude_fn)
         end
     end
 
@@ -352,6 +370,26 @@ function RestoreEngine.executeRestore(archive_path, options)
         local staged_history = staging_dir .. "/history"
         if lfs.attributes(staged_history, "mode") == "directory" then
             RestoreEngine.copyDir(staged_history, data_dir .. "/history")
+        end
+        -- Restore modern KOReader statistics and vocabulary databases to settings/
+        local staged_settings_dir = staging_dir .. "/settings"
+        if lfs.attributes(staged_settings_dir, "mode") == "directory" then
+            local target_settings_dir = data_dir .. "/settings"
+            if util and util.makePath then util.makePath(target_settings_dir) end
+            for item in lfs.dir(staged_settings_dir) do
+                if item:match("^statistics%.sqlite3") or item:match("^vocabulary_builder%.sqlite3") then
+                    local sf = io.open(staged_settings_dir .. "/" .. item, "rb")
+                    if sf then
+                        local content = sf:read("*all")
+                        sf:close()
+                        local df = io.open(target_settings_dir .. "/" .. item, "wb")
+                        if df then
+                            df:write(content)
+                            df:close()
+                        end
+                    end
+                end
+            end
         end
     end
 

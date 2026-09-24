@@ -120,8 +120,9 @@ end
 -- @param base_dir string: root on disk
 -- @param entry_prefix string: prefix in archive
 -- @param is_plugins_dir boolean: if true, skips core KOReader plugins
+-- @param is_settings_dir boolean: if true, skips statistics and vocabulary databases
 -- @return table: array of { disk_path = "...", archive_path = "..." }
-function ArchiverMgr.scanDirectory(base_dir, entry_prefix, is_plugins_dir)
+function ArchiverMgr.scanDirectory(base_dir, entry_prefix, is_plugins_dir, is_settings_dir)
     local files = {}
     if not lfs or not lfs.attributes then return files end
     if lfs.attributes(base_dir, "mode") ~= "directory" then return files end
@@ -146,10 +147,16 @@ function ArchiverMgr.scanDirectory(base_dir, entry_prefix, is_plugins_dir)
                         recurse(full, rel)
                     end
                 elseif mode == "file" then
-                    table.insert(files, {
-                        disk_path = full,
-                        archive_path = (entry_prefix ~= "") and (entry_prefix .. "/" .. rel) or rel,
-                    })
+                    local skip = false
+                    if is_settings_dir and (item:match("^statistics%.sqlite3") or item:match("^vocabulary_builder%.sqlite3")) then
+                        skip = true
+                    end
+                    if not skip then
+                        table.insert(files, {
+                            disk_path = full,
+                            archive_path = (entry_prefix ~= "") and (entry_prefix .. "/" .. rel) or rel,
+                        })
+                    end
                 end
             end
         end
@@ -170,6 +177,9 @@ function ArchiverMgr.createWriter(filepath, format)
         local writer = Archiver.Writer:new()
         local ok, err = writer:open(filepath, format)
         if ok then
+            if (format == "zip" or format:match("%.zip$") or filepath:match("%.zip$")) and type(writer.setZipCompression) == "function" then
+                writer:setZipCompression("deflate")
+            end
             return {
                 native = true,
                 writer = writer,
@@ -267,7 +277,7 @@ function ArchiverMgr.createBackup(options)
             end
         end
 
-        -- 1. Settings
+        -- 1. Settings (Configuration and UI Gestures, excluding large databases)
         if components[Constants.COMPONENTS.SETTINGS] then
             local s_file = data_dir .. "/settings.reader.lua"
             if lfs and lfs.attributes and lfs.attributes(s_file, "mode") == "file" then
@@ -277,7 +287,7 @@ function ArchiverMgr.createBackup(options)
             end
             local s_dir = data_dir .. "/settings"
             if lfs and lfs.attributes and lfs.attributes(s_dir, "mode") == "directory" then
-                addFileList(ArchiverMgr.scanDirectory(s_dir, "settings", false))
+                addFileList(ArchiverMgr.scanDirectory(s_dir, "settings", false, true))
             end
         end
 
@@ -355,11 +365,28 @@ function ArchiverMgr.createBackup(options)
             end
         end
 
-        -- 8. History
+        -- 8. History (Reading History & Stats)
         if components[Constants.COMPONENTS.HISTORY] then
             local h_dir = data_dir .. "/history"
             if lfs and lfs.attributes and lfs.attributes(h_dir, "mode") == "directory" then
                 addFileList(ArchiverMgr.scanDirectory(h_dir, "history", false))
+            end
+            -- Modern KOReader statistics and vocabulary databases are stored in settings/
+            local s_dir = data_dir .. "/settings"
+            if lfs and lfs.attributes and lfs.attributes(s_dir, "mode") == "directory" then
+                for item in lfs.dir(s_dir) do
+                    if item:match("^statistics%.sqlite3") or item:match("^vocabulary_builder%.sqlite3") then
+                        local full_path = s_dir .. "/" .. item
+                        if lfs.attributes(full_path, "mode") == "file" then
+                            if writer:addDisk("settings/" .. item, full_path) then
+                                total_files_added = total_files_added + 1
+                                if on_progress then
+                                    on_progress(total_files_added, "settings/" .. item)
+                                end
+                            end
+                        end
+                    end
+                end
             end
         end
 
