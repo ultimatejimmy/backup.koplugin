@@ -31,12 +31,12 @@ jobs:
           zip -r ../backup.koplugin.zip backup.koplugin
           cd ..
 
-      - name: Create Release
+      - name: Create Draft Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
           files: backup.koplugin.zip
-          draft: false
+          draft: true
           prerelease: ${{ contains(github.ref_name, '-beta') }}
           generate_release_notes: true
         env:
