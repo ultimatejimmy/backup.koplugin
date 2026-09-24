@@ -1,79 +1,53 @@
-# backup.koplugin: KOReader Device Backup & Restore
+# Device Backup & Restore for KOReader
 
-A robust, independent plugin for [KOReader](https://github.com/koreader/koreader) providing full disaster recovery, intelligent cross-device configuration cloning, modular component backup, automatic pre-restore safety rollback snapshots, and native folder browsing.
+![Platform](https://img.shields.io/badge/platform-KOReader-green.svg)
+![License](https://img.shields.io/badge/license-GPL_3.0-yellow.svg)
+![Status](https://img.shields.io/badge/status-active-brightgreen.svg)
 
----
+A simple, reliable backup, restore, and migration plugin for [KOReader](https://github.com/koreader/koreader). 
 
-## Key Features
-
-- **Modular Component Selection**: Choose exactly what to include in each backup:
-  - Core Settings & UI Gestures (`settings.reader.lua` + `settings/`)
-  - User-Installed Plugins (automatically skips KOReader bundled core plugins)
-  - User Patches (`patches/`)
-  - Custom Fonts & Screensavers (`fonts/`, `screensavers/`)
-  - Style Tweaks (`styletweaks/`)
-  - Reading Progress & Book Notes (`docsettings/`, `hashdocsettings/`)
-  - Reading History & Statistics (`history/`)
-  - Dictionaries & OCR Data (`data/dict/`, `data/tessdata/`)
-- **Intelligent Cross-Device Sanitization**:
-  - Automatically compares the archive's origin hardware against the current device.
-  - Strips hardware-tied keys (screen DPI, e-ink dithering/waveforms, frontlight warmth curves, sensor orientations, battery stats) to prevent boot loops and display issues across different device models.
-  - Resets storage paths (`home_dir`, `lastdir`, `download_dir`) to target platform defaults.
-- **Safety Rollback Snapshot & "Undo Last Restore"**:
-  - Automatically creates a safety rollback snapshot (`rollback_before_restore.zip`) before applying any restore.
-  - One-tap "Undo Last Restore" in the menu to revert cleanly if desired.
-- **In-Memory Settings Synchronization**:
-  - Updates `G_reader_settings.data` in memory prior to reboot, preventing KOReader's `Device:exit()` shutdown sequence from overwriting restored settings.
-- **Dual Archival Engine with Fallback**:
-  - Native `.zip` and `.tar.gz` support via KOReader's `ffi/archiver.lua` (`libarchive`).
-  - Zero-dependency pure Lua TAR writer and reader fallback for maximum cross-platform resilience.
-- **Interactive Folder Browser**:
-  - Integrated touch- and keypad-navigable directory picker (adapted from Storefront) with parent traversal, breadcrumbs, and new folder creation.
-- **Rolling Retention Pruning**:
-  - Automatically retains the newest $N$ backups (default: 5), protecting storage space while never deleting safety rollback snapshots.
+Save your reading settings, custom fonts, plugins, sleep screens, and book progress in one tap—or beam your entire setup wirelessly to another e-reader using a quick 6-character code.
 
 ---
 
-## Installation
+## Key Highlights
 
-1. Copy the `backup.koplugin` folder to your KOReader plugins directory:
-   - **Kobo**: `/mnt/onboard/.koreader/plugins/backup.koplugin`
-   - **Kindle**: `/mnt/us/koreader/plugins/backup.koplugin`
-   - **Android**: `/sdcard/koreader/plugins/backup.koplugin`
-   - **Linux / Desktop**: `~/.config/koreader/plugins/backup.koplugin`
-2. Restart KOReader.
-3. Access **Device Backup & Restore** from the Tools (wrench icon) menu in either File Manager or Reader view.
-
----
-
-## Archive Structure
-
-Each backup archive contains a self-describing `manifest.json`:
-
-```text
-backup_2026-09-15_163000.zip
-├── manifest.json
-├── settings/
-│   ├── settings.reader.lua
-│   └── (plugin settings)
-├── plugins/
-│   └── (user plugins only)
-├── patches/
-├── fonts/
-├── screensavers/
-└── styletweaks/
-```
+- **Pick What to Save**: Choose exactly what to include in your backup—reading settings, user plugins, custom fonts, screensavers, style tweaks, or reading history.
+- **Safe Device Switching**: Moving from Kindle to Kobo, or Android to an e-ink reader? The plugin automatically adapts screen and hardware settings so your new device starts up cleanly without display glitches.
+- **Wireless Device Beaming**: Transfer backups directly between e-readers without cables or a computer. Just generate a 6-character code on one device and enter it on the other.
+- **One-Tap Undo Safety Net**: A safety rollback snapshot is automatically created before any restore, so you can revert back anytime if you ever change your mind.
+- **Built-in Folder Picker**: Easily browse your device's storage and pick your favorite folder for backups.
+- **Automatic Multi-Language Support**: Fully translated into 18 languages, automatically matching your KOReader language.
 
 ---
 
-## Running Tests
+## Quick Installation
 
-Automated unit tests use [Busted](https://lunarmodules.github.io/busted/):
+1. Download the latest release from the [Releases page](https://github.com/ultimatejimmy/backup.koplugin/releases).
+2. Copy the `backup.koplugin` folder into your KOReader `plugins` directory:
+   - **Kobo**: `/mnt/onboard/.koreader/plugins/`
+   - **Kindle**: `/mnt/us/koreader/plugins/`
+   - **Android**: `/sdcard/koreader/plugins/`
+   - **Desktop (Linux)**: `~/.config/koreader/plugins/`
+3. Restart KOReader.
+4. Open the plugin from the **Tools** (wrench icon) menu → **Device Backup & Restore**.
 
-```bash
-# On Linux / WSL:
-./run_tests.sh
+---
 
-# On Windows (PowerShell / CMD):
-.\run_tests.bat
-```
+## Documentation & Wiki
+
+For detailed guides and walkthroughs, visit our [Wiki](https://github.com/ultimatejimmy/backup.koplugin/wiki):
+
+- [1. Installation](https://github.com/ultimatejimmy/backup.koplugin/wiki/1.-Installation) — Platform-specific install instructions and requirements.
+- [2. Usage](https://github.com/ultimatejimmy/backup.koplugin/wiki/2.-Usage) — Creating backups, choosing components, and restoring your setup.
+- [3. Management](https://github.com/ultimatejimmy/backup.koplugin/wiki/3.-Management) — Browsing backups, checking contents, and using the Undo safety net.
+- [4. Language Support](https://github.com/ultimatejimmy/backup.koplugin/wiki/4.-Language-Support) — Supported languages and automatic language detection.
+- [5. Troubleshooting](https://github.com/ultimatejimmy/backup.koplugin/wiki/5.-Troubleshooting) — Quick answers to common questions.
+- [6. Settings](https://github.com/ultimatejimmy/backup.koplugin/wiki/6.-Settings) — Customizing backup folders, file formats, and storage limits.
+- [7. Beam Wireless Transfer](https://github.com/ultimatejimmy/backup.koplugin/wiki/7.-Beam-Transfer) — Beaming backups between e-readers wirelessly.
+
+---
+
+## Feedback & Issues
+
+Have a question, suggestion, or bug report? Feel free to open an issue on the [GitHub Issue Tracker](https://github.com/ultimatejimmy/backup.koplugin/issues).
