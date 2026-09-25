@@ -126,7 +126,7 @@ describe("backup_archiver", function()
             os.execute("rm -rf " .. data_dir)
         end)
 
-        it("excludes statistics.sqlite3 from settings and routes it to history", function()
+        it("excludes bookinfo_cache.sqlite3 and statistics.sqlite3 from settings", function()
             local lfs = require("libs/libkoreader-lfs")
             local data_dir = "/tmp/test_stats_backup_data"
             os.execute("mkdir -p " .. data_dir .. "/settings")
@@ -136,8 +136,12 @@ describe("backup_archiver", function()
             if stat_f then stat_f:write("fake_statistics_db"); stat_f:close() end
             local vocab_f = io.open(data_dir .. "/settings/vocabulary_builder.sqlite3", "w")
             if vocab_f then vocab_f:write("fake_vocab_db"); vocab_f:close() end
+            local bookinfo_f = io.open(data_dir .. "/settings/bookinfo_cache.sqlite3", "w")
+            if bookinfo_f then bookinfo_f:write("fake_coverbrowser_cache"); bookinfo_f:close() end
+            local bookinfo_wal = io.open(data_dir .. "/settings/bookinfo_cache.sqlite3-wal", "w")
+            if bookinfo_wal then bookinfo_wal:write("fake_wal"); bookinfo_wal:close() end
 
-            -- 1. Backup with only SETTINGS: should NOT include statistics.sqlite3 or vocabulary_builder.sqlite3
+            -- 1. Backup with only SETTINGS: should NOT include any sqlite3 files
             local settings_only_out = "/tmp/test_settings_only.tar"
             local ok1, res1 = ArchiverMgr.createBackup{
                 archive_path = settings_only_out,
@@ -155,8 +159,9 @@ describe("backup_archiver", function()
             assert.is_not_nil(c1:find("settings/settings.reader.lua"))
             assert.is_nil(c1:find("statistics.sqlite3"))
             assert.is_nil(c1:find("vocabulary_builder.sqlite3"))
+            assert.is_nil(c1:find("bookinfo_cache.sqlite3"))
 
-            -- 2. Backup with HISTORY: should include statistics.sqlite3 and vocabulary_builder.sqlite3
+            -- 2. Backup with HISTORY: should include statistics.sqlite3 and vocabulary_builder.sqlite3, but NOT bookinfo_cache
             local history_out = "/tmp/test_history.tar"
             local ok2, res2 = ArchiverMgr.createBackup{
                 archive_path = history_out,
@@ -173,6 +178,7 @@ describe("backup_archiver", function()
 
             assert.is_not_nil(c2:find("settings/statistics.sqlite3"))
             assert.is_not_nil(c2:find("settings/vocabulary_builder.sqlite3"))
+            assert.is_nil(c2:find("bookinfo_cache.sqlite3"))
 
             os.execute("rm -rf " .. data_dir)
         end)

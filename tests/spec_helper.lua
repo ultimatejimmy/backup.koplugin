@@ -67,6 +67,8 @@ package.loaded["device"] = {
     isKobo = function() return true end,
     isKindle = function() return false end,
     isAndroid = function() return false end,
+    isTouchDevice = function() return true end,
+    hasDPad = function() return false end,
     canRestart = function() return true end,
     screen = {
         getWidth = function() return 1072 end,
@@ -138,6 +140,10 @@ package.loaded["ui/gesturerange"] = {
     new = function(self, args) return args or {} end,
 }
 package.loaded["ui/widget/focusmanager"] = {
+    NOT_UNFOCUS = 1,
+    NOT_FOCUS = 2,
+    FOCUS_ONLY_ON_NT = 2,
+    FORCED_FOCUS = 4,
     new = function(self, args)
         local o = args or {}
         setmetatable(o, { __index = self })
@@ -173,6 +179,19 @@ package.loaded["ui/widget/container/inputcontainer"] = {
 package.loaded["ui/widget/container/centercontainer"] = {
     new = function(self, args) return args or {} end,
 }
+package.loaded["ui/widget/container/widgetcontainer"] = {
+    extend = function(self, tbl)
+        local o = tbl or {}
+        setmetatable(o, { __index = self })
+        o.new = function(cls, args)
+            local inst = args or {}
+            setmetatable(inst, { __index = cls })
+            if inst.init then inst:init() end
+            return inst
+        end
+        return o
+    end,
+}
 package.loaded["ui/widget/verticalgroup"] = { new = function(self, args) return args or {} end }
 package.loaded["ui/widget/horizontalgroup"] = { new = function(self, args) return args or {} end }
 package.loaded["ui/widget/verticalspan"] = { new = function(self, args) return args or {} end }
@@ -190,7 +209,39 @@ package.loaded["ui/widget/inputdialog"] = {
         return o
     end,
 }
+package.loaded["ui/widget/buttondialog"] = {
+    new = function(self, args)
+        local o = args or {}
+        o.selected = { x = 1, y = 1 }
+        o.moveFocusTo = function(d, x, y, flags)
+            d.selected.x = x
+            d.selected.y = y
+        end
+        return o
+    end,
+}
+package.loaded["ui/widget/confirmbox"] = {
+    new = function(self, args) return args or {} end,
+}
+package.loaded["ui/widget/checkmark"] = {
+    new = function(self, args) return args or {} end,
+}
+package.loaded["ui/widget/multiinputdialog"] = {
+    new = function(self, args) return args or {} end,
+}
+package.loaded["ui/widget/container/scrollablecontainer"] = {
+    new = function(self, args) return args or {} end,
+}
+package.loaded["ui/widget/spinwidget"] = {
+    new = function(self, args) return args or {} end,
+}
 package.loaded["ui/widget/infomessage"] = {
     new = function(self, args) return args or {} end,
+}
+package.loaded["dispatcher"] = {
+    actions = {},
+    registerAction = function(self, name, action)
+        self.actions[name] = action
+    end,
 }
 

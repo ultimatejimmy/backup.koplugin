@@ -288,11 +288,16 @@ function RestoreEngine.executeRestore(archive_path, options)
         -- Process plugin-specific settings directory (excluding stats databases if HISTORY not selected)
         local staged_settings_dir = staging_dir .. "/settings"
         if lfs.attributes(staged_settings_dir, "mode") == "directory" then
-            local exclude_fn = nil
-            if not selected_components[Constants.COMPONENTS.HISTORY] then
-                exclude_fn = function(name)
-                    return name:match("^statistics%.sqlite3") or name:match("^vocabulary_builder%.sqlite3")
+            local exclude_fn = function(name)
+                if not selected_components[Constants.COMPONENTS.HISTORY] then
+                    if name:match("^statistics%.sqlite3") or name:match("^vocabulary_builder%.sqlite3") then
+                        return true
+                    end
                 end
+                if name:match("^bookinfo_cache%.sqlite3") then
+                    return true
+                end
+                return false
             end
             RestoreEngine.copyDir(staged_settings_dir, data_dir .. "/settings", exclude_fn)
         end

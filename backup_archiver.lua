@@ -148,7 +148,7 @@ function ArchiverMgr.scanDirectory(base_dir, entry_prefix, is_plugins_dir, is_se
                     end
                 elseif mode == "file" then
                     local skip = false
-                    if is_settings_dir and (item:match("^statistics%.sqlite3") or item:match("^vocabulary_builder%.sqlite3")) then
+                    if is_settings_dir and (item:match("%.sqlite3") or item:match("%.db") or item:match("%.sqlite")) then
                         skip = true
                     end
                     if not skip then
@@ -174,11 +174,59 @@ function ArchiverMgr.createWriter(filepath, format)
 
     -- Try native libarchive writer first
     if ok_arch and Archiver and Archiver.Writer then
+        -- In libarchive, zip compression must be set before archive_write_open_filename
+        if (format == "zip" or format:match("zip$") or filepath:match("%.zip$")) and not Archiver.Writer._zip_deflate_patched then
+            Archiver.Writer._zip_deflate_patched = true
+            local orig_open = Archiver.Writer.open
+            local upvalues = {}
+            if type(orig_open) == "function" and debug and debug.getupvalue then
+                local i = 1
+                while true do
+                    local name, val = debug.getupvalue(orig_open, i)
+                    if not name then break end
+                    upvalues[name] = val
+                    i = i + 1
+                end
+            end
+
+            if upvalues.libarchive then
+                Archiver.Writer.open = function(self, fp, fmt)
+                    if not fmt then
+                        fmt = fp:match("[.](tar[.][^.]+)$") or fp:match("[.]([^.]+)$")
+                    end
+                    local is_zip = (fmt == "zip" or (fmt and fmt:match("zip$")) or (fp and fp:match("%.zip$")))
+                    if not is_zip then
+                        return orig_open(self, fp, fmt)
+                    end
+
+                    local libarchive = upvalues.libarchive
+                    local ffi = upvalues.ffi or require("ffi")
+                    self.err = nil
+                    self.archive = ffi.gc(libarchive.archive_write_new(), libarchive.archive_free)
+                    if libarchive.archive_write_set_format_by_name(self.archive, "zip") ~= libarchive.ARCHIVE_OK then
+                        self.err = upvalues.archive_error_string and upvalues.archive_error_string(self.archive) or "failed to set zip format"
+                        self.archive = nil
+                        return
+                    end
+                    if libarchive.archive_write_zip_set_compression_deflate then
+                        pcall(libarchive.archive_write_zip_set_compression_deflate, self.archive)
+                    end
+                    if libarchive.archive_write_open_filename(self.archive, fp) ~= libarchive.ARCHIVE_OK then
+                        self.err = upvalues.archive_error_string and upvalues.archive_error_string(self.archive) or "failed to open archive file"
+                        self.archive = nil
+                        return
+                    end
+                    self.filepath = fp
+                    return true
+                end
+            end
+        end
+
         local writer = Archiver.Writer:new()
         local ok, err = writer:open(filepath, format)
         if ok then
             if (format == "zip" or format:match("%.zip$") or filepath:match("%.zip$")) and type(writer.setZipCompression) == "function" then
-                writer:setZipCompression("deflate")
+                pcall(writer.setZipCompression, writer, "deflate")
             end
             return {
                 native = true,

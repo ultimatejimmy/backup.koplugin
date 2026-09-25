@@ -173,5 +173,38 @@ describe("backup_restore", function()
             rf2:close()
             assert.are.equal("restored_statistics_content", content2)
         end)
+
+        it("never overwrites local bookinfo_cache.sqlite3 during restore", function()
+            local archive_path = backup_dir .. "/cache_test_backup.tar"
+            local writer = ArchiverMgr.createWriter(archive_path, "tar")
+
+            writer:addMemory("settings/settings.reader.lua", "return { test = 123 }")
+            writer:addMemory("settings/bookinfo_cache.sqlite3", "stale_archive_cache")
+            local manifest = Manifest.create{
+                backup_name = "Cache Test Backup",
+                components = {
+                    [Constants.COMPONENTS.SETTINGS] = true,
+                },
+            }
+            writer:addMemory(Constants.MANIFEST_FILE_NAME, Manifest.serialize(manifest))
+            writer:close()
+
+            local local_cache_file = data_dir .. "/settings/bookinfo_cache.sqlite3"
+            local f = io.open(local_cache_file, "wb")
+            f:write("local_live_cache")
+            f:close()
+
+            local ok = RestoreEngine.executeRestore(archive_path, {
+                mode = Sanitizer.MODE_RAW,
+                selected_components = {
+                    [Constants.COMPONENTS.SETTINGS] = true,
+                },
+            })
+            assert.is_true(ok)
+            local rf = io.open(local_cache_file, "rb")
+            local content = rf:read("*all")
+            rf:close()
+            assert.are.equal("local_live_cache", content)
+        end)
     end)
 end)

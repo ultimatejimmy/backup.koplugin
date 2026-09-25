@@ -65,6 +65,85 @@ local function getDataDir()
     return (ok_ds and DataStorage and DataStorage.getDataDir and DataStorage:getDataDir()) or "."
 end
 
+local function isTouchDevice()
+    if Device and type(Device.isTouchDevice) == "function" then
+        return Device:isTouchDevice()
+    elseif Device and Device.isTouchDevice ~= nil then
+        return Device.isTouchDevice == true
+    end
+    return true
+end
+
+--- Helper to manage keyboard/arrow key focus across dialog refreshes.
+-- On touch devices, visual focus (the non-touch selector) should ONLY appear
+-- when keyboard / arrow keys were used to navigate or activate options.
+local function createFocusState()
+    local state = {
+        has_key_focus = not isTouchDevice(),
+        is_key_press = false,
+    }
+
+    function state:wrapDialog(d)
+        if not d then return end
+        local orig_onFocusMove = d.onFocusMove
+        d.onFocusMove = function(self_d, ...)
+            state.has_key_focus = true
+            if orig_onFocusMove then
+                return orig_onFocusMove(self_d, ...)
+            end
+        end
+
+        local orig_onPress = d.onPress
+        d.onPress = function(self_d, ...)
+            state.is_key_press = true
+            local ok, ret
+            if orig_onPress then
+                ok, ret = pcall(orig_onPress, self_d, ...)
+            end
+            state.is_key_press = false
+            if not ok and ret ~= nil then
+                error(ret)
+            end
+            return ret
+        end
+
+        local orig_onHold = d.onHold
+        d.onHold = function(self_d, ...)
+            state.is_key_press = true
+            local ok, ret
+            if orig_onHold then
+                ok, ret = pcall(orig_onHold, self_d, ...)
+            end
+            state.is_key_press = false
+            if not ok and ret ~= nil then
+                error(ret)
+            end
+            return ret
+        end
+    end
+
+    function state:onBeforeRefresh()
+        if isTouchDevice() and not state.is_key_press then
+            state.has_key_focus = false
+        end
+    end
+
+    function state:applyFocus(d, focus_x, focus_y)
+        if not d or not d.moveFocusTo or not focus_x or not focus_y then
+            return
+        end
+        local FORCED_FOCUS = (FocusManager and FocusManager.FORCED_FOCUS) or 4
+        local NOT_FOCUS = (FocusManager and FocusManager.NOT_FOCUS) or 2
+        if state.has_key_focus then
+            d:moveFocusTo(focus_x, focus_y, FORCED_FOCUS)
+        else
+            d:moveFocusTo(focus_x, focus_y, NOT_FOCUS)
+        end
+    end
+
+    return state
+end
+
 local _asset_path_cache = {}
 local function getAssetPath(filename)
     if _asset_path_cache[filename] then
@@ -406,6 +485,7 @@ function BackupUI.showCreateDialog()
         components[k] = v
     end
     local chosen_format = s.default_format or "zip"
+    local focus_state = createFocusState()
 
     local dialog
     local refresh
@@ -464,10 +544,14 @@ function BackupUI.showCreateDialog()
 
     refresh = function(target_x, target_y)
         local focus_x, focus_y
-        if dialog and dialog.selected then
-            focus_x = target_x or dialog.selected.x
-            focus_y = target_y or dialog.selected.y
+        if target_x and target_y then
+            focus_x = target_x
+            focus_y = target_y
+        elseif dialog and dialog.selected then
+            focus_x = dialog.selected.x
+            focus_y = dialog.selected.y
         end
+        focus_state:onBeforeRefresh()
         if dialog then
             local d = dialog
             dialog = nil
@@ -489,6 +573,7 @@ function BackupUI.showCreateDialog()
         local buttons = {}
         for _, spec in ipairs(component_specs) do
             local key = spec.key
+            local row_idx = #buttons + 1
             table.insert(buttons, {
                 {
                     text = spec.label,
@@ -498,17 +583,19 @@ function BackupUI.showCreateDialog()
                     end,
                     callback = function()
                         components[key] = not components[key]
+                        refresh(1, row_idx)
                     end,
                 },
             })
         end
 
+        local select_all_row_idx = #buttons + 1
         table.insert(buttons, {
             {
                 text = _("Select All"),
                 callback = function()
                     for k, _ in pairs(Constants.COMPONENTS) do components[Constants.COMPONENTS[k]] = true end
-                    refresh()
+                    refresh(1, select_all_row_idx)
                 end,
             },
             {
@@ -516,24 +603,25 @@ function BackupUI.showCreateDialog()
                 callback = function()
                     for k, _ in pairs(Constants.COMPONENTS) do components[Constants.COMPONENTS[k]] = false end
                     for k, v in pairs(Constants.DEFAULT_COMPONENT_SELECTION) do components[k] = v end
-                    refresh()
+                    refresh(2, select_all_row_idx)
                 end,
             },
             {
                 text = _("Clear All"),
                 callback = function()
                     for k, _ in pairs(Constants.COMPONENTS) do components[Constants.COMPONENTS[k]] = false end
-                    refresh()
+                    refresh(3, select_all_row_idx)
                 end,
             },
         })
 
+        local format_row_idx = #buttons + 1
         table.insert(buttons, {
             {
                 text = string.format(_("Format: .%s"), chosen_format:upper()),
                 callback = function()
                     chosen_format = (chosen_format == "zip") and "tar.gz" or "zip"
-                    refresh()
+                    refresh(1, format_row_idx)
                 end,
             },
             {
@@ -558,7 +646,7 @@ function BackupUI.showCreateDialog()
                                         UIManager:close(name_dialog)
                                         if new_name and new_name ~= "" then
                                             current_name = new_name:gsub("[/\\?%%*:|\"<>]", "_")
-                                            refresh()
+                                            refresh(2, format_row_idx)
                                         end
                                     end,
                                 },
@@ -590,10 +678,9 @@ function BackupUI.showCreateDialog()
             title = _("Create Backup"),
             buttons = buttons,
         }
+        focus_state:wrapDialog(dialog)
         UIManager:show(dialog)
-        if focus_x and focus_y and dialog.moveFocusTo then
-            dialog:moveFocusTo(focus_x, focus_y, FocusManager.FORCED_FOCUS)
-        end
+        focus_state:applyFocus(dialog, focus_x, focus_y)
     end
 
     refresh()
@@ -734,6 +821,7 @@ function BackupUI.showArchiveDetailSheet(filepath, on_back_cb)
     local clean_slate_toggle = s.clean_slate_restore or false
 
     local dialog
+    local focus_state = createFocusState()
     local refresh
 
     local function dismissDialog()
@@ -790,10 +878,14 @@ function BackupUI.showArchiveDetailSheet(filepath, on_back_cb)
 
     refresh = function(target_x, target_y)
         local focus_x, focus_y
-        if dialog and dialog.selected then
-            focus_x = target_x or dialog.selected.x
-            focus_y = target_y or dialog.selected.y
+        if target_x and target_y then
+            focus_x = target_x
+            focus_y = target_y
+        elseif dialog and dialog.selected then
+            focus_x = dialog.selected.x
+            focus_y = dialog.selected.y
         end
+        focus_state:onBeforeRefresh()
         if dialog then
             local d = dialog
             dialog = nil
@@ -878,10 +970,9 @@ function BackupUI.showArchiveDetailSheet(filepath, on_back_cb)
             title = details_title,
             buttons = buttons,
         }
+        focus_state:wrapDialog(dialog)
         UIManager:show(dialog)
-        if focus_x and focus_y and dialog.moveFocusTo then
-            dialog:moveFocusTo(focus_x, focus_y, FocusManager.FORCED_FOCUS)
-        end
+        focus_state:applyFocus(dialog, focus_x, focus_y)
     end
 
     refresh()
@@ -929,6 +1020,7 @@ function BackupUI.showManageBackupsDialog()
     end
 
     local dialog
+    local focus_state = createFocusState()
     local refresh
 
     local function closeDialog()
@@ -941,10 +1033,14 @@ function BackupUI.showManageBackupsDialog()
 
     refresh = function(target_x, target_y)
         local focus_x, focus_y
-        if dialog and dialog.selected then
-            focus_x = target_x or dialog.selected.x
-            focus_y = target_y or dialog.selected.y
+        if target_x and target_y then
+            focus_x = target_x
+            focus_y = target_y
+        elseif dialog and dialog.selected then
+            focus_x = dialog.selected.x
+            focus_y = dialog.selected.y
         end
+        focus_state:onBeforeRefresh()
         if dialog then
             local d = dialog
             dialog = nil
@@ -1019,10 +1115,9 @@ function BackupUI.showManageBackupsDialog()
             title = _("Manage Backups"),
             buttons = buttons,
         }
+        focus_state:wrapDialog(dialog)
         UIManager:show(dialog)
-        if focus_x and focus_y and dialog.moveFocusTo then
-            dialog:moveFocusTo(focus_x, focus_y, FocusManager.FORCED_FOCUS)
-        end
+        focus_state:applyFocus(dialog, focus_x, focus_y)
     end
 
     refresh()
@@ -1033,9 +1128,10 @@ end
 -- --------------------------------------------------------------------------
 function BackupUI.showSettingsDialog()
     local s = getPluginSettings()
-    local current_dir = getEffectiveBackupDir()
-
     local dialog
+    local focus_state = createFocusState()
+    local refresh
+
     local function closeSettings()
         if dialog then
             local d = dialog
@@ -1044,150 +1140,172 @@ function BackupUI.showSettingsDialog()
         end
     end
 
-    local buttons = {
-        {
-            {
-                text = string.format(_("Backup Folder:\n%s"), current_dir),
-                callback = function()
-                    closeSettings()
-                    FolderPicker.show{
-                        title = _("Select Backup Folder"),
-                        initial_path = current_dir,
-                        on_confirm = function(chosen)
-                            if chosen and chosen ~= "" then
-                                s.custom_backup_dir = chosen
-                                savePluginSettings()
-                            end
-                            UIManager:nextTick(function()
-                                BackupUI.showSettingsDialog()
-                            end)
-                        end,
-                        on_cancel = function()
-                            UIManager:nextTick(function()
-                                BackupUI.showSettingsDialog()
-                            end)
-                        end,
-                    }
-                end,
-            },
-        },
-        {
-            {
-                text = string.format(_("Format: .%s"), (s.default_format or "zip"):upper()),
-                callback = function()
-                    s.default_format = (s.default_format == "zip") and "tar.gz" or "zip"
-                    savePluginSettings()
-                    closeSettings()
-                    BackupUI.showSettingsDialog()
-                end,
-            },
-        },
-        {
-            {
-                text = string.format(_("Retention Limit: Keep newest %d backups"), s.retention_limit or 5),
-                callback = function()
-                    closeSettings()
-                    local spin_dialog
-                    spin_dialog = InputDialog:new{
-                        title = _("Retention Limit"),
-                        description = _("Number of rolling backups to keep (0 = unlimited):"),
-                        input = tostring(s.retention_limit or 5),
-                        buttons = {
-                            {
-                                {
-                                    text = _("Cancel"),
-                                    callback = function()
-                                        UIManager:close(spin_dialog)
-                                        UIManager:nextTick(function()
-                                            BackupUI.showSettingsDialog()
-                                        end)
-                                    end,
-                                },
-                                {
-                                    text = _("Save"),
-                                    is_enter_default = true,
-                                    callback = function()
-                                        local num = tonumber(spin_dialog:getInputText())
-                                        UIManager:close(spin_dialog)
-                                        if num and num >= 0 then
-                                            s.retention_limit = math.floor(num)
-                                            savePluginSettings()
-                                        end
-                                        UIManager:nextTick(function()
-                                            BackupUI.showSettingsDialog()
-                                        end)
-                                    end,
-                                },
-                            },
-                        },
-                    }
-                    UIManager:show(spin_dialog)
-                end,
-            },
-        },
-        {
-            {
-                text = string.format("%s:\n%s", _("Beam Relay Server"), s.beam_relay_url or Constants.BEAM_DEFAULT_RELAY_URL),
-                callback = function()
-                    closeSettings()
-                    local relay_dialog
-                    relay_dialog = InputDialog:new{
-                        title = _("Beam Relay Server"),
-                        description = _("HTTPS address of the ephemeral Beam relay:"),
-                        input = s.beam_relay_url or Constants.BEAM_DEFAULT_RELAY_URL,
-                        buttons = {
-                            {
-                                {
-                                    text = _("Cancel"),
-                                    callback = function()
-                                        UIManager:close(relay_dialog)
-                                        UIManager:nextTick(function() BackupUI.showSettingsDialog() end)
-                                    end,
-                                },
-                                {
-                                    text = _("Reset Default"),
-                                    callback = function()
-                                        s.beam_relay_url = Constants.BEAM_DEFAULT_RELAY_URL
-                                        savePluginSettings()
-                                        UIManager:close(relay_dialog)
-                                        UIManager:nextTick(function() BackupUI.showSettingsDialog() end)
-                                    end,
-                                },
-                                {
-                                    text = _("Save"),
-                                    is_enter_default = true,
-                                    callback = function()
-                                        local url = relay_dialog:getInputText()
-                                        UIManager:close(relay_dialog)
-                                        if url and url ~= "" then
-                                            s.beam_relay_url = url
-                                            savePluginSettings()
-                                        end
-                                        UIManager:nextTick(function() BackupUI.showSettingsDialog() end)
-                                    end,
-                                },
-                            },
-                        },
-                    }
-                    UIManager:show(relay_dialog)
-                end,
-            },
-        },
-        {
-            {
-                text = _("Close"),
-                callback = function()
-                    closeSettings()
-                end,
-            },
-        },
-    }
+    refresh = function(target_x, target_y)
+        local focus_x, focus_y
+        if target_x and target_y then
+            focus_x = target_x
+            focus_y = target_y
+        elseif dialog and dialog.selected then
+            focus_x = dialog.selected.x
+            focus_y = dialog.selected.y
+        end
+        focus_state:onBeforeRefresh()
+        if dialog then
+            local d = dialog
+            dialog = nil
+            UIManager:close(d)
+        end
 
-    dialog = ButtonDialog:new{
-        title = _("Backup & Restore Settings"),
-        buttons = buttons,
-    }
-    UIManager:show(dialog)
+        local current_dir = getEffectiveBackupDir()
+
+        local buttons = {
+            {
+                {
+                    text = string.format(_("Backup Folder:\n%s"), current_dir),
+                    callback = function()
+                        closeSettings()
+                        FolderPicker.show{
+                            title = _("Select Backup Folder"),
+                            initial_path = current_dir,
+                            on_confirm = function(chosen)
+                                if chosen and chosen ~= "" then
+                                    s.custom_backup_dir = chosen
+                                    savePluginSettings()
+                                end
+                                UIManager:nextTick(function()
+                                    refresh(1, 1)
+                                end)
+                            end,
+                            on_cancel = function()
+                                UIManager:nextTick(function()
+                                    refresh(1, 1)
+                                end)
+                            end,
+                        }
+                    end,
+                },
+            },
+            {
+                {
+                    text = string.format(_("Format: .%s"), (s.default_format or "zip"):upper()),
+                    callback = function()
+                        s.default_format = (s.default_format == "zip") and "tar.gz" or "zip"
+                        savePluginSettings()
+                        refresh(1, 2)
+                    end,
+                },
+            },
+            {
+                {
+                    text = string.format(_("Retention Limit: Keep newest %d backups"), s.retention_limit or 5),
+                    callback = function()
+                        closeSettings()
+                        local spin_dialog
+                        spin_dialog = InputDialog:new{
+                            title = _("Retention Limit"),
+                            description = _("Number of rolling backups to keep (0 = unlimited):"),
+                            input = tostring(s.retention_limit or 5),
+                            buttons = {
+                                {
+                                    {
+                                        text = _("Cancel"),
+                                        callback = function()
+                                            UIManager:close(spin_dialog)
+                                            UIManager:nextTick(function()
+                                                refresh(1, 3)
+                                            end)
+                                        end,
+                                    },
+                                    {
+                                        text = _("Save"),
+                                        is_enter_default = true,
+                                        callback = function()
+                                            local num = tonumber(spin_dialog:getInputText())
+                                            UIManager:close(spin_dialog)
+                                            if num and num >= 0 then
+                                                s.retention_limit = math.floor(num)
+                                                savePluginSettings()
+                                            end
+                                            UIManager:nextTick(function()
+                                                refresh(1, 3)
+                                            end)
+                                        end,
+                                    },
+                                },
+                            },
+                        }
+                        UIManager:show(spin_dialog)
+                    end,
+                },
+            },
+            {
+                {
+                    text = string.format("%s:\n%s", _("Beam Relay Server"), s.beam_relay_url or Constants.BEAM_DEFAULT_RELAY_URL),
+                    callback = function()
+                        closeSettings()
+                        local relay_dialog
+                        relay_dialog = InputDialog:new{
+                            title = _("Beam Relay Server"),
+                            description = _("HTTPS address of the ephemeral Beam relay:"),
+                            input = s.beam_relay_url or Constants.BEAM_DEFAULT_RELAY_URL,
+                            buttons = {
+                                {
+                                    {
+                                        text = _("Cancel"),
+                                        callback = function()
+                                            UIManager:close(relay_dialog)
+                                            UIManager:nextTick(function() refresh(1, 4) end)
+                                        end,
+                                    },
+                                    {
+                                        text = _("Reset Default"),
+                                        callback = function()
+                                            s.beam_relay_url = Constants.BEAM_DEFAULT_RELAY_URL
+                                            savePluginSettings()
+                                            UIManager:close(relay_dialog)
+                                            UIManager:nextTick(function() refresh(1, 4) end)
+                                        end,
+                                    },
+                                    {
+                                        text = _("Save"),
+                                        is_enter_default = true,
+                                        callback = function()
+                                            local url = relay_dialog:getInputText()
+                                            UIManager:close(relay_dialog)
+                                            if url and url ~= "" then
+                                                s.beam_relay_url = url
+                                                savePluginSettings()
+                                            end
+                                            UIManager:nextTick(function() refresh(1, 4) end)
+                                        end,
+                                    },
+                                },
+                            },
+                        }
+                        UIManager:show(relay_dialog)
+                    end,
+                },
+            },
+            {
+                {
+                    text = _("Close"),
+                    callback = function()
+                        closeSettings()
+                    end,
+                },
+            },
+        }
+
+        dialog = ButtonDialog:new{
+            title = _("Backup & Restore Settings"),
+            buttons = buttons,
+        }
+        focus_state:wrapDialog(dialog)
+        UIManager:show(dialog)
+        focus_state:applyFocus(dialog, focus_x, focus_y)
+    end
+
+    refresh()
 end
 
 -- --------------------------------------------------------------------------
