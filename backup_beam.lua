@@ -492,6 +492,49 @@ function Beam.upload(filepath, pin, opts, callback)
     end
 end
 
+--- Queries metadata/size for a beam code without downloading the payload.
+function Beam.getInfo(pin, opts, callback)
+    opts = opts or {}
+    local relay_url = opts.relay_url or Constants.BEAM_DEFAULT_RELAY_URL
+    local clean_pin, err = Beam.cleanPin(pin)
+    if not clean_pin then
+        if callback then callback(false, err) end
+        return
+    end
+
+    local token = Beam.deriveToken(clean_pin)
+    if not token then
+        if callback then callback(false, _("Invalid Beam code.")) end
+        return
+    end
+
+    local info_url = string.format("%s/api/beam/info/%s", relay_url:gsub("/+$", ""), token)
+    local r, code, headers, status, resp_body = doHttpRequest{
+        url = info_url,
+        method = "GET",
+        headers = {
+            ["X-Beam-Token"] = token,
+        },
+    }
+
+    if code == 200 then
+        local data = nil
+        if json and json.decode then
+            pcall(function() data = json.decode(resp_body) end)
+        end
+        if data and data.ok and data.size then
+            if callback then callback(true, data) end
+            return
+        end
+    elseif code == 404 then
+        if callback then
+            callback(false, _("Beam code expired or not found. Please verify the 6-digit code on the sending device."))
+        end
+        return
+    end
+    if callback then callback(false, resp_body or "Failed to query relay") end
+end
+
 --- Downloads and decrypts a backup archive with progress reporting.
 function Beam.download(pin, dest_dir, opts, callback)
     opts = opts or {}
@@ -503,6 +546,31 @@ function Beam.download(pin, dest_dir, opts, callback)
     end
 
     local token = Beam.deriveToken(clean_pin)
+    if not token then
+        if callback then callback(false, _("Invalid Beam code.")) end
+        return
+    end
+
+    local total_expected = opts.total_expected or opts.total_size
+
+    -- Query size in advance so progress bar has the exact total byte count
+    if not total_expected and not opts._skip_info then
+        Beam.getInfo(clean_pin, opts, function(ok_info, info_data)
+            if ok_info and type(info_data) == "table" and info_data.size then
+                opts.total_expected = info_data.size
+                if opts.on_total then
+                    opts.on_total(info_data.size)
+                end
+            elseif not ok_info and type(info_data) == "string" and info_data:find("expired or not found") then
+                if callback then callback(false, info_data) end
+                return
+            end
+            opts._skip_info = true
+            Beam.download(clean_pin, dest_dir, opts, callback)
+        end)
+        return
+    end
+
     local download_url = string.format("%s/api/beam/download/%s", relay_url:gsub("/+$", ""), token)
 
     local r, code, headers, status, resp_body = doHttpRequest{
@@ -511,6 +579,7 @@ function Beam.download(pin, dest_dir, opts, callback)
         headers = {
             ["X-Beam-Token"] = token,
         },
+        total_expected = opts.total_expected,
         on_download_progress = opts.on_progress,
     }
 

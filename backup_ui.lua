@@ -1699,27 +1699,63 @@ function BackupUI.showBeamReceiveDialog()
                                 end
                             end
 
+                            local function setPbarSubtitle(text)
+                                if pbar and pbar[1] and pbar[1][1] then
+                                    local vg = pbar[1][1]
+                                    if vg[2] and type(vg[2].setText) == "function" then
+                                        vg[2]:setText(text)
+                                    end
+                                end
+                            end
+
+                            local function setPbarProgress(val, force_redraw)
+                                if not pbar or not pbar.reportProgress then return end
+                                local clamped = math.min(100, math.max(0, math.floor(val or 0)))
+                                pbar.progress_max = 100
+                                pbar:reportProgress(clamped)
+                                if force_redraw and pbar.redrawProgressbar then
+                                    pbar:redrawProgressbar()
+                                end
+                            end
+
                             UIManager:nextTick(function()
                                 local dest_dir = getEffectiveBackupDir()
+                                local highest_pct = 0
                                 local dl_opts = {
                                     relay_url = s.beam_relay_url,
+                                    on_total = function(total)
+                                        if total and total > 0 and util and util.getFriendlySize then
+                                            setPbarSubtitle(string.format(_("Downloading backup archive (%s)..."), util.getFriendlySize(total)))
+                                        end
+                                    end,
                                     on_progress = function(received, total)
-                                        if pbar and pbar.reportProgress then
-                                            if total and total > 0 then
-                                                if pbar.progress_max ~= total then
-                                                    pbar.progress_max = total
-                                                end
-                                                pbar:reportProgress(math.min(received, total))
-                                            else
-                                                if received > pbar.progress_max then
-                                                    pbar.progress_max = received * 2
-                                                end
-                                                pbar:reportProgress(math.min(received, pbar.progress_max))
+                                        if not pbar then return end
+                                        if total and total > 0 then
+                                            local pct = math.min(100, math.max(highest_pct, math.floor((received / total) * 100)))
+                                            highest_pct = pct
+                                            setPbarProgress(pct, false)
+                                            if util and util.getFriendlySize then
+                                                setPbarSubtitle(string.format(_("Downloading: %s / %s (%d%%)"),
+                                                    util.getFriendlySize(received), util.getFriendlySize(total), pct))
+                                            end
+                                        else
+                                            -- Total size unknown fallback: strictly monotonic estimation toward 90%
+                                            local est_pct = math.min(90, math.floor(10 + 80 * (1 - 1 / (1 + received / 2097152))))
+                                            if est_pct > highest_pct then
+                                                highest_pct = est_pct
+                                            end
+                                            setPbarProgress(highest_pct, false)
+                                            if util and util.getFriendlySize then
+                                                setPbarSubtitle(string.format(_("Downloading: %s..."), util.getFriendlySize(received)))
                                             end
                                         end
                                     end,
                                 }
                                 Beam.download(clean_pin, dest_dir, dl_opts, function(ok, target_path, filename)
+                                    if ok then
+                                        setPbarSubtitle(_("Decrypting backup archive..."))
+                                        setPbarProgress(100, true)
+                                    end
                                     closePbar()
                                     if not ok then
                                         UIManager:show(InfoMessage:new{
