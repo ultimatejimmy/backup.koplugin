@@ -3,6 +3,8 @@ spec_helper.lua
 Test harness and environment mocks for backup.koplugin Busted test suite.
 --]]
 
+package.path = package.path .. ";./backup.koplugin/?.lua"
+package.path = package.path .. ";../backup.koplugin/?.lua"
 package.path = package.path .. ";./?.lua"
 package.path = package.path .. ";../?.lua"
 package.path = package.path .. ";/mnt/c/Users/jpautz/squashfs-root/usr/lib/koreader/?.lua"

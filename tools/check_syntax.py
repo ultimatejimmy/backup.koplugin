@@ -28,7 +28,8 @@ def check_syntax(directory):
     return not failed
 
 if __name__ == "__main__":
-    target_dir = sys.argv[1] if len(sys.argv) > 1 else "."
+    default_dir = "backup.koplugin" if os.path.exists("backup.koplugin") else "."
+    target_dir = sys.argv[1] if len(sys.argv) > 1 else default_dir
     if check_syntax(target_dir):
         print(f"ALL FILES IN {target_dir} PASS SYNTAX CHECK")
         sys.exit(0)

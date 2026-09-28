@@ -1,0 +1,7 @@
+name = "nameless-grass-2b44"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+
+[[kv_namespaces]]
+binding = "BEAM_KV"
+id = "9739d0aa11954474876eead17538979d"

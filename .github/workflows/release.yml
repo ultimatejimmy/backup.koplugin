@@ -23,13 +23,9 @@ jobs:
 
       - name: Create Plugin Archive
         run: |
-          mkdir -p dist/backup.koplugin
-          git archive HEAD | tar -x -C dist/backup.koplugin
-          cd dist/backup.koplugin
-          rm -rf tools tests run_tests.* .busted STYLE_GUIDE.md .github .gitignore
-          cd ..
-          zip -r ../backup.koplugin.zip backup.koplugin
-          cd ..
+          # Package the plugin directory into a zip file
+          # Excluding hidden files and git metadata
+          zip -r backup.koplugin.zip backup.koplugin -x "*.git*" "*/.*"
 
       - name: Create Draft Release
         uses: softprops/action-gh-release@v2
