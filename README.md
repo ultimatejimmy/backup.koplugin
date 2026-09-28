@@ -20,32 +20,6 @@ Save your reading settings, custom fonts, plugins, sleep screens, and book progr
 - **Automatic Multi-Language Support**: Fully translated into 18 languages, automatically matching your KOReader language.
 
 ---
-
-## Installation
-
-### Option 1: Via Storefront (Recommended)
-
-If you have [Storefront](https://github.com/ultimatejimmy/storefront.koplugin) installed on your device:
-
-1. Open KOReader → **Tools** → **Storefront**.
-2. In the **Plugins** tab, find **Device Backup & Restore**.
-3. Tap **Install** and restart KOReader when prompted.
-
----
-
-### Option 2: Manual Installation
-
-1. Download the latest release from the [Releases page](https://github.com/ultimatejimmy/backup.koplugin/releases).
-2. Copy the `backup.koplugin` folder into your KOReader `plugins` directory:
-   - **Kobo**: `/mnt/onboard/.koreader/plugins/`
-   - **Kindle**: `/mnt/us/koreader/plugins/`
-   - **Android**: `/sdcard/koreader/plugins/`
-   - **Desktop (Linux)**: `~/.config/koreader/plugins/`
-3. Restart KOReader.
-4. Open the plugin from the **Tools** (wrench icon) menu → **Device Backup & Restore**.
-
----
-
 ## Documentation & Wiki
 
 For detailed guides and walkthroughs, visit our [Wiki](https://github.com/ultimatejimmy/backup.koplugin/wiki):
@@ -58,8 +32,4 @@ For detailed guides and walkthroughs, visit our [Wiki](https://github.com/ultima
 - [6. Settings](https://github.com/ultimatejimmy/backup.koplugin/wiki/6.-Settings) — Customizing backup folders, file formats, and storage limits.
 - [7. Beam Wireless Transfer](https://github.com/ultimatejimmy/backup.koplugin/wiki/7.-Beam-Transfer) — Beaming backups between e-readers wirelessly.
 
----
 
-## Feedback & Issues
-
-Have a question, suggestion, or bug report? Feel free to open an issue on the [GitHub Issue Tracker](https://github.com/ultimatejimmy/backup.koplugin/issues).
