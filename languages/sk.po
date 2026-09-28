@@ -153,6 +153,10 @@ msgstr "Vytvorené '%s'"
 msgid "Creating backup archive...\nPlease wait."
 msgstr "Vytvára sa archív zálohy...\nČakajte prosím."
 
+# en-hash: bada9b5bd8a972e0a071fae33ad10d78
+msgid "Decrypting backup archive..."
+msgstr "Dešifrovanie archívu zálohy..."
+
 # en-hash: f2a6c498fb90ee345d997f888fce3b18
 msgid "Delete"
 msgstr "Odstrániť"
@@ -176,6 +180,18 @@ msgstr "Hotovo"
 # en-hash: 0f71ee70a18dcad9e268820ae88283fc
 msgid "Download failed (HTTP %s): %s"
 msgstr "Sťahovanie zlyhalo (HTTP %s): %s"
+
+# en-hash: 64089d52e6d17e3b80ba6bd80b8bf06c
+msgid "Downloading backup archive (%s)..."
+msgstr "Sťahovanie archívu zálohy (%s)..."
+
+# en-hash: 2648f64cd622baf1e8533966877521b7
+msgid "Downloading: %s / %s (%d%%)"
+msgstr "Sťahovanie: %s / %s (%d%%)"
+
+# en-hash: 289ff661d41024c25647aeb299f0ea76
+msgid "Downloading: %s..."
+msgstr "Sťahovanie: %s..."
 
 # en-hash: f7a124dce93e38381ea3023a4f0aa14e
 msgid "Encrypting backup archive..."
@@ -228,6 +244,10 @@ msgstr "Neplatný formát Beam archívu."
 # en-hash: 59718b661c677a617f68808887db6664
 msgid "Invalid Beam code or corrupted data."
 msgstr "Neplatný Beam kód alebo poškodené dáta."
+
+# en-hash: 21d51ac22bcbdca6db483f5501582b6f
+msgid "Invalid Beam code."
+msgstr "Neplatný kód Beam."
 
 # en-hash: 102800baa7564cf03c0fe98c672f9cbd
 msgid "Invalid filename in Beam payload."

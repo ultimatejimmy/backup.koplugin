@@ -116,6 +116,9 @@ msgstr "Created '%s'"
 msgid "Creating backup archive...\nPlease wait."
 msgstr "Creating backup archive...\nPlease wait."
 
+msgid "Decrypting backup archive..."
+msgstr "Decrypting backup archive..."
+
 msgid "Delete"
 msgstr "Delete"
 
@@ -133,6 +136,15 @@ msgstr "Done"
 
 msgid "Download failed (HTTP %s): %s"
 msgstr "Download failed (HTTP %s): %s"
+
+msgid "Downloading backup archive (%s)..."
+msgstr "Downloading backup archive (%s)..."
+
+msgid "Downloading: %s / %s (%d%%)"
+msgstr "Downloading: %s / %s (%d%%)"
+
+msgid "Downloading: %s..."
+msgstr "Downloading: %s..."
 
 msgid "Encrypting backup archive..."
 msgstr "Encrypting backup archive..."
@@ -172,6 +184,9 @@ msgstr "Invalid Beam archive format."
 
 msgid "Invalid Beam code or corrupted data."
 msgstr "Invalid Beam code or corrupted data."
+
+msgid "Invalid Beam code."
+msgstr "Invalid Beam code."
 
 msgid "Invalid filename in Beam payload."
 msgstr "Invalid filename in Beam payload."
