@@ -19,9 +19,11 @@ foreach ($item in $EnvList) {
     }
 }
 
-# Determine plugin directory (whether run from repo root or inside backup.koplugin)
-if (Test-Path "backup.koplugin") {
+# Determine plugin directory (whether run from repo root or tools/)
+if (Test-Path "backup.koplugin/_meta.lua") {
     $PluginDir = "backup.koplugin"
+} elseif (Test-Path "../backup.koplugin/_meta.lua") {
+    $PluginDir = "../backup.koplugin"
 } elseif (Test-Path "_meta.lua") {
     $PluginDir = "."
 } else {
@@ -88,13 +90,17 @@ function Run-Workflow {
     }
     Write-Host " PASSED" -ForegroundColor Green
 
-    # Convert PluginDir to WSL path for testing and syncing
+    # Resolve repository root and plugin directory in WSL
+    $RepoRoot = if (Test-Path "tests") { "." } elseif (Test-Path "../tests") { ".." } else { "." }
+    $winRepoPath = (Get-Item $RepoRoot).FullName -replace '\\', '/'
+    $WslRepoDir = (wsl wslpath -u $winRepoPath).Trim()
+
     $winPluginPath = (Get-Item $PluginDir).FullName -replace '\\', '/'
     $WslPluginDir = (wsl wslpath -u $winPluginPath).Trim()
 
     # 2. Unit Tests
     Write-Host "Running unit tests (Busted in WSL)..."
-    wsl bash -c "cd '$WslPluginDir' && busted tests -p _test"
+    wsl bash -c "cd '$WslRepoDir' && ./tests/run_tests.sh"
     if ($LASTEXITCODE -ne 0) {
         Write-Host "Tests FAILED. Aborting sync." -ForegroundColor Red
         return $false
