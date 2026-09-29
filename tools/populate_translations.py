@@ -60,6 +60,8 @@ ADDITIONAL_KEYS = {
         'Restore failed: %s': 'فشلت الاستعادة: %s',
         'Undo failed: %s': 'فشل التراجع: %s',
         '%d backups found in this folder': 'تم العثور على %d نسخة احتياطية في هذا المجلد',
+        'Books Folder:\n%s': 'مجلد الكتب:\n%s',
+        'Select Books Folder': 'حدد مجلد الكتب',
     },
     'de': {
         'Beam Relay Server': 'Beam-Relay-Server',
@@ -68,6 +70,8 @@ ADDITIONAL_KEYS = {
         'Restore failed: %s': 'Wiederherstellung fehlgeschlagen: %s',
         'Undo failed: %s': 'Rückgängigmachen fehlgeschlagen: %s',
         '%d backups found in this folder': '%d Sicherungen in diesem Ordner gefunden',
+        'Books Folder:\n%s': 'Bücherordner:\n%s',
+        'Select Books Folder': 'Bücherordner auswählen',
     },
     'es': {
         'Beam Relay Server': 'Servidor de retransmisión Beam',
@@ -76,6 +80,8 @@ ADDITIONAL_KEYS = {
         'Restore failed: %s': 'Error al restaurar: %s',
         'Undo failed: %s': 'Error al deshacer: %s',
         '%d backups found in this folder': 'Se encontraron %d copias de seguridad en esta carpeta',
+        'Books Folder:\n%s': 'Carpeta de libros:\n%s',
+        'Select Books Folder': 'Seleccionar carpeta de libros',
     },
     'fr': {
         'Beam Relay Server': 'Serveur relais Beam',
@@ -84,6 +90,8 @@ ADDITIONAL_KEYS = {
         'Restore failed: %s': 'Échec de la restauration : %s',
         'Undo failed: %s': "Échec de l'annulation : %s",
         '%d backups found in this folder': '%d sauvegardes trouvées dans ce dossier',
+        'Books Folder:\n%s': 'Dossier des livres :\n%s',
+        'Select Books Folder': 'Sélectionner le dossier des livres',
     },
     'hu': {
         'Beam Relay Server': 'Beam továbbító szerver',
@@ -92,6 +100,8 @@ ADDITIONAL_KEYS = {
         'Restore failed: %s': 'A visszaállítás sikertelen: %s',
         'Undo failed: %s': 'A visszavonás sikertelen: %s',
         '%d backups found in this folder': '%d biztonsági mentés található ebben a mappában',
+        'Books Folder:\n%s': 'Könyvek mappája:\n%s',
+        'Select Books Folder': 'Könyvek mappájának kiválasztása',
     },
     'id': {
         'Beam Relay Server': 'Server Relai Beam',
@@ -100,6 +110,8 @@ ADDITIONAL_KEYS = {
         'Restore failed: %s': 'Pemulihan gagal: %s',
         'Undo failed: %s': 'Batal gagal: %s',
         '%d backups found in this folder': '%d cadangan ditemukan di folder ini',
+        'Books Folder:\n%s': 'Folder Buku:\n%s',
+        'Select Books Folder': 'Pilih Folder Buku',
     },
     'it': {
         'Beam Relay Server': 'Server relay Beam',
@@ -108,6 +120,8 @@ ADDITIONAL_KEYS = {
         'Restore failed: %s': 'Ripristino non riuscito: %s',
         'Undo failed: %s': 'Annullamento non riuscito: %s',
         '%d backups found in this folder': '%d backup trovati in questa cartella',
+        'Books Folder:\n%s': 'Cartella dei libri:\n%s',
+        'Select Books Folder': 'Seleziona cartella dei libri',
     },
     'ja': {
         'Beam Relay Server': 'Beam リレーサーバー',
@@ -116,6 +130,8 @@ ADDITIONAL_KEYS = {
         'Restore failed: %s': '復元に失敗しました: %s',
         'Undo failed: %s': '元に戻せませんでした: %s',
         '%d backups found in this folder': 'このフォルダ内で %d 個のバックアップが見つかりました',
+        'Books Folder:\n%s': '書籍フォルダ:\n%s',
+        'Select Books Folder': '書籍フォルダを選択',
     },
     'ko': {
         'Beam Relay Server': 'Beam 릴레이 서버',
@@ -124,6 +140,8 @@ ADDITIONAL_KEYS = {
         'Restore failed: %s': '복원 실패: %s',
         'Undo failed: %s': '실행 취소 실패: %s',
         '%d backups found in this folder': '이 폴더에서 백업 %d개를 찾았습니다',
+        'Books Folder:\n%s': '도서 폴더:\n%s',
+        'Select Books Folder': '도서 폴더 선택',
     },
     'nl': {
         'Beam Relay Server': 'Beam-relayserver',
@@ -132,6 +150,8 @@ ADDITIONAL_KEYS = {
         'Restore failed: %s': 'Herstellen mislukt: %s',
         'Undo failed: %s': 'Ongedaan maken mislukt: %s',
         '%d backups found in this folder': '%d reservekopieën gevonden in deze map',
+        'Books Folder:\n%s': 'Boekenmap:\n%s',
+        'Select Books Folder': 'Boekenmap selecteren',
     },
     'pl': {
         'Beam Relay Server': 'Serwer przekaźnikowy Beam',
@@ -140,6 +160,8 @@ ADDITIONAL_KEYS = {
         'Restore failed: %s': 'Przywracanie nie powiodło się: %s',
         'Undo failed: %s': 'Cofnięcie nie powiodło się: %s',
         '%d backups found in this folder': 'Znaleziono %d kopii zapasowych w tym folderze',
+        'Books Folder:\n%s': 'Folder książek:\n%s',
+        'Select Books Folder': 'Wybierz folder książek',
     },
     'pt_br': {
         'Beam Relay Server': 'Servidor de retransmissão Beam',
@@ -148,6 +170,8 @@ ADDITIONAL_KEYS = {
         'Restore failed: %s': 'Falha na restauração: %s',
         'Undo failed: %s': 'Falha ao desfazer: %s',
         '%d backups found in this folder': '%d backups encontrados nesta pasta',
+        'Books Folder:\n%s': 'Pasta de livros:\n%s',
+        'Select Books Folder': 'Selecionar pasta de livros',
     },
     'ru': {
         'Beam Relay Server': 'Сервер ретрансляции Beam',
@@ -156,6 +180,8 @@ ADDITIONAL_KEYS = {
         'Restore failed: %s': 'Сбой восстановления: %s',
         'Undo failed: %s': 'Сбой отмены: %s',
         '%d backups found in this folder': 'В этой папке найдено резервных копий: %d',
+        'Books Folder:\n%s': 'Папка книг:\n%s',
+        'Select Books Folder': 'Выбрать папку с книгами',
     },
     'sk': {
         'Beam Relay Server': 'Relay server Beam',
@@ -164,6 +190,8 @@ ADDITIONAL_KEYS = {
         'Restore failed: %s': 'Obnovenie zlyhalo: %s',
         'Undo failed: %s': 'Vrátenie späť zlyhalo: %s',
         '%d backups found in this folder': '%d záloh v tomto priečinku',
+        'Books Folder:\n%s': 'Priečinok kníh:\n%s',
+        'Select Books Folder': 'Vybrať priečinok kníh',
     },
     'sr': {
         'Beam Relay Server': 'Beam релејни сервер',
@@ -172,6 +200,8 @@ ADDITIONAL_KEYS = {
         'Restore failed: %s': 'Враћање није успело: %s',
         'Undo failed: %s': 'Опозивање није успело: %s',
         '%d backups found in this folder': 'Пронађено је %d резервних копија у овој фасцикли',
+        'Books Folder:\n%s': 'Фасцикла са књигама:\n%s',
+        'Select Books Folder': 'Изаберите фасциклу са књигама',
     },
     'tr': {
         'Beam Relay Server': 'Beam Aktarım Sunucusu',
@@ -180,6 +210,8 @@ ADDITIONAL_KEYS = {
         'Restore failed: %s': 'Geri yükleme başarısız: %s',
         'Undo failed: %s': 'Geri alma başarısız: %s',
         '%d backups found in this folder': 'Bu klasörde %d yedek bulundu',
+        'Books Folder:\n%s': 'Kitaplar Klasörü:\n%s',
+        'Select Books Folder': 'Kitaplar Klasörünü Seç',
     },
     'uk': {
         'Beam Relay Server': 'Сервер ретрансляції Beam',
@@ -188,6 +220,8 @@ ADDITIONAL_KEYS = {
         'Restore failed: %s': 'Помилка відновлення: %s',
         'Undo failed: %s': 'Помилка скасування: %s',
         '%d backups found in this folder': 'У цій папці знайдено %d резервних копій',
+        'Books Folder:\n%s': 'Папка книг:\n%s',
+        'Select Books Folder': 'Вибрати папку з книгами',
     },
     'zh_CN': {
         'Beam Relay Server': 'Beam 中继服务器',
@@ -196,6 +230,8 @@ ADDITIONAL_KEYS = {
         'Restore failed: %s': '恢复失败：%s',
         'Undo failed: %s': '撤消失败：%s',
         '%d backups found in this folder': '在此文件夹中找到 %d 个备份',
+        'Books Folder:\n%s': '书籍文件夹：\n%s',
+        'Select Books Folder': '选择书籍文件夹',
     },
 }
 

@@ -25,6 +25,10 @@ msgstr ".. (Folder Induk)"
 msgid "Archive: %s"
 msgstr "Arsip: %s"
 
+# en-hash: f4f8e689039140fb860c618a6eacb8ee
+msgid "Archiving (%d/%d - %s):\n%s"
+msgstr "Mengarsipkan (%d/%d - %s):\n%s"
+
 # en-hash: 6eee210465fd5fe3081cbdc035faf4ea
 msgid "Are you sure you want to restore this backup?\n\nAn automatic safety rollback snapshot will be created before any files are updated."
 msgstr "Apakah Anda yakin ingin memulihkan cadangan ini?\n\nTitik pemulihan aman otomatis akan dibuat sebelum file diperbarui."
@@ -44,6 +48,10 @@ msgstr "Nama Cadangan"
 # en-hash: 5e9f37fad626c515ba7b36e74c42e17d
 msgid "Backup created successfully!\n\nFile: %s\nSize: %s\nArchived files: %d"
 msgstr "Cadangan berhasil dibuat!\n\nFile: %s\nUkuran: %s\nFile diarsipkan: %d"
+
+# en-hash: df35262c72a71cb296f0130fe9dc8652
+msgid "Backup creation canceled."
+msgstr "Pembuatan cadangan dibatalkan."
 
 # en-hash: 8c9b5c30039246df4e284265e575ce06
 msgid "Backup received successfully!\n\nFile: %s"
@@ -85,6 +93,10 @@ msgstr "Transfer Beam dibatalkan."
 msgid "Beam upload failed:\n%s"
 msgstr "Unggah Beam gagal:\n%s"
 
+# en-hash: 7111d6b15f836624b077a3dcdd7087bf
+msgid "Books Folder:\n%s"
+msgstr "Folder Buku:\n%s"
+
 # en-hash: 12d72fb625ec7cee14aac12f2392eee1
 msgid "Browse Folder"
 msgstr "Jelajahi Folder"
@@ -116,6 +128,10 @@ msgstr "Menghubungkan dan mengunduh arsip cadangan..."
 # en-hash: 1f84a8ea2266a66e6be5f03f9b78e800
 msgid "Connecting to Beam relay..."
 msgstr "Menghubungkan ke relai Beam..."
+
+# en-hash: 4046ca4eac71fd660ff5daa4372066e7
+msgid "Corrupted filename in Beam payload."
+msgstr "Nama file rusak dalam payload Beam."
 
 # en-hash: a71b94dc9954c63441159856938be723
 msgid "Corrupted or empty Beam payload."
@@ -149,6 +165,10 @@ msgstr "Buat, kelola, dan pulihkan cadangan modular KOReader dengan penyesuaian 
 msgid "Created '%s'"
 msgstr "Berhasil membuat '%s'"
 
+# en-hash: 19e21238e20af336ede460df8cf776a6
+msgid "Creating Backup Archive"
+msgstr "Membuat Arsip Cadangan"
+
 # en-hash: 0d325b507ae70a0aa07aa62c9415cdd4
 msgid "Creating backup archive...\nPlease wait."
 msgstr "Membuat arsip cadangan...\nHarap tunggu."
@@ -173,6 +193,14 @@ msgstr "Cadangan & Pemulihan Perangkat"
 msgid "Dictionaries & OCR Data"
 msgstr "Kamus & Data OCR"
 
+# en-hash: f24351e020bd2306cdc4fc7dc6ad2bd2
+msgid "Disk full or write error writing header: %s"
+msgstr "Disk penuh atau kesalahan tulis saat menulis header: %s"
+
+# en-hash: 022d19f1ccb67394dac32eaaeccacdd6
+msgid "Disk full: only %s of %s encrypted data written to staging file. Free up space on the Kindle and try again."
+msgstr "Disk penuh: hanya %s dari %s data terenkripsi yang ditulis ke file staging. Kosongkan ruang di Kindle dan coba lagi."
+
 # en-hash: f92965e2c8a7afb3c1b9a5c09a263636
 msgid "Done"
 msgstr "Selesai"
@@ -180,6 +208,14 @@ msgstr "Selesai"
 # en-hash: 0f71ee70a18dcad9e268820ae88283fc
 msgid "Download failed (HTTP %s): %s"
 msgstr "Unduhan gagal (HTTP %s): %s"
+
+# en-hash: 91fbf3ba3dc5f69a8dbd6bd4c3a0a67b
+msgid "Download failed (Network error): %s"
+msgstr "Gagal unduh (Kesalahan jaringan): %s"
+
+# en-hash: cd415c49f3c3dcc9db530e8335de52de
+msgid "Download incomplete (%s received out of %s). Network connection may have dropped."
+msgstr "Unduhan tidak lengkap (%s diterima dari %s). Koneksi jaringan mungkin terputus."
 
 # en-hash: 64089d52e6d17e3b80ba6bd80b8bf06c
 msgid "Downloading backup archive (%s)..."
@@ -196,6 +232,10 @@ msgstr "Mengunduh: %s..."
 # en-hash: f7a124dce93e38381ea3023a4f0aa14e
 msgid "Encrypting backup archive..."
 msgstr "Mengenkripsi arsip cadangan..."
+
+# en-hash: 0dd934b741df7596241d8bff533fc1c9
+msgid "Encryption stopped early: read only %s of %s."
+msgstr "Enkripsi berhenti lebih awal: hanya %s dari %s yang dibaca."
 
 # en-hash: dfc7523a11a7e11b2c7f51cfafdf139c
 msgid "Enter custom filename (without extension):"
@@ -220,6 +260,10 @@ msgstr "Gagal membuat folder."
 # en-hash: 689450633204759bf63bdef8d58160bf
 msgid "Failed to inspect archive:\n%s"
 msgstr "Gagal memeriksa arsip:\n%s"
+
+# en-hash: e16cdc3620dbf0875c75e6d305896412
+msgid "Failed to prepare encrypted stream"
+msgstr "Gagal menyiapkan stream terenkripsi"
 
 # en-hash: b0f2b97dc5d2b76b26e040408bb1d8af
 msgid "Folder"
@@ -252,6 +296,10 @@ msgstr "Kode Beam tidak valid."
 # en-hash: 102800baa7564cf03c0fe98c672f9cbd
 msgid "Invalid filename in Beam payload."
 msgstr "Nama file tidak valid dalam muatan Beam."
+
+# en-hash: 81d22541cf9910a2add409abf056027c
+msgid "Invalid filename in backup path."
+msgstr "Nama file tidak valid di jalur cadangan."
 
 # en-hash: e79ab781ed465b50b2570988208270b9
 msgid "Manage Backups"
@@ -304,6 +352,14 @@ msgstr "Harap masukkan 6 digit kode Beam."
 # en-hash: 0463c331120b4965a80dfbe694d5b55b
 msgid "Pre-flight check failed: %s"
 msgstr "Pemeriksaan awal gagal: %s"
+
+# en-hash: 3491fb9f8ed4c3dc8ce721c205bc428c
+msgid "Preparing backup payload..."
+msgstr "Mempersiapkan muatan cadangan..."
+
+# en-hash: f262fae0a2f17e8c1eb4e9eddb0160e4
+msgid "Proceed"
+msgstr "Lanjutkan"
 
 # en-hash: 4fe018c28e35e662f93f36f498cc3e12
 msgid "Reading History & Stats"
@@ -365,6 +421,10 @@ msgstr "Batas Retensi"
 msgid "Retention Limit: Keep newest %d backups"
 msgstr "Batas retensi: Simpan %d cadangan terbaru"
 
+# en-hash: 6327b4e59f58137083214a1fec358855
+msgid "Retry"
+msgstr "Coba lagi"
+
 # en-hash: ed5c2c8b4c48bb6a2b8a8cbbcb6ec4a3
 msgid "Revert to the pre-restore rollback snapshot?\n\nThis will undo the last restore and return your settings and patches to their prior state.\n\nKOReader will restart immediately."
 msgstr "Kembali ke titik pemulihan sebelum pemulihan?\n\nIni akan membatalkan pemulihan terakhir dan mengembalikan pengaturan Anda.\n\nKOReader akan segera dimulai ulang."
@@ -393,6 +453,10 @@ msgstr "Pilih Semua"
 msgid "Select Backup Folder"
 msgstr "Pilih Folder Cadangan"
 
+# en-hash: a7fad80dbd7a0ee23639d348f1dbd4a5
+msgid "Select Books Folder"
+msgstr "Pilih Folder Buku"
+
 # en-hash: deffb03a57b0deaf912f04da4575848f
 msgid "Select Folder"
 msgstr "Pilih Folder"
@@ -417,6 +481,10 @@ msgstr "Berhasil kembali ke titik pemulihan."
 msgid "This backup is %s, which exceeds the 100MB Beam transfer limit.\n\nBeam is designed for fast wireless transfer of settings and plugins. For full backups with reading statistics, dictionaries, or fonts, please transfer via USB or create a lighter backup."
 msgstr "Cadangan ini berukuran %s, yang melebihi batas transfer Beam 100 MB.\n\nBeam dirancang untuk transfer nirkabel cepat pengaturan dan plugin. Untuk cadangan lengkap dengan statistik membaca, kamus, atau font, harap transfer melalui USB atau buat cadangan yang lebih ringan."
 
+# en-hash: 74f11079fa87c6f76b2c6fdaa74aab3f
+msgid "This backup is %s. Large wireless transfers on Kindle can take several minutes.\n\nDo you want to proceed with Beaming?"
+msgstr "Cadangan ini berukuran %s. Transfer nirkabel besar di Kindle dapat memakan waktu beberapa menit.\n\nApakah Anda ingin melanjutkan dengan Beam?"
+
 # en-hash: c7fcadfb9d8d33e697f394cf22598623
 msgid "Undo Last Restore"
 msgstr "Batalkan Pemulihan Terakhir"
@@ -429,9 +497,21 @@ msgstr "Batal gagal: %s"
 msgid "Upload failed (HTTP %s): %s"
 msgstr "Unggahan gagal (HTTP %s): %s"
 
+# en-hash: a581add5493e4acf7fb8739c3b1981bb
+msgid "Upload failed (Network error): %s"
+msgstr "Gagal unggah (Kesalahan jaringan): %s"
+
+# en-hash: 7fe4bdeb8f9a1be31a8886a37b11d32c
+msgid "Upload incomplete: relay received only %s of %s. The wireless connection was cut off."
+msgstr "Unggahan tidak lengkap: relay menerima hanya %s dari %s. Koneksi nirkabel terputus."
+
 # en-hash: 55c11e4b0000b4cf083ae1ff648d5946
 msgid "Uploading backup archive..."
 msgstr "Mengunggah arsip cadangan..."
+
+# en-hash: ea6476a63b0c316c17f39f6ff17267c8
+msgid "Uploading: %s / %s (%d%%)"
+msgstr "Mengunggah: %s / %s (%d%%)"
 
 # en-hash: 86650eb950d0e08a5dd35fbcd4303482
 msgid "User Plugins"

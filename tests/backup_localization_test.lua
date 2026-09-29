@@ -3,15 +3,20 @@ local Localization = require("localization_backup")
 
 describe("localization_backup", function()
     local plugin_dir = "./"
-    local f = io.open("languages/en.po", "r")
-    if not f then
-        f = io.open("backup.koplugin/languages/en.po", "r")
+    local candidates = {
+        "languages/en.po",
+        "backup.koplugin/languages/en.po",
+        "backup.koplugin/backup.koplugin/languages/en.po",
+        "../backup.koplugin/languages/en.po",
+    }
+    for _, c in ipairs(candidates) do
+        local f = io.open(c, "r")
         if f then
-            plugin_dir = "backup.koplugin"
             f:close()
+            plugin_dir = c:gsub("/?languages/en%.po$", "")
+            if plugin_dir == "" then plugin_dir = "./" end
+            break
         end
-    else
-        f:close()
     end
 
     before_each(function()

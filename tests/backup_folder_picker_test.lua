@@ -55,9 +55,12 @@ describe("backup_folder_picker", function()
                     end
                 end,
             }
+            local orig_lfs = package.loaded["libs/libkoreader-lfs"]
             package.loaded["libs/libkoreader-lfs"] = lfs
 
             local subdirs, backup_count = BackupFolderPicker.scanDirectory("/test/backups")
+            package.loaded["libs/libkoreader-lfs"] = orig_lfs
+
             assert.are.same(2, backup_count) -- backup_2026.zip and full_backup.tar.gz
             assert.are.same(2, #subdirs)
             assert.are.same("daily", subdirs[1].name)
@@ -149,6 +152,7 @@ describe("backup_folder_picker", function()
                     end
                 end,
             }
+            local orig_lfs = package.loaded["libs/libkoreader-lfs"]
             package.loaded["libs/libkoreader-lfs"] = lfs
 
             local logger = require("logger")
@@ -168,14 +172,14 @@ describe("backup_folder_picker", function()
             }
 
             logger.err = orig_err
+            package.loaded["libs/libkoreader-lfs"] = orig_lfs
+            UIManager.show = orig_show
             if last_err then
                 error(last_err)
             end
             assert.is_not_nil(shown_widget)
             -- Crucial: covers_fullscreen must NOT be true to prevent dialog overlapping bug
             assert.is_falsy(shown_widget.covers_fullscreen)
-
-            UIManager.show = orig_show
         end)
     end)
 end)

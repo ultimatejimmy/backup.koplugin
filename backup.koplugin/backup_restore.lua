@@ -360,10 +360,34 @@ function RestoreEngine.executeRestore(archive_path, options)
 
     -- 10. Process reading progress & annotations (docsettings)
     if selected_components[Constants.COMPONENTS.DOCSETTINGS] then
+        local target_books_dir = options.books_dir or ArchiverMgr.getEffectiveBooksDir()
+
+        -- 10a. Restore sidecars relative to books_dir
+        local staged_sidecars = staging_dir .. "/" .. Constants.ARCHIVE_SIDECARS_PREFIX
+        if lfs.attributes(staged_sidecars, "mode") == "directory" then
+            RestoreEngine.copyDir(staged_sidecars, target_books_dir)
+        end
+
+        -- 10b. Restore sidecars with absolute paths
+        local staged_abs = staging_dir .. "/" .. Constants.ARCHIVE_SIDECARS_ABS_PREFIX
+        if lfs.attributes(staged_abs, "mode") == "directory" then
+            if mode == Sanitizer.MODE_RAW then
+                RestoreEngine.copyDir(staged_abs, "/")
+            else
+                RestoreEngine.copyDir(staged_abs, target_books_dir)
+            end
+        end
+
+        -- 10c. Restore centralized docsettings (skipping sidecars/sidecars_abs)
         local staged_docsettings = staging_dir .. "/docsettings"
         if lfs.attributes(staged_docsettings, "mode") == "directory" then
-            RestoreEngine.copyDir(staged_docsettings, data_dir .. "/docsettings")
+            local exclude_sidecars = function(name)
+                return name == "sidecars" or name == "sidecars_abs"
+            end
+            RestoreEngine.copyDir(staged_docsettings, data_dir .. "/docsettings", exclude_sidecars)
         end
+
+        -- 10d. Restore hashdocsettings
         local staged_hashdoc = staging_dir .. "/hashdocsettings"
         if lfs.attributes(staged_hashdoc, "mode") == "directory" then
             RestoreEngine.copyDir(staged_hashdoc, data_dir .. "/hashdocsettings")
@@ -372,10 +396,72 @@ function RestoreEngine.executeRestore(archive_path, options)
 
     -- 11. Process reading history & stats
     if selected_components[Constants.COMPONENTS.HISTORY] then
+        local target_books_dir = options.books_dir or ArchiverMgr.getEffectiveBooksDir()
+
+        -- 11a. Restore modern history.lua
+        local staged_hist_path = nil
+        if lfs.attributes(staging_dir .. "/history/history.lua", "mode") == "file" then
+            staged_hist_path = staging_dir .. "/history/history.lua"
+        elseif lfs.attributes(staging_dir .. "/history.lua", "mode") == "file" then
+            staged_hist_path = staging_dir .. "/history.lua"
+        end
+
+        if staged_hist_path then
+            local origin_books = (manifest and manifest.device and manifest.device.books_dir) and manifest.device.books_dir:gsub("[/\\]+$", "")
+            local new_books = target_books_dir:gsub("[/\\]+$", "")
+            local path_translated = false
+
+            if mode ~= Sanitizer.MODE_RAW and origin_books and new_books and origin_books ~= "" and new_books ~= "" and origin_books ~= new_books then
+                local ok_load, hist_tbl = pcall(dofile, staged_hist_path)
+                if ok_load and type(hist_tbl) == "table" then
+                    for _, item in ipairs(hist_tbl) do
+                        if item.file and item.file:sub(1, #origin_books) == origin_books then
+                            item.file = new_books .. item.file:sub(#origin_books + 1)
+                        end
+                    end
+                    local ok_dump, dump = pcall(require, "dump")
+                    local serialized
+                    if ok_dump and dump then
+                        serialized = "return " .. dump(hist_tbl)
+                    else
+                        serialized = "return " .. Sanitizer.dumpSettings(hist_tbl)
+                    end
+                    local hf = io.open(data_dir .. "/history.lua", "wb")
+                    if hf then
+                        hf:write(serialized)
+                        hf:close()
+                        path_translated = true
+                    end
+                end
+            end
+
+            if not path_translated then
+                local sf = io.open(staged_hist_path, "rb")
+                if sf then
+                    local content = sf:read("*all")
+                    sf:close()
+                    local df = io.open(data_dir .. "/history.lua", "wb")
+                    if df then
+                        df:write(content)
+                        df:close()
+                    end
+                end
+            end
+
+            if package.loaded["readhistory"] and type(package.loaded["readhistory"]._read) == "function" then
+                pcall(package.loaded["readhistory"]._read, package.loaded["readhistory"], true)
+            end
+        end
+
+        -- 11b. Legacy history folder (skipping history.lua if inside history/)
         local staged_history = staging_dir .. "/history"
         if lfs.attributes(staged_history, "mode") == "directory" then
-            RestoreEngine.copyDir(staged_history, data_dir .. "/history")
+            local exclude_hist_lua = function(name)
+                return name == "history.lua"
+            end
+            RestoreEngine.copyDir(staged_history, data_dir .. "/history", exclude_hist_lua)
         end
+
         -- Restore modern KOReader statistics and vocabulary databases to settings/
         local staged_settings_dir = staging_dir .. "/settings"
         if lfs.attributes(staged_settings_dir, "mode") == "directory" then

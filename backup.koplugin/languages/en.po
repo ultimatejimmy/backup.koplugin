@@ -20,6 +20,9 @@ msgstr ".. (Parent Folder)"
 msgid "Archive: %s"
 msgstr "Archive: %s"
 
+msgid "Archiving (%d/%d - %s):\n%s"
+msgstr "Archiving (%d/%d - %s):\n%s"
+
 msgid "Are you sure you want to restore this backup?\n\nAn automatic safety rollback snapshot will be created before any files are updated."
 msgstr "Are you sure you want to restore this backup?\n\nAn automatic safety rollback snapshot will be created before any files are updated."
 
@@ -34,6 +37,9 @@ msgstr "Backup Name"
 
 msgid "Backup created successfully!\n\nFile: %s\nSize: %s\nArchived files: %d"
 msgstr "Backup created successfully!\n\nFile: %s\nSize: %s\nArchived files: %d"
+
+msgid "Backup creation canceled."
+msgstr "Backup creation canceled."
 
 msgid "Backup received successfully!\n\nFile: %s"
 msgstr "Backup received successfully!\n\nFile: %s"
@@ -65,6 +71,9 @@ msgstr "Beam transfer canceled."
 msgid "Beam upload failed:\n%s"
 msgstr "Beam upload failed:\n%s"
 
+msgid "Books Folder:\n%s"
+msgstr "Books Folder:\n%s"
+
 msgid "Browse Folder"
 msgstr "Browse Folder"
 
@@ -88,6 +97,9 @@ msgstr "Connecting and downloading backup archive..."
 
 msgid "Connecting to Beam relay..."
 msgstr "Connecting to Beam relay..."
+
+msgid "Corrupted filename in Beam payload."
+msgstr "Corrupted filename in Beam payload."
 
 msgid "Corrupted or empty Beam payload."
 msgstr "Corrupted or empty Beam payload."
@@ -113,6 +125,9 @@ msgstr "Create, manage, and restore modular KOReader backups with intelligent cr
 msgid "Created '%s'"
 msgstr "Created '%s'"
 
+msgid "Creating Backup Archive"
+msgstr "Creating Backup Archive"
+
 msgid "Creating backup archive...\nPlease wait."
 msgstr "Creating backup archive...\nPlease wait."
 
@@ -131,11 +146,23 @@ msgstr "Device Backup & Restore"
 msgid "Dictionaries & OCR Data"
 msgstr "Dictionaries & OCR Data"
 
+msgid "Disk full or write error writing header: %s"
+msgstr "Disk full or write error writing header: %s"
+
+msgid "Disk full: only %s of %s encrypted data written to staging file. Free up space on the Kindle and try again."
+msgstr "Disk full: only %s of %s encrypted data written to staging file. Free up space on the Kindle and try again."
+
 msgid "Done"
 msgstr "Done"
 
 msgid "Download failed (HTTP %s): %s"
 msgstr "Download failed (HTTP %s): %s"
+
+msgid "Download failed (Network error): %s"
+msgstr "Download failed (Network error): %s"
+
+msgid "Download incomplete (%s received out of %s). Network connection may have dropped."
+msgstr "Download incomplete (%s received out of %s). Network connection may have dropped."
 
 msgid "Downloading backup archive (%s)..."
 msgstr "Downloading backup archive (%s)..."
@@ -148,6 +175,9 @@ msgstr "Downloading: %s..."
 
 msgid "Encrypting backup archive..."
 msgstr "Encrypting backup archive..."
+
+msgid "Encryption stopped early: read only %s of %s."
+msgstr "Encryption stopped early: read only %s of %s."
 
 msgid "Enter custom filename (without extension):"
 msgstr "Enter custom filename (without extension):"
@@ -166,6 +196,9 @@ msgstr "Failed to create folder."
 
 msgid "Failed to inspect archive:\n%s"
 msgstr "Failed to inspect archive:\n%s"
+
+msgid "Failed to prepare encrypted stream"
+msgstr "Failed to prepare encrypted stream"
 
 msgid "Folder"
 msgstr "Folder"
@@ -190,6 +223,9 @@ msgstr "Invalid Beam code."
 
 msgid "Invalid filename in Beam payload."
 msgstr "Invalid filename in Beam payload."
+
+msgid "Invalid filename in backup path."
+msgstr "Invalid filename in backup path."
 
 msgid "Manage Backups"
 msgstr "Manage Backups"
@@ -229,6 +265,12 @@ msgstr "Please enter a 6-digit Beam code."
 
 msgid "Pre-flight check failed: %s"
 msgstr "Pre-flight check failed: %s"
+
+msgid "Preparing backup payload..."
+msgstr "Preparing backup payload..."
+
+msgid "Proceed"
+msgstr "Proceed"
 
 msgid "Reading History & Stats"
 msgstr "Reading History & Stats"
@@ -275,6 +317,9 @@ msgstr "Retention Limit"
 msgid "Retention Limit: Keep newest %d backups"
 msgstr "Retention Limit: Keep newest %d backups"
 
+msgid "Retry"
+msgstr "Retry"
+
 msgid "Revert to the pre-restore rollback snapshot?\n\nThis will undo the last restore and return your settings and patches to their prior state.\n\nKOReader will restart immediately."
 msgstr "Revert to the pre-restore rollback snapshot?\n\nThis will undo the last restore and return your settings and patches to their prior state.\n\nKOReader will restart immediately."
 
@@ -296,6 +341,9 @@ msgstr "Select All"
 msgid "Select Backup Folder"
 msgstr "Select Backup Folder"
 
+msgid "Select Books Folder"
+msgstr "Select Books Folder"
+
 msgid "Select Folder"
 msgstr "Select Folder"
 
@@ -314,6 +362,9 @@ msgstr "Successfully reverted to rollback snapshot."
 msgid "This backup is %s, which exceeds the 100MB Beam transfer limit.\n\nBeam is designed for fast wireless transfer of settings and plugins. For full backups with reading statistics, dictionaries, or fonts, please transfer via USB or create a lighter backup."
 msgstr "This backup is %s, which exceeds the 100MB Beam transfer limit.\n\nBeam is designed for fast wireless transfer of settings and plugins. For full backups with reading statistics, dictionaries, or fonts, please transfer via USB or create a lighter backup."
 
+msgid "This backup is %s. Large wireless transfers on Kindle can take several minutes.\n\nDo you want to proceed with Beaming?"
+msgstr "This backup is %s. Large wireless transfers on Kindle can take several minutes.\n\nDo you want to proceed with Beaming?"
+
 msgid "Undo Last Restore"
 msgstr "Undo Last Restore"
 
@@ -323,8 +374,17 @@ msgstr "Undo failed: %s"
 msgid "Upload failed (HTTP %s): %s"
 msgstr "Upload failed (HTTP %s): %s"
 
+msgid "Upload failed (Network error): %s"
+msgstr "Upload failed (Network error): %s"
+
+msgid "Upload incomplete: relay received only %s of %s. The wireless connection was cut off."
+msgstr "Upload incomplete: relay received only %s of %s. The wireless connection was cut off."
+
 msgid "Uploading backup archive..."
 msgstr "Uploading backup archive..."
+
+msgid "Uploading: %s / %s (%d%%)"
+msgstr "Uploading: %s / %s (%d%%)"
 
 msgid "User Plugins"
 msgstr "User Plugins"

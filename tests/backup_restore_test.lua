@@ -206,5 +206,109 @@ describe("backup_restore", function()
             rf:close()
             assert.are.equal("local_live_cache", content)
         end)
+
+        it("restores docsettings/sidecars to target books_dir when DOCSETTINGS is selected", function()
+            local archive_path = backup_dir .. "/docsettings_test_backup.tar"
+            local writer = ArchiverMgr.createWriter(archive_path, "tar")
+
+            local dune_meta = "return { percent_finished = 0.85, bookmark = 55 }"
+            writer:addMemory("settings/settings.reader.lua", "return {}")
+            writer:addMemory("docsettings/sidecars/Books/Fiction/Dune.sdr/metadata.epub.lua", dune_meta)
+            writer:addMemory("history/history.lua", "return { { file = \"/mnt/onboard/Books/Fiction/Dune.epub\", time = 100 } }")
+
+            local manifest = Manifest.create{
+                backup_name = "Docsettings Test Backup",
+                components = {
+                    [Constants.COMPONENTS.DOCSETTINGS] = true,
+                    [Constants.COMPONENTS.HISTORY] = true,
+                },
+                books_dir = "/mnt/onboard",
+            }
+            writer:addMemory(Constants.MANIFEST_FILE_NAME, Manifest.serialize(manifest))
+            writer:close()
+
+            local target_books_dir = test_base .. "/target_books"
+            os.execute("mkdir -p \"" .. target_books_dir .. "\"")
+
+            local ok, msg, details = RestoreEngine.executeRestore(archive_path, {
+                mode = Sanitizer.MODE_RAW,
+                books_dir = target_books_dir,
+                selected_components = {
+                    [Constants.COMPONENTS.DOCSETTINGS] = true,
+                    [Constants.COMPONENTS.HISTORY] = true,
+                },
+            })
+            assert.is_true(ok)
+
+            -- Verify Dune sidecar is restored inside target_books_dir
+            local restored_sdr = target_books_dir .. "/Books/Fiction/Dune.sdr/metadata.epub.lua"
+            local rf = io.open(restored_sdr, "rb")
+            assert.is_not_nil(rf)
+            local content = rf:read("*all")
+            rf:close()
+            assert.are.equal(dune_meta, content)
+
+            -- Verify history.lua is restored in data_dir
+            local hf = io.open(data_dir .. "/history.lua", "rb")
+            assert.is_not_nil(hf)
+            local h_content = hf:read("*all")
+            hf:close()
+            assert.is_not_nil(h_content:find("Dune.epub"))
+
+            os.execute("rm -rf \"" .. target_books_dir .. "\"")
+        end)
+
+        it("translates history.lua paths across devices during sanitized restore", function()
+            local archive_path = backup_dir .. "/cross_device_history.tar"
+            local writer = ArchiverMgr.createWriter(archive_path, "tar")
+
+            local kobo_history = "return { { file = \"/mnt/onboard/Books/SciFi/Hyperion.epub\", time = 500 } }"
+            writer:addMemory("settings/settings.reader.lua", "return {}")
+            writer:addMemory("docsettings/sidecars/Books/SciFi/Hyperion.sdr/metadata.epub.lua", "return { percent_finished = 0.5 }")
+            writer:addMemory("history/history.lua", kobo_history)
+
+            local manifest = Manifest.create{
+                backup_name = "Kobo to Kindle Migration",
+                components = {
+                    [Constants.COMPONENTS.DOCSETTINGS] = true,
+                    [Constants.COMPONENTS.HISTORY] = true,
+                },
+                books_dir = "/mnt/onboard",
+            }
+            manifest.device.model = "Kobo Libra 2"
+            manifest.device.platform = "kobo"
+            manifest.device.books_dir = "/mnt/onboard"
+            writer:addMemory(Constants.MANIFEST_FILE_NAME, Manifest.serialize(manifest))
+            writer:close()
+
+            local kindle_books_dir = test_base .. "/kindle_books"
+            os.execute("mkdir -p \"" .. kindle_books_dir .. "\"")
+
+            local ok, msg, details = RestoreEngine.executeRestore(archive_path, {
+                mode = Sanitizer.MODE_SANITIZED,
+                books_dir = kindle_books_dir,
+                selected_components = {
+                    [Constants.COMPONENTS.DOCSETTINGS] = true,
+                    [Constants.COMPONENTS.HISTORY] = true,
+                },
+            })
+            assert.is_true(ok)
+
+            -- Verify sidecar unpacked under kindle_books_dir
+            local restored_sdr = kindle_books_dir .. "/Books/SciFi/Hyperion.sdr/metadata.epub.lua"
+            local rf = io.open(restored_sdr, "rb")
+            assert.is_not_nil(rf)
+            rf:close()
+
+            -- Verify history.lua had its /mnt/onboard path translated to kindle_books_dir
+            local hf = io.open(data_dir .. "/history.lua", "rb")
+            assert.is_not_nil(hf)
+            local h_content = hf:read("*all")
+            hf:close()
+            assert.is_not_nil(h_content:find(kindle_books_dir .. "/Books/SciFi/Hyperion.epub", 1, true))
+            assert.is_nil(h_content:find("/mnt/onboard/Books"))
+
+            os.execute("rm -rf \"" .. kindle_books_dir .. "\"")
+        end)
     end)
 end)

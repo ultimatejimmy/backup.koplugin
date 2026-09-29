@@ -11,6 +11,10 @@ local _ = Localization:getHelper()
 
 local BackupUI = require("backup_ui")
 local RestoreEngine = require("backup_restore")
+local Beam = require("backup_beam")
+
+-- Rotate beam diagnostics log on startup (keeps last 500 lines)
+pcall(function() Beam.getLogger().rotate(500) end)
 
 local function calculateOptimalPos(order_tools)
     local pos = 2
@@ -138,42 +142,36 @@ function Backup:getSubMenuItems()
     return {
         {
             text = _("Create Backup"),
-            keep_menu_open = true,
             callback = function()
                 BackupUI.showCreateDialog()
             end,
         },
         {
             text = _("Restore Backup"),
-            keep_menu_open = true,
             callback = function()
                 BackupUI.showRestoreDialog()
             end,
         },
         {
             text = _("Beam to Device"),
-            keep_menu_open = true,
             callback = function()
                 BackupUI.showBeamSelectBackupDialog()
             end,
         },
         {
             text = _("Receive via Beam Code"),
-            keep_menu_open = true,
             callback = function()
                 BackupUI.showBeamReceiveDialog()
             end,
         },
         {
             text = _("Manage Backups"),
-            keep_menu_open = true,
             callback = function()
                 BackupUI.showManageBackupsDialog()
             end,
         },
         {
             text = _("Undo Last Restore"),
-            keep_menu_open = true,
             enabled_func = function()
                 return RestoreEngine.hasRollbackSnapshot()
             end,
@@ -183,7 +181,6 @@ function Backup:getSubMenuItems()
         },
         {
             text = _("Backup & Restore Settings"),
-            keep_menu_open = true,
             callback = function()
                 BackupUI.showSettingsDialog()
             end,

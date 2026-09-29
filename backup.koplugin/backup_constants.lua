@@ -144,6 +144,7 @@ Constants.DEFAULT_COMPONENT_SELECTION = {
 Constants.DEFAULT_SETTINGS = {
     default_format = "zip", -- "zip" or "tar.gz"
     custom_backup_dir = nil, -- nil = use <DataStorage:getDataDir()>/backups
+    custom_books_dir = nil, -- nil = use home_dir
     retention_limit = 5, -- number of rolling backups to keep (0 = unlimited)
     clean_slate_restore = false, -- whether to delete unlisted user plugins on restore
     auto_sanitize_cross_device = true, -- auto-detect and sanitize on cross-device restore
@@ -162,5 +163,31 @@ Constants.ROLLBACK_DIR_NAME = "rollback"
 Constants.ROLLBACK_FILE_NAME = "rollback_before_restore"
 Constants.STAGING_DIR_NAME = "backup_staging"
 Constants.MANIFEST_FILE_NAME = "manifest.json"
+Constants.ARCHIVE_SIDECARS_PREFIX = "docsettings/sidecars"
+Constants.ARCHIVE_SIDECARS_ABS_PREFIX = "docsettings/sidecars_abs"
+
+-- Directory names to prune/skip when scanning library folders for .sdr sidecars
+Constants.EXCLUDED_SCAN_DIRS = {
+    [".git"] = true,
+    [".github"] = true,
+    [".koreader"] = true,
+    [".kobo"] = true,
+    [".system"] = true,
+    [".thumbnails"] = true,
+    ["cache"] = true,
+    ["backup_staging"] = true,
+    ["backups"] = true,
+    ["Android"] = true,
+    ["DCIM"] = true,
+    ["Pictures"] = true,
+    ["Music"] = true,
+    ["Movies"] = true,
+    ["Podcasts"] = true,
+    ["Alarms"] = true,
+    ["Ringtones"] = true,
+    ["Notifications"] = true,
+    ["System Volume Information"] = true,
+    ["$RECYCLE.BIN"] = true,
+}
 
 return Constants

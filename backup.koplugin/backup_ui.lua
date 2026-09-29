@@ -490,25 +490,64 @@ function BackupUI.showCreateDialog()
     local dialog
     local refresh
 
-    local function closeDialog()
+    local function closeDialog(skip_dirty)
         if dialog then
             local d = dialog
             dialog = nil
-            UIManager:close(d)
+            UIManager:close(d, "ui")
+            if not skip_dirty then
+                UIManager:setDirty("all", "ui")
+            end
         end
     end
 
     local function startBackupCreation(name_input)
-        closeDialog()
+        closeDialog(true)
         local backup_dir = getEffectiveBackupDir()
         local archive_name = (name_input and name_input ~= "") and name_input or current_name
         local filename = archive_name .. "." .. chosen_format
         local full_archive_path = backup_dir .. "/" .. filename
 
-        local info_msg = InfoMessage:new{
-            text = _("Creating backup archive...\nPlease wait."),
-        }
-        UIManager:show(info_msg)
+        local is_canceled = false
+        local pbar
+        local info_msg
+
+        if ok_pbd and ProgressbarDialog then
+            pbar = ProgressbarDialog:new{
+                title = _("Creating Backup Archive"),
+                subtitle = _("Preparing backup payload..."),
+                progress_max = 100,
+                refresh_time_seconds = 1,
+                dismissable = false,
+                cancel_text = _("Cancel"),
+                cancel_callback = function()
+                    is_canceled = true
+                end,
+            }
+            pbar:show()
+        else
+            info_msg = InfoMessage:new{
+                text = _("Creating backup archive...\nPlease wait."),
+            }
+            UIManager:show(info_msg)
+        end
+
+        local function setPbarProgress(curr_files, total_files, curr_bytes, total_bytes, current_path)
+            if pbar and pbar.reportProgress then
+                local pct = (total_bytes > 0) and math.min(100, math.floor((curr_bytes / total_bytes) * 100)) or 0
+                pbar.progress_max = 100
+                pbar:reportProgress(pct)
+                local file_disp = current_path and current_path:match("([^/\\]+)$") or current_path or ""
+                local info_text = string.format(_("Archiving (%d/%d - %s):\n%s"),
+                    curr_files, math.max(total_files, 1), util.getFriendlySize(curr_bytes), file_disp)
+                if pbar[1] and pbar[1][1] then
+                    local vg = pbar[1][1]
+                    if vg[2] and type(vg[2].setText) == "function" then
+                        vg[2]:setText(info_text)
+                    end
+                end
+            end
+        end
 
         UIManager:nextTick(function()
             local ok, res = ArchiverMgr.createBackup{
@@ -517,27 +556,49 @@ function BackupUI.showCreateDialog()
                 components = components,
                 backup_name = archive_name,
                 data_dir = getDataDir(),
+                books_dir = s.custom_books_dir or ArchiverMgr.getEffectiveBooksDir(),
+                is_canceled = function() return is_canceled end,
+                on_progress = function(curr_files, total_files, curr_bytes, total_bytes, current_path)
+                    setPbarProgress(curr_files, total_files, curr_bytes, total_bytes, current_path)
+                end,
             }
 
-            UIManager:close(info_msg)
+            if pbar then
+                if pbar.close then
+                    pbar:close()
+                else
+                    UIManager:close(pbar, "ui")
+                end
+                pbar = nil
+            elseif info_msg then
+                UIManager:close(info_msg, "ui")
+                info_msg = nil
+            end
+            UIManager:setDirty("all", "ui")
 
-            if ok and type(res) == "table" then
+            local function showResultInfo(text, timeout)
+                UIManager:show(InfoMessage:new{
+                    text = text,
+                    timeout = timeout,
+                    dismiss_callback = function()
+                        UIManager:setDirty("all", "ui")
+                    end,
+                })
+            end
+
+            if is_canceled or (not ok and tostring(res):find("canceled")) then
+                showResultInfo(_("Backup creation canceled."), 3)
+            elseif ok and type(res) == "table" then
                 if s.retention_limit and s.retention_limit > 0 then
                     Retention.prune(backup_dir, s.retention_limit)
                 end
 
                 local sz_str = Retention.formatSize(res.size or 0)
                 local file_count = res.file_count or 0
-                UIManager:show(InfoMessage:new{
-                    text = string.format(_("Backup created successfully!\n\nFile: %s\nSize: %s\nArchived files: %d"),
-                        filename, sz_str, file_count),
-                    timeout = 5,
-                })
+                showResultInfo(string.format(_("Backup created successfully!\n\nFile: %s\nSize: %s\nArchived files: %d"),
+                    filename, sz_str, file_count), 5)
             else
-                UIManager:show(InfoMessage:new{
-                    text = string.format(_("Failed to create backup:\n%s"), tostring(res)),
-                    timeout = 6,
-                })
+                showResultInfo(string.format(_("Failed to create backup:\n%s"), tostring(res)), 6)
             end
         end)
     end
@@ -857,8 +918,10 @@ function BackupUI.showArchiveDetailSheet(filepath, on_back_cb)
                     local ok, msg, details = RestoreEngine.executeRestore(filepath, {
                         mode = mode,
                         clean_slate = clean_slate_toggle,
+                        books_dir = s.custom_books_dir or ArchiverMgr.getEffectiveBooksDir(),
                     })
-                    UIManager:close(info)
+                    UIManager:close(info, "ui")
+                    UIManager:setDirty("all", "ui")
 
                     if ok then
                         local stripped_count = (details and details.stripped_keys and #details.stripped_keys) or 0
@@ -868,7 +931,13 @@ function BackupUI.showArchiveDetailSheet(filepath, on_back_cb)
                         end
                         BackupUI.showRestartConfirmation(_("Backup restored successfully!") .. detail_msg)
                     else
-                        UIManager:show(InfoMessage:new{ text = _("Restore failed: %s", tostring(msg)), timeout = 5 })
+                        UIManager:show(InfoMessage:new{
+                            text = _("Restore failed: %s", tostring(msg)),
+                            timeout = 5,
+                            dismiss_callback = function()
+                                UIManager:setDirty("all", "ui")
+                            end,
+                        })
                     end
                 end)
             end,
@@ -1157,6 +1226,7 @@ function BackupUI.showSettingsDialog()
         end
 
         local current_dir = getEffectiveBackupDir()
+        local current_books_dir = s.custom_books_dir or ArchiverMgr.getEffectiveBooksDir()
 
         local buttons = {
             {
@@ -1187,11 +1257,37 @@ function BackupUI.showSettingsDialog()
             },
             {
                 {
+                    text = string.format(_("Books Folder:\n%s"), current_books_dir),
+                    callback = function()
+                        closeSettings()
+                        FolderPicker.show{
+                            title = _("Select Books Folder"),
+                            initial_path = current_books_dir,
+                            on_confirm = function(chosen)
+                                if chosen and chosen ~= "" then
+                                    s.custom_books_dir = chosen
+                                    savePluginSettings()
+                                end
+                                UIManager:nextTick(function()
+                                    refresh(1, 2)
+                                end)
+                            end,
+                            on_cancel = function()
+                                UIManager:nextTick(function()
+                                    refresh(1, 2)
+                                end)
+                            end,
+                        }
+                    end,
+                },
+            },
+            {
+                {
                     text = string.format(_("Format: .%s"), (s.default_format or "zip"):upper()),
                     callback = function()
                         s.default_format = (s.default_format == "zip") and "tar.gz" or "zip"
                         savePluginSettings()
-                        refresh(1, 2)
+                        refresh(1, 3)
                     end,
                 },
             },
@@ -1212,7 +1308,7 @@ function BackupUI.showSettingsDialog()
                                         callback = function()
                                             UIManager:close(spin_dialog)
                                             UIManager:nextTick(function()
-                                                refresh(1, 3)
+                                                refresh(1, 4)
                                             end)
                                         end,
                                     },
@@ -1227,7 +1323,7 @@ function BackupUI.showSettingsDialog()
                                                 savePluginSettings()
                                             end
                                             UIManager:nextTick(function()
-                                                refresh(1, 3)
+                                                refresh(1, 4)
                                             end)
                                         end,
                                     },
@@ -1254,7 +1350,7 @@ function BackupUI.showSettingsDialog()
                                         text = _("Cancel"),
                                         callback = function()
                                             UIManager:close(relay_dialog)
-                                            UIManager:nextTick(function() refresh(1, 4) end)
+                                            UIManager:nextTick(function() refresh(1, 5) end)
                                         end,
                                     },
                                     {
@@ -1263,7 +1359,7 @@ function BackupUI.showSettingsDialog()
                                             s.beam_relay_url = Constants.BEAM_DEFAULT_RELAY_URL
                                             savePluginSettings()
                                             UIManager:close(relay_dialog)
-                                            UIManager:nextTick(function() refresh(1, 4) end)
+                                            UIManager:nextTick(function() refresh(1, 5) end)
                                         end,
                                     },
                                     {
@@ -1276,7 +1372,7 @@ function BackupUI.showSettingsDialog()
                                                 s.beam_relay_url = url
                                                 savePluginSettings()
                                             end
-                                            UIManager:nextTick(function() refresh(1, 4) end)
+                                            UIManager:nextTick(function() refresh(1, 5) end)
                                         end,
                                     },
                                 },
@@ -1440,31 +1536,33 @@ function BackupUI.showBeamSendDialog(filepath, on_finish_cb)
             return
         end
 
-        local pbar = nil
-        if ok_pbd and ProgressbarDialog then
-            pbar = ProgressbarDialog:new{
-                title = _("Beam to Device"),
-                subtitle = _("Encrypting backup archive..."),
-                progress_max = 100,
-                refresh_time_seconds = 1,
-                dismissable = false,
-            }
-            pbar:show()
-        else
-            pbar = InfoMessage:new{
-                text = _("Encrypting backup archive..."),
-            }
-            UIManager:show(pbar)
-        end
+        local function doStartUpload()
+            local pbar = nil
+            if ok_pbd and ProgressbarDialog then
+                pbar = ProgressbarDialog:new{
+                    title = _("Beam to Device"),
+                    subtitle = _("Encrypting backup archive..."),
+                    progress_max = 100,
+                    refresh_time_seconds = 1,
+                    dismissable = false,
+                }
+                pbar:show()
+            else
+                pbar = InfoMessage:new{
+                    text = _("Encrypting backup archive..."),
+                }
+                UIManager:show(pbar)
+            end
 
         local function closePbar()
             if pbar then
                 if pbar.close then
                     pbar:close()
                 else
-                    UIManager:close(pbar)
+                    UIManager:close(pbar, "ui")
                 end
                 pbar = nil
+                UIManager:setDirty("all", "ui")
             end
         end
 
@@ -1513,7 +1611,12 @@ function BackupUI.showBeamSendDialog(filepath, on_finish_cb)
                         ratio = math.min(1.0, math.max(0.0, ratio))
                         local pct = math.floor(10 + ratio * 75)
                         pct = math.min(85, math.max(10, pct))
-                        setPbarSubtitle(_("Uploading backup archive..."))
+                        if util and util.getFriendlySize and total and total > 0 then
+                            setPbarSubtitle(string.format(_("Uploading: %s / %s (%d%%)"),
+                                util.getFriendlySize(sent), util.getFriendlySize(total), pct))
+                        else
+                            setPbarSubtitle(_("Uploading backup archive..."))
+                        end
                         setPbarProgress(pct, false)
                     end
                 end,
@@ -1521,13 +1624,19 @@ function BackupUI.showBeamSendDialog(filepath, on_finish_cb)
             Beam.upload(filepath, pin, upload_opts, function(ok, res)
                 if not ok then
                     closePbar()
-                    UIManager:show(InfoMessage:new{
+                    UIManager:show(ConfirmBox:new{
                         text = string.format(_("Beam upload failed:\n%s"), tostring(res)),
-                        timeout = 6,
+                        ok_text = _("Retry"),
+                        cancel_text = _("Cancel"),
+                        ok_callback = function()
+                            BackupUI.showBeamSendDialog(filepath, on_finish_cb)
+                        end,
+                        cancel_callback = function()
+                            if on_finish_cb then
+                                UIManager:nextTick(on_finish_cb)
+                            end
+                        end,
                     })
-                    if on_finish_cb then
-                        UIManager:nextTick(on_finish_cb)
-                    end
                     return
                 end
 
@@ -1584,6 +1693,7 @@ function BackupUI.showBeamSendDialog(filepath, on_finish_cb)
 
                     local content = VerticalGroup:new{
                         align = "center",
+                        not_focusable = true,
                         VerticalSpan:new{ width = sc(8) },
                         TextBoxWidget:new{
                             text = _("On the receiving device, open\n'Receive via Beam Code' and enter:"),
@@ -1635,6 +1745,30 @@ function BackupUI.showBeamSendDialog(filepath, on_finish_cb)
                 end
             end)
         end)
+    end
+
+    local is_kindle = Device and type(Device.isKindle) == "function" and Device:isKindle()
+        if is_kindle and file_size > 35 * 1024 * 1024 then
+            local size_str = Retention.formatSize(file_size)
+            local confirm
+            confirm = ConfirmBox:new{
+                text = string.format(_("This backup is %s. Large wireless transfers on Kindle can take several minutes.\n\nDo you want to proceed with Beaming?"), size_str),
+                ok_text = _("Proceed"),
+                cancel_text = _("Cancel"),
+                ok_callback = function()
+                    UIManager:close(confirm)
+                    UIManager:nextTick(doStartUpload)
+                end,
+                cancel_callback = function()
+                    UIManager:close(confirm)
+                    if on_finish_cb then UIManager:nextTick(on_finish_cb) end
+                end,
+            }
+            UIManager:show(confirm)
+            return
+        end
+
+        doStartUpload()
     end, function()
         if on_finish_cb then
             UIManager:nextTick(on_finish_cb)
@@ -1693,9 +1827,10 @@ function BackupUI.showBeamReceiveDialog()
                                     if pbar.close then
                                         pbar:close()
                                     else
-                                        UIManager:close(pbar)
+                                        UIManager:close(pbar, "ui")
                                     end
                                     pbar = nil
+                                    UIManager:setDirty("all", "ui")
                                 end
                             end
 
@@ -1758,9 +1893,13 @@ function BackupUI.showBeamReceiveDialog()
                                     end
                                     closePbar()
                                     if not ok then
-                                        UIManager:show(InfoMessage:new{
+                                        UIManager:show(ConfirmBox:new{
                                             text = string.format(_("Beam reception failed:\n%s"), tostring(target_path)),
-                                            timeout = 6,
+                                            ok_text = _("Retry"),
+                                            cancel_text = _("Cancel"),
+                                            ok_callback = function()
+                                                BackupUI.showBeamReceiveDialog()
+                                            end,
                                         })
                                         return
                                     end

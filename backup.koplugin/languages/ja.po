@@ -25,6 +25,10 @@ msgstr ".. (親フォルダ)"
 msgid "Archive: %s"
 msgstr "アーカイブ: %s"
 
+# en-hash: f4f8e689039140fb860c618a6eacb8ee
+msgid "Archiving (%d/%d - %s):\n%s"
+msgstr "アーカイブ中 (%d/%d - %s):\n%s"
+
 # en-hash: 6eee210465fd5fe3081cbdc035faf4ea
 msgid "Are you sure you want to restore this backup?\n\nAn automatic safety rollback snapshot will be created before any files are updated."
 msgstr "このバックアップを復元してもよろしいですか？\n\nファイル更新前に自動で安全ロールバックスナップショットが作成されます。"
@@ -44,6 +48,10 @@ msgstr "バックアップ名"
 # en-hash: 5e9f37fad626c515ba7b36e74c42e17d
 msgid "Backup created successfully!\n\nFile: %s\nSize: %s\nArchived files: %d"
 msgstr "バックアップを作成しました！\n\nファイル: %s\nサイズ: %s\n格納ファイル数: %d"
+
+# en-hash: df35262c72a71cb296f0130fe9dc8652
+msgid "Backup creation canceled."
+msgstr "バックアップ作成はキャンセルされました。"
 
 # en-hash: 8c9b5c30039246df4e284265e575ce06
 msgid "Backup received successfully!\n\nFile: %s"
@@ -85,6 +93,10 @@ msgstr "Beam 送信がキャンセルされました。"
 msgid "Beam upload failed:\n%s"
 msgstr "Beam アップロード失敗:\n%s"
 
+# en-hash: 7111d6b15f836624b077a3dcdd7087bf
+msgid "Books Folder:\n%s"
+msgstr "書籍フォルダ:\n%s"
+
 # en-hash: 12d72fb625ec7cee14aac12f2392eee1
 msgid "Browse Folder"
 msgstr "フォルダを参照"
@@ -116,6 +128,10 @@ msgstr "接続してバックアップをダウンロード中..."
 # en-hash: 1f84a8ea2266a66e6be5f03f9b78e800
 msgid "Connecting to Beam relay..."
 msgstr "Beam 中継サーバーへ接続中..."
+
+# en-hash: 4046ca4eac71fd660ff5daa4372066e7
+msgid "Corrupted filename in Beam payload."
+msgstr "Beamペイロードでファイル名が破損しています。"
 
 # en-hash: a71b94dc9954c63441159856938be723
 msgid "Corrupted or empty Beam payload."
@@ -149,6 +165,10 @@ msgstr "端末間の設定調整機能と災害復旧を備えた、KOReader の
 msgid "Created '%s'"
 msgstr "'%s' を作成しました"
 
+# en-hash: 19e21238e20af336ede460df8cf776a6
+msgid "Creating Backup Archive"
+msgstr "バックアップアーカイブを作成中"
+
 # en-hash: 0d325b507ae70a0aa07aa62c9415cdd4
 msgid "Creating backup archive...\nPlease wait."
 msgstr "バックアップアーカイブを作成中...\nしばらくお待ちください。"
@@ -173,6 +193,14 @@ msgstr "端末バックアップと復元"
 msgid "Dictionaries & OCR Data"
 msgstr "辞書と OCR データ"
 
+# en-hash: f24351e020bd2306cdc4fc7dc6ad2bd2
+msgid "Disk full or write error writing header: %s"
+msgstr "ディスクがいっぱいか、ヘッダーの書き込み中にエラーが発生しました: %s"
+
+# en-hash: 022d19f1ccb67394dac32eaaeccacdd6
+msgid "Disk full: only %s of %s encrypted data written to staging file. Free up space on the Kindle and try again."
+msgstr "ディスクがいっぱいです：%sの暗号化データのうち%sのみがステージングファイルに書き込まれました。Kindleの空き容量を増やしてから再試行してください。"
+
 # en-hash: f92965e2c8a7afb3c1b9a5c09a263636
 msgid "Done"
 msgstr "完了"
@@ -180,6 +208,14 @@ msgstr "完了"
 # en-hash: 0f71ee70a18dcad9e268820ae88283fc
 msgid "Download failed (HTTP %s): %s"
 msgstr "ダウンロード失敗 (HTTP %s): %s"
+
+# en-hash: 91fbf3ba3dc5f69a8dbd6bd4c3a0a67b
+msgid "Download failed (Network error): %s"
+msgstr "ダウンロードに失敗しました (ネットワークエラー): %s"
+
+# en-hash: cd415c49f3c3dcc9db530e8335de52de
+msgid "Download incomplete (%s received out of %s). Network connection may have dropped."
+msgstr "ダウンロードが不完全です（%s受信 / %s）。ネットワーク接続が切断された可能性があります。"
 
 # en-hash: 64089d52e6d17e3b80ba6bd80b8bf06c
 msgid "Downloading backup archive (%s)..."
@@ -196,6 +232,10 @@ msgstr "ダウンロード中: %s..."
 # en-hash: f7a124dce93e38381ea3023a4f0aa14e
 msgid "Encrypting backup archive..."
 msgstr "アーカイブを暗号化中..."
+
+# en-hash: 0dd934b741df7596241d8bff533fc1c9
+msgid "Encryption stopped early: read only %s of %s."
+msgstr "暗号化が途中で停止しました：%s / %s のみを読み込みました。"
 
 # en-hash: dfc7523a11a7e11b2c7f51cfafdf139c
 msgid "Enter custom filename (without extension):"
@@ -220,6 +260,10 @@ msgstr "フォルダ作成に失敗しました。"
 # en-hash: 689450633204759bf63bdef8d58160bf
 msgid "Failed to inspect archive:\n%s"
 msgstr "アーカイブの検査に失敗しました:\n%s"
+
+# en-hash: e16cdc3620dbf0875c75e6d305896412
+msgid "Failed to prepare encrypted stream"
+msgstr "暗号化ストリームの準備に失敗しました"
 
 # en-hash: b0f2b97dc5d2b76b26e040408bb1d8af
 msgid "Folder"
@@ -252,6 +296,10 @@ msgstr "無効なBeamコードです。"
 # en-hash: 102800baa7564cf03c0fe98c672f9cbd
 msgid "Invalid filename in Beam payload."
 msgstr "Beam データ内のファイル名が無効です。"
+
+# en-hash: 81d22541cf9910a2add409abf056027c
+msgid "Invalid filename in backup path."
+msgstr "バックアップパスのファイル名が無効です。"
 
 # en-hash: e79ab781ed465b50b2570988208270b9
 msgid "Manage Backups"
@@ -304,6 +352,14 @@ msgstr "6桁のビームコードを入力してください。"
 # en-hash: 0463c331120b4965a80dfbe694d5b55b
 msgid "Pre-flight check failed: %s"
 msgstr "事前チェック失敗: %s"
+
+# en-hash: 3491fb9f8ed4c3dc8ce721c205bc428c
+msgid "Preparing backup payload..."
+msgstr "バックアップデータ準備中..."
+
+# en-hash: f262fae0a2f17e8c1eb4e9eddb0160e4
+msgid "Proceed"
+msgstr "続行"
 
 # en-hash: 4fe018c28e35e662f93f36f498cc3e12
 msgid "Reading History & Stats"
@@ -365,6 +421,10 @@ msgstr "保持上限"
 msgid "Retention Limit: Keep newest %d backups"
 msgstr "保持上限: 最新の %d 個を保持"
 
+# en-hash: 6327b4e59f58137083214a1fec358855
+msgid "Retry"
+msgstr "再試行"
+
 # en-hash: ed5c2c8b4c48bb6a2b8a8cbbcb6ec4a3
 msgid "Revert to the pre-restore rollback snapshot?\n\nThis will undo the last restore and return your settings and patches to their prior state.\n\nKOReader will restart immediately."
 msgstr "復元前のロールバックスナップショットに戻しますか？\n\n前回の復元が取り消され、設定とパッチが復元前の状態に戻ります。\n\nKOReader は直ちに再起動します。"
@@ -393,6 +453,10 @@ msgstr "すべて選択"
 msgid "Select Backup Folder"
 msgstr "バックアップフォルダを選択"
 
+# en-hash: a7fad80dbd7a0ee23639d348f1dbd4a5
+msgid "Select Books Folder"
+msgstr "書籍フォルダを選択"
+
 # en-hash: deffb03a57b0deaf912f04da4575848f
 msgid "Select Folder"
 msgstr "フォルダを選択"
@@ -417,6 +481,10 @@ msgstr "スナップショットへのロールバックが完了しました。
 msgid "This backup is %s, which exceeds the 100MB Beam transfer limit.\n\nBeam is designed for fast wireless transfer of settings and plugins. For full backups with reading statistics, dictionaries, or fonts, please transfer via USB or create a lighter backup."
 msgstr "このバックアップは %s であり、100MB の Beam 転送制限を超えています。\n\nBeam は、設定やプラグインの高速ワイヤレス転送用に設計されています。読書統計、辞書、フォントを含む完全なバックアップについては、USB 経由で転送するか、より軽量なバックアップを作成してください。"
 
+# en-hash: 74f11079fa87c6f76b2c6fdaa74aab3f
+msgid "This backup is %s. Large wireless transfers on Kindle can take several minutes.\n\nDo you want to proceed with Beaming?"
+msgstr "このバックアップは%sです。Kindleでの大規模な無線転送には数分かかる場合があります。\n\nBeamで続行しますか？"
+
 # en-hash: c7fcadfb9d8d33e697f394cf22598623
 msgid "Undo Last Restore"
 msgstr "前回の復元を取り消す"
@@ -429,9 +497,21 @@ msgstr "元に戻せませんでした: %s"
 msgid "Upload failed (HTTP %s): %s"
 msgstr "アップロード失敗 (HTTP %s): %s"
 
+# en-hash: a581add5493e4acf7fb8739c3b1981bb
+msgid "Upload failed (Network error): %s"
+msgstr "アップロードに失敗しました (ネットワークエラー): %s"
+
+# en-hash: 7fe4bdeb8f9a1be31a8886a37b11d32c
+msgid "Upload incomplete: relay received only %s of %s. The wireless connection was cut off."
+msgstr "アップロード不完全：リレーは %s / %s しか受信しませんでした。無線接続が切断されました。"
+
 # en-hash: 55c11e4b0000b4cf083ae1ff648d5946
 msgid "Uploading backup archive..."
 msgstr "アーカイブをアップロード中..."
+
+# en-hash: ea6476a63b0c316c17f39f6ff17267c8
+msgid "Uploading: %s / %s (%d%%)"
+msgstr "アップロード中：%s / %s (%d%%)"
 
 # en-hash: 86650eb950d0e08a5dd35fbcd4303482
 msgid "User Plugins"

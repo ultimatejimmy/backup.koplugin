@@ -15,6 +15,8 @@ local ok_arch, Archiver = pcall(require, "ffi/archiver")
 local ok_ds, DataStorage = pcall(require, "datastorage")
 local ok_util, util = pcall(require, "util")
 
+local cached_libarchive = nil
+
 local ArchiverMgr = {}
 
 -- --------------------------------------------------------------------------
@@ -83,12 +85,68 @@ function TarWriter:addFileFromMemory(entry_path, content, mtime)
     return true
 end
 
-function TarWriter:addFileFromDisk(entry_path, disk_path, mtime)
+function TarWriter:addFileFromDisk(entry_path, disk_path, mtime, on_chunk, is_canceled)
+    if is_canceled and is_canceled() then return false, "canceled" end
+    if not self.handle then return false, "Archive not open" end
     local f = io.open(disk_path, "rb")
-    if not f then return false, "Cannot open " .. disk_path end
-    local content = f:read("*all")
+    if not f then return false, "Cannot open " .. tostring(disk_path) end
+
+    local size = f:seek("end") or 0
+    f:seek("set", 0)
+
+    if not mtime and lfs and lfs.attributes then
+        local attr = lfs.attributes(disk_path)
+        mtime = attr and attr.modification
+    end
+    mtime = mtime or os.time()
+
+    -- 512-byte POSIX ustar header
+    local header = string.rep("\0", 512)
+    local function put(offset, str)
+        header = header:sub(1, offset - 1) .. str .. header:sub(offset + #str)
+    end
+
+    local path = entry_path:gsub("^/+", "")
+    put(1, path:sub(1, 100))                         -- name (100)
+    put(101, octal(420, 8))                          -- mode 0644 (8)
+    put(109, octal(0, 8))                            -- uid (8)
+    put(117, octal(0, 8))                            -- gid (8)
+    put(125, octal(size, 12))                        -- size (12)
+    put(137, octal(mtime, 12))                       -- mtime (12)
+    put(157, "0")                                    -- typeflag: regular file (1)
+    put(258, "ustar\0")                              -- magic (6)
+    put(264, "00")                                   -- version (2)
+
+    -- Calculate checksum (bytes 149-156 treated as spaces)
+    put(149, "        ")
+    local chksum = 0
+    for i = 1, 512 do
+        chksum = chksum + string.byte(header, i)
+    end
+    put(149, string.format("%06o\0 ", chksum))
+
+    self.handle:write(header)
+    if size > 0 then
+        local CHUNK_SIZE = 65536
+        local bytes_read = 0
+        while bytes_read < size do
+            if is_canceled and is_canceled() then
+                f:close()
+                return false, "canceled"
+            end
+            local chunk = f:read(CHUNK_SIZE)
+            if not chunk or #chunk == 0 then break end
+            self.handle:write(chunk)
+            bytes_read = bytes_read + #chunk
+            if on_chunk then on_chunk(#chunk) end
+        end
+        local pad = (512 - (size % 512)) % 512
+        if pad > 0 then
+            self.handle:write(string.rep("\0", pad))
+        end
+    end
     f:close()
-    return self:addFileFromMemory(entry_path, content, mtime)
+    return true
 end
 
 function TarWriter:close()
@@ -166,14 +224,198 @@ function ArchiverMgr.scanDirectory(base_dir, entry_prefix, is_plugins_dir, is_se
     return files
 end
 
+--- Resolves the effective books/library directory.
+-- Priority: custom_dir -> custom_books_dir in settings -> home_dir in G_reader_settings -> Device.home_dir -> data_dir -> "."
+function ArchiverMgr.getEffectiveBooksDir(custom_dir)
+    if custom_dir and custom_dir ~= "" and lfs and lfs.attributes and lfs.attributes(custom_dir, "mode") == "directory" then
+        return custom_dir
+    end
+    if _G.G_reader_settings and type(_G.G_reader_settings.readSetting) == "function" then
+        local plugin_settings = _G.G_reader_settings:readSetting("backup_settings")
+        if type(plugin_settings) == "table" and plugin_settings.custom_books_dir and plugin_settings.custom_books_dir ~= "" then
+            if lfs and lfs.attributes and lfs.attributes(plugin_settings.custom_books_dir, "mode") == "directory" then
+                return plugin_settings.custom_books_dir
+            end
+        end
+        local home_dir = _G.G_reader_settings:readSetting("home_dir")
+        if home_dir and home_dir ~= "" and lfs and lfs.attributes and lfs.attributes(home_dir, "mode") == "directory" then
+            return home_dir
+        end
+    end
+    local ok_dev, Device = pcall(require, "device")
+    if ok_dev and Device and Device.home_dir and Device.home_dir ~= "" then
+        if lfs and lfs.attributes and lfs.attributes(Device.home_dir, "mode") == "directory" then
+            return Device.home_dir
+        end
+    end
+    if ok_ds and DataStorage and type(DataStorage.getDataDir) == "function" then
+        return DataStorage:getDataDir()
+    end
+    return "."
+end
+
+--- Recursively scans a books directory for *.sdr sidecar directories.
+-- Skips system, hidden, cache, and OS media directories.
+-- @param books_dir string: root library directory
+-- @param seen_paths table: map of disk_path -> true for deduplication
+-- @param exclude_dir string: optional directory to exclude (e.g. data_dir)
+-- @return table: array of { disk_path = "...", archive_path = "..." }
+function ArchiverMgr.scanSdrDirectories(books_dir, seen_paths, exclude_dir)
+    local files = {}
+    seen_paths = seen_paths or {}
+    if not books_dir or books_dir == "" then return files end
+    if not lfs or not lfs.attributes or lfs.attributes(books_dir, "mode") ~= "directory" then return files end
+
+    local norm_books_dir = books_dir:gsub("[/\\]+$", "")
+    local norm_exclude_dir = exclude_dir and exclude_dir:gsub("[/\\]+$", "")
+
+    local function recurse(curr_dir, rel_path)
+        if norm_exclude_dir and curr_dir == norm_exclude_dir then
+            return
+        end
+        for item in lfs.dir(curr_dir) do
+            if item ~= "." and item ~= ".." then
+                local full = curr_dir .. "/" .. item
+                local mode = lfs.attributes(full, "mode")
+                if mode == "directory" then
+                    if item:match("%.sdr$") then
+                        -- Found a sidecar directory! Collect files inside it
+                        local rel_sdr = (rel_path ~= "") and (rel_path .. "/" .. item) or item
+                        for sdr_item in lfs.dir(full) do
+                            if sdr_item ~= "." and sdr_item ~= ".." and not ArchiverMgr.shouldExclude(sdr_item, full .. "/" .. sdr_item) then
+                                local sdr_file = full .. "/" .. sdr_item
+                                if lfs.attributes(sdr_file, "mode") == "file" and not seen_paths[sdr_file] then
+                                    seen_paths[sdr_file] = true
+                                    table.insert(files, {
+                                        disk_path = sdr_file,
+                                        archive_path = Constants.ARCHIVE_SIDECARS_PREFIX .. "/" .. rel_sdr .. "/" .. sdr_item,
+                                    })
+                                end
+                            end
+                        end
+                        -- Do NOT recurse deeper into .sdr directory
+                    elseif not (Constants.EXCLUDED_SCAN_DIRS and Constants.EXCLUDED_SCAN_DIRS[item]) and not ArchiverMgr.shouldExclude(item, full) then
+                        local next_rel = (rel_path ~= "") and (rel_path .. "/" .. item) or item
+                        recurse(full, next_rel)
+                    end
+                end
+            end
+        end
+    end
+
+    recurse(norm_books_dir, "")
+    return files
+end
+
+--- Collects .sdr sidecar folders referenced in history.lua or ReadHistory in memory.
+-- Ensures that opened books located outside books_dir (e.g. secondary storage) are also captured.
+-- @param data_dir string: KOReader data directory
+-- @param books_dir string: primary books directory
+-- @param seen_paths table: map of disk_path -> true for deduplication
+-- @return table: array of { disk_path = "...", archive_path = "..." }
+function ArchiverMgr.collectHistorySidecars(data_dir, books_dir, seen_paths)
+    local files = {}
+    seen_paths = seen_paths or {}
+    local book_files = {}
+
+    -- Check runtime ReadHistory if loaded
+    if package.loaded["readhistory"] and type(package.loaded["readhistory"].hist) == "table" then
+        for _, entry in ipairs(package.loaded["readhistory"].hist) do
+            if entry and entry.file and entry.file ~= "" then
+                table.insert(book_files, entry.file)
+            end
+        end
+    end
+
+    -- Also inspect data_dir .. "/history.lua" on disk
+    if #book_files == 0 and data_dir then
+        local hist_path = data_dir .. "/history.lua"
+        if lfs and lfs.attributes and lfs.attributes(hist_path, "mode") == "file" then
+            local ok, hist_data = pcall(dofile, hist_path)
+            if ok and type(hist_data) == "table" then
+                for _, entry in ipairs(hist_data) do
+                    if entry and entry.file and entry.file ~= "" then
+                        table.insert(book_files, entry.file)
+                    end
+                end
+            end
+        end
+    end
+
+    local norm_books_dir = books_dir and books_dir:gsub("[/\\]+$", "")
+
+    for _, doc_path in ipairs(book_files) do
+        local doc_base = doc_path:match("^(.*)%.[^./\\]+$") or doc_path
+        local sdr_dir = doc_base .. ".sdr"
+        if lfs and lfs.attributes and lfs.attributes(sdr_dir, "mode") == "directory" then
+            for sdr_item in lfs.dir(sdr_dir) do
+                if sdr_item ~= "." and sdr_item ~= ".." and not ArchiverMgr.shouldExclude(sdr_item, sdr_dir .. "/" .. sdr_item) then
+                    local sdr_file = sdr_dir .. "/" .. sdr_item
+                    if lfs.attributes(sdr_file, "mode") == "file" and not seen_paths[sdr_file] then
+                        seen_paths[sdr_file] = true
+                        local archive_path
+                        if norm_books_dir and sdr_file:sub(1, #norm_books_dir) == norm_books_dir then
+                            local rel = sdr_file:sub(#norm_books_dir + 1):gsub("^[/\\]+", "")
+                            archive_path = Constants.ARCHIVE_SIDECARS_PREFIX .. "/" .. rel
+                        else
+                            local clean_abs = sdr_file:gsub("^[/\\]+", ""):gsub("^[A-Za-z]:[/\\]", "")
+                            archive_path = Constants.ARCHIVE_SIDECARS_ABS_PREFIX .. "/" .. clean_abs
+                        end
+                        table.insert(files, {
+                            disk_path = sdr_file,
+                            archive_path = archive_path,
+                        })
+                    end
+                end
+            end
+        end
+    end
+
+    return files
+end
+
 --- Creates an archive writer.
 -- Prefers native libarchive Writer, falls back to TarWriter for .tar.
 function ArchiverMgr.createWriter(filepath, format)
     format = format or filepath:match("[.](tar[.][^.]+)$") or filepath:match("[.]([^.]+)$") or "zip"
     if format == "tgz" then format = "tar.gz" end
 
+    if not ok_arch or not Archiver then
+        ok_arch, Archiver = pcall(require, "ffi/archiver")
+    end
+
     -- Try native libarchive writer first
     if ok_arch and Archiver and Archiver.Writer then
+        if not cached_libarchive then
+            local candidate_fns = { Archiver.Writer.open, Archiver.Writer.addFileFromMemory, Archiver.Reader and Archiver.Reader.open }
+            if debug and debug.getupvalue then
+                for _, fn in ipairs(candidate_fns) do
+                    if type(fn) == "function" then
+                        local i = 1
+                        while true do
+                            local name, val = debug.getupvalue(fn, i)
+                            if not name then break end
+                            if name == "libarchive" and (type(val) == "userdata" or type(val) == "table") then
+                                cached_libarchive = val
+                                break
+                            end
+                            i = i + 1
+                        end
+                    end
+                    if cached_libarchive then break end
+                end
+            end
+            if not cached_libarchive and Archiver.libarchive then
+                cached_libarchive = Archiver.libarchive
+            end
+            if not cached_libarchive then
+                pcall(function()
+                    local ffi = require("ffi")
+                    cached_libarchive = ffi.loadlib("archive", "13")
+                end)
+            end
+        end
+
         -- In libarchive, zip compression must be set before archive_write_open_filename
         if (format == "zip" or format:match("zip$") or filepath:match("%.zip$")) and not Archiver.Writer._zip_deflate_patched then
             Archiver.Writer._zip_deflate_patched = true
@@ -189,7 +431,9 @@ function ArchiverMgr.createWriter(filepath, format)
                 end
             end
 
-            if upvalues.libarchive then
+            local libarchive = cached_libarchive or upvalues.libarchive
+            if libarchive then
+                cached_libarchive = libarchive
                 Archiver.Writer.open = function(self, fp, fmt)
                     if not fmt then
                         fmt = fp:match("[.](tar[.][^.]+)$") or fp:match("[.]([^.]+)$")
@@ -199,10 +443,14 @@ function ArchiverMgr.createWriter(filepath, format)
                         return orig_open(self, fp, fmt)
                     end
 
-                    local libarchive = upvalues.libarchive
-                    local ffi = upvalues.ffi or require("ffi")
+                    local ok_ffi, ffi_mod = pcall(require, "ffi")
+                    local ffi = upvalues.ffi or (ok_ffi and ffi_mod)
                     self.err = nil
-                    self.archive = ffi.gc(libarchive.archive_write_new(), libarchive.archive_free)
+                    if ffi and ffi.gc then
+                        self.archive = ffi.gc(libarchive.archive_write_new(), libarchive.archive_free)
+                    else
+                        self.archive = libarchive.archive_write_new()
+                    end
                     if libarchive.archive_write_set_format_by_name(self.archive, "zip") ~= libarchive.ARCHIVE_OK then
                         self.err = upvalues.archive_error_string and upvalues.archive_error_string(self.archive) or "failed to set zip format"
                         self.archive = nil
@@ -234,12 +482,62 @@ function ArchiverMgr.createWriter(filepath, format)
                 addMemory = function(self, entry_path, content, mtime)
                     return self.writer:addFileFromMemory(entry_path, content, mtime)
                 end,
-                addDisk = function(self, entry_path, disk_path, mtime)
+                addDisk = function(self, entry_path, disk_path, mtime, on_chunk, is_canceled)
+                    if is_canceled and is_canceled() then return false, "canceled" end
                     local f = io.open(disk_path, "rb")
-                    if not f then return false, "Cannot read file" end
-                    local c = f:read("*all")
-                    f:close()
-                    return self.writer:addFileFromMemory(entry_path, c, mtime)
+                    if not f then return false, "Cannot read file " .. tostring(disk_path) end
+                    local size = f:seek("end") or 0
+                    f:seek("set", 0)
+
+                    if not mtime and lfs and lfs.attributes then
+                        local attr = lfs.attributes(disk_path)
+                        mtime = attr and attr.modification
+                    end
+                    mtime = mtime or os.time()
+
+                    local libarchive = cached_libarchive or (self.writer and self.writer.libarchive)
+                    if libarchive and self.writer and self.writer.archive then
+                        local entry = libarchive.archive_entry_new()
+                        libarchive.archive_entry_set_pathname(entry, entry_path)
+                        libarchive.archive_entry_set_size(entry, size)
+                        if libarchive.archive_entry_set_filetype then
+                            pcall(libarchive.archive_entry_set_filetype, entry, libarchive.AE_IFREG or 32768)
+                        end
+                        libarchive.archive_entry_set_mtime(entry, mtime, 0)
+                        libarchive.archive_entry_set_perm(entry, 420) -- 0644
+                        libarchive.archive_write_header(self.writer.archive, entry)
+
+                        local CHUNK_SIZE = 65536
+                        local bytes_read = 0
+                        local write_err = nil
+                        while bytes_read < size do
+                            if is_canceled and is_canceled() then
+                                libarchive.archive_entry_free(entry)
+                                f:close()
+                                return false, "canceled"
+                            end
+                            local chunk = f:read(CHUNK_SIZE)
+                            if not chunk or #chunk == 0 then break end
+                            local written = libarchive.archive_write_data(self.writer.archive, chunk, #chunk)
+                            if written ~= #chunk then
+                                write_err = "failed writing chunk to archive"
+                                break
+                            end
+                            bytes_read = bytes_read + #chunk
+                            if on_chunk then on_chunk(#chunk) end
+                        end
+                        libarchive.archive_entry_free(entry)
+                        f:close()
+                        if write_err then return false, write_err end
+                        return true
+                    else
+                        local content = f:read("*all")
+                        f:close()
+                        if is_canceled and is_canceled() then return false, "canceled" end
+                        local ok_mem = self.writer:addFileFromMemory(entry_path, content, mtime)
+                        if ok_mem and on_chunk then on_chunk(#content) end
+                        return ok_mem
+                    end
                 end,
                 close = function(self)
                     return self.writer:close()
@@ -264,8 +562,8 @@ function ArchiverMgr.createWriter(filepath, format)
         addMemory = function(self, entry_path, content, mtime)
             return self.writer:addFileFromMemory(entry_path, content, mtime)
         end,
-        addDisk = function(self, entry_path, disk_path, mtime)
-            return self.writer:addFileFromDisk(entry_path, disk_path, mtime)
+        addDisk = function(self, entry_path, disk_path, mtime, on_chunk, is_canceled)
+            return self.writer:addFileFromDisk(entry_path, disk_path, mtime, on_chunk, is_canceled)
         end,
         close = function(self)
             return self.writer:close()
@@ -291,7 +589,9 @@ function ArchiverMgr.createBackup(options)
     local components = options.components or Constants.DEFAULT_COMPONENT_SELECTION
     local backup_name = options.backup_name or "backup"
     local data_dir = options.data_dir or (ok_ds and DataStorage and DataStorage.getDataDir and DataStorage:getDataDir()) or "."
+    local books_dir = options.books_dir or ArchiverMgr.getEffectiveBooksDir()
     local on_progress = options.on_progress
+    local is_canceled = options.is_canceled
 
     -- Ensure destination folder exists
     local parent_dir = archive_path:match("^(.*)[/\\][^/\\]+$")
@@ -314,14 +614,24 @@ function ArchiverMgr.createBackup(options)
         local patch_list = {}
         local total_files_added = 0
 
-        local function addFileList(files)
-            for _, f in ipairs(files) do
-                if writer:addDisk(f.archive_path, f.disk_path) then
-                    total_files_added = total_files_added + 1
-                    if on_progress then
-                        on_progress(total_files_added, f.archive_path)
-                    end
+        local pending_entries = {}
+        local total_bytes = 0
+
+        local function collectDiskFile(entry_path, disk_path)
+            local sz = 0
+            if lfs and lfs.attributes then
+                local attr = lfs.attributes(disk_path)
+                if attr and attr.mode == "file" then
+                    sz = attr.size or 0
                 end
+            end
+            table.insert(pending_entries, { archive_path = entry_path, disk_path = disk_path, size = sz })
+            total_bytes = total_bytes + sz
+        end
+
+        local function collectFiles(files)
+            for _, f in ipairs(files) do
+                collectDiskFile(f.archive_path, f.disk_path)
             end
         end
 
@@ -329,13 +639,11 @@ function ArchiverMgr.createBackup(options)
         if components[Constants.COMPONENTS.SETTINGS] then
             local s_file = data_dir .. "/settings.reader.lua"
             if lfs and lfs.attributes and lfs.attributes(s_file, "mode") == "file" then
-                if writer:addDisk("settings/settings.reader.lua", s_file) then
-                    total_files_added = total_files_added + 1
-                end
+                collectDiskFile("settings/settings.reader.lua", s_file)
             end
             local s_dir = data_dir .. "/settings"
             if lfs and lfs.attributes and lfs.attributes(s_dir, "mode") == "directory" then
-                addFileList(ArchiverMgr.scanDirectory(s_dir, "settings", false, true))
+                collectFiles(ArchiverMgr.scanDirectory(s_dir, "settings", false, true))
             end
         end
 
@@ -343,19 +651,7 @@ function ArchiverMgr.createBackup(options)
         if components[Constants.COMPONENTS.PLUGINS] then
             local p_dir = data_dir .. "/plugins"
             if lfs and lfs.attributes and lfs.attributes(p_dir, "mode") == "directory" then
-                local files = ArchiverMgr.scanDirectory(p_dir, "plugins", true)
-                for _, f in ipairs(files) do
-                    if writer:addDisk(f.archive_path, f.disk_path) then
-                        total_files_added = total_files_added + 1
-                        local p_name = f.archive_path:match("^plugins/([^/]+)")
-                        if p_name and not plugin_descriptors[p_name] then
-                            plugin_descriptors[p_name] = true
-                        end
-                        if on_progress then
-                            on_progress(total_files_added, f.archive_path)
-                        end
-                    end
-                end
+                collectFiles(ArchiverMgr.scanDirectory(p_dir, "plugins", true))
             end
         end
 
@@ -363,17 +659,7 @@ function ArchiverMgr.createBackup(options)
         if components[Constants.COMPONENTS.PATCHES] then
             local pt_dir = data_dir .. "/patches"
             if lfs and lfs.attributes and lfs.attributes(pt_dir, "mode") == "directory" then
-                local files = ArchiverMgr.scanDirectory(pt_dir, "patches", false)
-                for _, f in ipairs(files) do
-                    if writer:addDisk(f.archive_path, f.disk_path) then
-                        total_files_added = total_files_added + 1
-                        local patch_name = f.archive_path:gsub("^patches/", "")
-                        table.insert(patch_list, patch_name)
-                        if on_progress then
-                            on_progress(total_files_added, f.archive_path)
-                        end
-                    end
-                end
+                collectFiles(ArchiverMgr.scanDirectory(pt_dir, "patches", false))
             end
         end
 
@@ -381,7 +667,7 @@ function ArchiverMgr.createBackup(options)
         if components[Constants.COMPONENTS.FONTS] then
             local f_dir = data_dir .. "/fonts"
             if lfs and lfs.attributes and lfs.attributes(f_dir, "mode") == "directory" then
-                addFileList(ArchiverMgr.scanDirectory(f_dir, "fonts", false))
+                collectFiles(ArchiverMgr.scanDirectory(f_dir, "fonts", false))
             end
         end
 
@@ -389,7 +675,7 @@ function ArchiverMgr.createBackup(options)
         if components[Constants.COMPONENTS.SCREENSAVERS] then
             local sc_dir = data_dir .. "/screensavers"
             if lfs and lfs.attributes and lfs.attributes(sc_dir, "mode") == "directory" then
-                addFileList(ArchiverMgr.scanDirectory(sc_dir, "screensavers", false))
+                collectFiles(ArchiverMgr.scanDirectory(sc_dir, "screensavers", false))
             end
         end
 
@@ -397,41 +683,47 @@ function ArchiverMgr.createBackup(options)
         if components[Constants.COMPONENTS.STYLETWEAKS] then
             local st_dir = data_dir .. "/styletweaks"
             if lfs and lfs.attributes and lfs.attributes(st_dir, "mode") == "directory" then
-                addFileList(ArchiverMgr.scanDirectory(st_dir, "styletweaks", false))
+                collectFiles(ArchiverMgr.scanDirectory(st_dir, "styletweaks", false))
             end
         end
 
-        -- 7. Docsettings
+        -- 7. Docsettings (Reading Progress & Notes)
         if components[Constants.COMPONENTS.DOCSETTINGS] then
+            local seen_sdr_paths = {}
+            -- 7a. Scan books directory for *.sdr sidecars
+            if books_dir and lfs and lfs.attributes and lfs.attributes(books_dir, "mode") == "directory" then
+                collectFiles(ArchiverMgr.scanSdrDirectories(books_dir, seen_sdr_paths, data_dir))
+            end
+            -- 7b. Collect any .sdr sidecars referenced in reading history
+            collectFiles(ArchiverMgr.collectHistorySidecars(data_dir, books_dir, seen_sdr_paths))
+            -- 7c. Centralized and hash docsettings
             local ds_dir = data_dir .. "/docsettings"
             if lfs and lfs.attributes and lfs.attributes(ds_dir, "mode") == "directory" then
-                addFileList(ArchiverMgr.scanDirectory(ds_dir, "docsettings", false))
+                collectFiles(ArchiverMgr.scanDirectory(ds_dir, "docsettings", false))
             end
             local hds_dir = data_dir .. "/hashdocsettings"
             if lfs and lfs.attributes and lfs.attributes(hds_dir, "mode") == "directory" then
-                addFileList(ArchiverMgr.scanDirectory(hds_dir, "hashdocsettings", false))
+                collectFiles(ArchiverMgr.scanDirectory(hds_dir, "hashdocsettings", false))
             end
         end
 
         -- 8. History (Reading History & Stats)
         if components[Constants.COMPONENTS.HISTORY] then
+            local hist_file = data_dir .. "/history.lua"
+            if lfs and lfs.attributes and lfs.attributes(hist_file, "mode") == "file" then
+                collectDiskFile("history/history.lua", hist_file)
+            end
             local h_dir = data_dir .. "/history"
             if lfs and lfs.attributes and lfs.attributes(h_dir, "mode") == "directory" then
-                addFileList(ArchiverMgr.scanDirectory(h_dir, "history", false))
+                collectFiles(ArchiverMgr.scanDirectory(h_dir, "history", false))
             end
-            -- Modern KOReader statistics and vocabulary databases are stored in settings/
             local s_dir = data_dir .. "/settings"
             if lfs and lfs.attributes and lfs.attributes(s_dir, "mode") == "directory" then
                 for item in lfs.dir(s_dir) do
                     if item:match("^statistics%.sqlite3") or item:match("^vocabulary_builder%.sqlite3") then
                         local full_path = s_dir .. "/" .. item
                         if lfs.attributes(full_path, "mode") == "file" then
-                            if writer:addDisk("settings/" .. item, full_path) then
-                                total_files_added = total_files_added + 1
-                                if on_progress then
-                                    on_progress(total_files_added, "settings/" .. item)
-                                end
-                            end
+                            collectDiskFile("settings/" .. item, full_path)
                         end
                     end
                 end
@@ -442,12 +734,61 @@ function ArchiverMgr.createBackup(options)
         if components[Constants.COMPONENTS.DICTIONARIES] then
             local dict_dir = data_dir .. "/data/dict"
             if lfs and lfs.attributes and lfs.attributes(dict_dir, "mode") == "directory" then
-                addFileList(ArchiverMgr.scanDirectory(dict_dir, "data/dict", false))
+                collectFiles(ArchiverMgr.scanDirectory(dict_dir, "data/dict", false))
             end
             local tess_dir = data_dir .. "/data/tessdata"
             if lfs and lfs.attributes and lfs.attributes(tess_dir, "mode") == "directory" then
-                addFileList(ArchiverMgr.scanDirectory(tess_dir, "data/tessdata", false))
+                collectFiles(ArchiverMgr.scanDirectory(tess_dir, "data/tessdata", false))
             end
+        end
+
+        local total_files = #pending_entries
+        local current_files = 0
+        local current_bytes = 0
+
+        for idx, item in ipairs(pending_entries) do
+            if is_canceled and is_canceled() then
+                error("canceled")
+            end
+
+            if on_progress then
+                on_progress(current_files, total_files, current_bytes, total_bytes, item.archive_path)
+            end
+
+            local function on_chunk(chunk_size)
+                current_bytes = current_bytes + chunk_size
+                if on_progress then
+                    on_progress(current_files, total_files, current_bytes, total_bytes, item.archive_path)
+                end
+            end
+
+            local ok_add, add_err = writer:addDisk(item.archive_path, item.disk_path, nil, on_chunk, is_canceled)
+            if not ok_add then
+                if add_err == "canceled" or (is_canceled and is_canceled()) then
+                    error("canceled")
+                end
+            else
+                total_files_added = total_files_added + 1
+                current_files = current_files + 1
+
+                if item.archive_path:match("^plugins/") then
+                    local p_name = item.archive_path:match("^plugins/([^/]+)")
+                    if p_name and not plugin_descriptors[p_name] then
+                        plugin_descriptors[p_name] = true
+                    end
+                elseif item.archive_path:match("^patches/") then
+                    local patch_name = item.archive_path:gsub("^patches/", "")
+                    table.insert(patch_list, patch_name)
+                end
+            end
+        end
+
+        if is_canceled and is_canceled() then
+            error("canceled")
+        end
+
+        if on_progress then
+            on_progress(total_files, total_files, total_bytes, total_bytes, "manifest.json")
         end
 
         -- Build and serialize manifest
@@ -463,6 +804,7 @@ function ArchiverMgr.createBackup(options)
             components = components,
             plugins = p_list,
             patches = patch_list,
+            books_dir = books_dir,
         }
         writer:addMemory(Constants.MANIFEST_FILE_NAME, Manifest.serialize(manifest))
         writer:close()
@@ -472,6 +814,13 @@ function ArchiverMgr.createBackup(options)
 
     if not ok_run then
         pcall(function() writer:close() end)
+        local actual_path = writer.fallback_tar_path or archive_path
+        if tostring(run_res):find("canceled") then
+            if lfs and lfs.attributes and lfs.attributes(actual_path) then
+                os.remove(actual_path)
+            end
+            return false, "canceled"
+        end
         return false, tostring(run_res)
     end
 

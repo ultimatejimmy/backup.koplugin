@@ -89,6 +89,7 @@ function Manifest.create(options)
             platform = Manifest.getPlatformName(),
             koreader_version = Manifest.getKOReaderVersion(),
             screen = Manifest.getScreenInfo(),
+            books_dir = options.books_dir,
         },
         components = options.components or Constants.DEFAULT_COMPONENT_SELECTION,
         installed_plugins = options.plugins or {},

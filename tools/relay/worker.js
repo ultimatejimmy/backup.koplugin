@@ -130,7 +130,16 @@ export default {
       }
 
       const cleanToken = token.trim();
-      const body = await request.arrayBuffer();
+      let body;
+      try {
+        body = await request.arrayBuffer();
+      } catch (readErr) {
+        return new Response(JSON.stringify({ error: 'Failed to read upload payload: ' + (readErr.message || String(readErr)) }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
       if (!body || body.byteLength === 0) {
         return new Response(JSON.stringify({ error: 'Empty payload' }), {
           status: 400,
@@ -146,26 +155,33 @@ export default {
         });
       }
 
-      if (body.byteLength <= MAX_KV_CHUNK_SIZE) {
-        // Single chunk upload: store payload AND size metadata in 1 single KV write!
-        await env.BEAM_KV.put(`beam:${cleanToken}`, body, {
-          metadata: { size: body.byteLength },
-          expirationTtl: EXPIRATION_TTL,
-        });
-      } else {
-        // Multi-chunk upload for archives > 20MB
-        const totalChunks = Math.ceil(body.byteLength / MAX_KV_CHUNK_SIZE);
-        await env.BEAM_KV.put(`beam:${cleanToken}:meta`, JSON.stringify({
-          chunks: totalChunks,
-          size: body.byteLength,
-        }), { expirationTtl: EXPIRATION_TTL });
+      try {
+        if (body.byteLength <= MAX_KV_CHUNK_SIZE) {
+          // Single chunk upload: store payload AND size metadata in 1 single KV write!
+          await env.BEAM_KV.put(`beam:${cleanToken}`, body, {
+            metadata: { size: body.byteLength },
+            expirationTtl: EXPIRATION_TTL,
+          });
+        } else {
+          // Multi-chunk upload for archives > 20MB
+          const totalChunks = Math.ceil(body.byteLength / MAX_KV_CHUNK_SIZE);
+          await env.BEAM_KV.put(`beam:${cleanToken}:meta`, JSON.stringify({
+            chunks: totalChunks,
+            size: body.byteLength,
+          }), { expirationTtl: EXPIRATION_TTL });
 
-        for (let i = 0; i < totalChunks; i++) {
-          const start = i * MAX_KV_CHUNK_SIZE;
-          const end = Math.min(start + MAX_KV_CHUNK_SIZE, body.byteLength);
-          const chunk = body.slice(start, end);
-          await env.BEAM_KV.put(`beam:${cleanToken}:${i}`, chunk, { expirationTtl: EXPIRATION_TTL });
+          for (let i = 0; i < totalChunks; i++) {
+            const start = i * MAX_KV_CHUNK_SIZE;
+            const end = Math.min(start + MAX_KV_CHUNK_SIZE, body.byteLength);
+            const chunk = body.slice(start, end);
+            await env.BEAM_KV.put(`beam:${cleanToken}:${i}`, chunk, { expirationTtl: EXPIRATION_TTL });
+          }
         }
+      } catch (kvErr) {
+        return new Response(JSON.stringify({ error: 'Failed to store archive in KV: ' + (kvErr.message || String(kvErr)) }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
       }
 
       return new Response(JSON.stringify({

@@ -25,6 +25,10 @@ msgstr ".. (Надређена фасцикла)"
 msgid "Archive: %s"
 msgstr "Архива: %s"
 
+# en-hash: f4f8e689039140fb860c618a6eacb8ee
+msgid "Archiving (%d/%d - %s):\n%s"
+msgstr "Архивирање (%d/%d - %s):\n%s"
+
 # en-hash: 6eee210465fd5fe3081cbdc035faf4ea
 msgid "Are you sure you want to restore this backup?\n\nAn automatic safety rollback snapshot will be created before any files are updated."
 msgstr "Да ли сте сигурни да желите да вратите ову резервну копију?\n\nАутоматска безбедносна тачка враћања биће направљена пре измене датотека."
@@ -44,6 +48,10 @@ msgstr "Назив резервне копије"
 # en-hash: 5e9f37fad626c515ba7b36e74c42e17d
 msgid "Backup created successfully!\n\nFile: %s\nSize: %s\nArchived files: %d"
 msgstr "Резервна копија је успешно направљена!\n\nДатотека: %s\nВеличина: %s\nАрхивираних датотека: %d"
+
+# en-hash: df35262c72a71cb296f0130fe9dc8652
+msgid "Backup creation canceled."
+msgstr "Прављење резервне копије отказано."
 
 # en-hash: 8c9b5c30039246df4e284265e575ce06
 msgid "Backup received successfully!\n\nFile: %s"
@@ -85,6 +93,10 @@ msgstr "Beam пренос је отказан."
 msgid "Beam upload failed:\n%s"
 msgstr "Beam отпремање није успело:\n%s"
 
+# en-hash: 7111d6b15f836624b077a3dcdd7087bf
+msgid "Books Folder:\n%s"
+msgstr "Файлум за књиге:\n%s"
+
 # en-hash: 12d72fb625ec7cee14aac12f2392eee1
 msgid "Browse Folder"
 msgstr "Прегледај фасциклу"
@@ -116,6 +128,10 @@ msgstr "Повезивање и преузимање архиве..."
 # en-hash: 1f84a8ea2266a66e6be5f03f9b78e800
 msgid "Connecting to Beam relay..."
 msgstr "Повезивање на Beam сервер..."
+
+# en-hash: 4046ca4eac71fd660ff5daa4372066e7
+msgid "Corrupted filename in Beam payload."
+msgstr "Оштећен назив датотеке у Beam пакету."
 
 # en-hash: a71b94dc9954c63441159856938be723
 msgid "Corrupted or empty Beam payload."
@@ -149,6 +165,10 @@ msgstr "Правите, управљајте и враћајте модулар�
 msgid "Created '%s'"
 msgstr "Креирано „%s“"
 
+# en-hash: 19e21238e20af336ede460df8cf776a6
+msgid "Creating Backup Archive"
+msgstr "Прављење архива резервне копије"
+
 # en-hash: 0d325b507ae70a0aa07aa62c9415cdd4
 msgid "Creating backup archive...\nPlease wait."
 msgstr "Прављење архиве резервне копије...\nМолимо сачекајте."
@@ -173,6 +193,14 @@ msgstr "Резервна копија и враћање уређаја"
 msgid "Dictionaries & OCR Data"
 msgstr "Речници и OCR подаци"
 
+# en-hash: f24351e020bd2306cdc4fc7dc6ad2bd2
+msgid "Disk full or write error writing header: %s"
+msgstr "Disk je pun ili greška pri upisu zaglavlja: %s"
+
+# en-hash: 022d19f1ccb67394dac32eaaeccacdd6
+msgid "Disk full: only %s of %s encrypted data written to staging file. Free up space on the Kindle and try again."
+msgstr "Disk je pun: upisano samo %s od %s šifrovanih podataka u privremenu datoteku. Oslobodite prostor na Kindle-u i pokušajte ponovo."
+
 # en-hash: f92965e2c8a7afb3c1b9a5c09a263636
 msgid "Done"
 msgstr "Завршено"
@@ -180,6 +208,14 @@ msgstr "Завршено"
 # en-hash: 0f71ee70a18dcad9e268820ae88283fc
 msgid "Download failed (HTTP %s): %s"
 msgstr "Преузимање није успело (HTTP %s): %s"
+
+# en-hash: 91fbf3ba3dc5f69a8dbd6bd4c3a0a67b
+msgid "Download failed (Network error): %s"
+msgstr "Преузимање није успело (мрежна грешка): %s"
+
+# en-hash: cd415c49f3c3dcc9db530e8335de52de
+msgid "Download incomplete (%s received out of %s). Network connection may have dropped."
+msgstr "Преузимање непотпуно (%s примљено од %s). Мрежна веза је можда прекинута."
 
 # en-hash: 64089d52e6d17e3b80ba6bd80b8bf06c
 msgid "Downloading backup archive (%s)..."
@@ -196,6 +232,10 @@ msgstr "Преузимање: %s..."
 # en-hash: f7a124dce93e38381ea3023a4f0aa14e
 msgid "Encrypting backup archive..."
 msgstr "Шифровање архиве резервне копије..."
+
+# en-hash: 0dd934b741df7596241d8bff533fc1c9
+msgid "Encryption stopped early: read only %s of %s."
+msgstr "Enkripcija je rano zaustavljena: pročitano samo %s od %s."
 
 # en-hash: dfc7523a11a7e11b2c7f51cfafdf139c
 msgid "Enter custom filename (without extension):"
@@ -220,6 +260,10 @@ msgstr "Прављење фасцикле није успело."
 # en-hash: 689450633204759bf63bdef8d58160bf
 msgid "Failed to inspect archive:\n%s"
 msgstr "Неуспела провера архиве:\n%s"
+
+# en-hash: e16cdc3620dbf0875c75e6d305896412
+msgid "Failed to prepare encrypted stream"
+msgstr "Неуспешно припремање шифрованог тока"
 
 # en-hash: b0f2b97dc5d2b76b26e040408bb1d8af
 msgid "Folder"
@@ -252,6 +296,10 @@ msgstr "Неисправан Beam код."
 # en-hash: 102800baa7564cf03c0fe98c672f9cbd
 msgid "Invalid filename in Beam payload."
 msgstr "Неважећи назив датотеке у Beam подацима."
+
+# en-hash: 81d22541cf9910a2add409abf056027c
+msgid "Invalid filename in backup path."
+msgstr "Неважећи назив датотеке у путањи за резервну копију."
 
 # en-hash: e79ab781ed465b50b2570988208270b9
 msgid "Manage Backups"
@@ -304,6 +352,14 @@ msgstr "Молимо унесите 6-цифрени Beam код."
 # en-hash: 0463c331120b4965a80dfbe694d5b55b
 msgid "Pre-flight check failed: %s"
 msgstr "Прелиминарна провера није успела: %s"
+
+# en-hash: 3491fb9f8ed4c3dc8ce721c205bc428c
+msgid "Preparing backup payload..."
+msgstr "Припрема података за резервну копију..."
+
+# en-hash: f262fae0a2f17e8c1eb4e9eddb0160e4
+msgid "Proceed"
+msgstr "Настави"
 
 # en-hash: 4fe018c28e35e662f93f36f498cc3e12
 msgid "Reading History & Stats"
@@ -365,6 +421,10 @@ msgstr "Ограничење чувања"
 msgid "Retention Limit: Keep newest %d backups"
 msgstr "Ограничење: задржи %d најновијих копија"
 
+# en-hash: 6327b4e59f58137083214a1fec358855
+msgid "Retry"
+msgstr "Покушај поново"
+
 # en-hash: ed5c2c8b4c48bb6a2b8a8cbbcb6ec4a3
 msgid "Revert to the pre-restore rollback snapshot?\n\nThis will undo the last restore and return your settings and patches to their prior state.\n\nKOReader will restart immediately."
 msgstr "Вратити се на стање пре последњег враћања?\n\nОво ће опозвати последње враћање и вратити подешавања и закрпе на претходно стање.\n\nKOReader ће се одмах поново покренути."
@@ -393,6 +453,10 @@ msgstr "Изабери све"
 msgid "Select Backup Folder"
 msgstr "Изабери фасциклу копија"
 
+# en-hash: a7fad80dbd7a0ee23639d348f1dbd4a5
+msgid "Select Books Folder"
+msgstr "Изаберите фајлум за књиге"
+
 # en-hash: deffb03a57b0deaf912f04da4575848f
 msgid "Select Folder"
 msgstr "Izaberi fasciklu"
@@ -417,6 +481,10 @@ msgstr "Успешно враћено на безбедносну тачку."
 msgid "This backup is %s, which exceeds the 100MB Beam transfer limit.\n\nBeam is designed for fast wireless transfer of settings and plugins. For full backups with reading statistics, dictionaries, or fonts, please transfer via USB or create a lighter backup."
 msgstr "Ova rezervna kopija je %s, što premašuje limit prenosa Beam od 100 MB.\n\nBeam je dizajniran za brzi bežični prenos postavki i dodataka. Za potpune rezervne kopije sa statistikama čitanja, rečnicima ili fontovima, molimo vas da ih prenesete preko USB-a ili kreirate lakšu rezervnu kopiju."
 
+# en-hash: 74f11079fa87c6f76b2c6fdaa74aab3f
+msgid "This backup is %s. Large wireless transfers on Kindle can take several minutes.\n\nDo you want to proceed with Beaming?"
+msgstr "Ова резервна копија је %s. Велики бежични преноси на Kindle-у могу потрајати неколико минута.\n\nДа ли желите да наставите са слањем преко Beama?"
+
 # en-hash: c7fcadfb9d8d33e697f394cf22598623
 msgid "Undo Last Restore"
 msgstr "Опозови последње враћање"
@@ -429,9 +497,21 @@ msgstr "Опозивање није успело: %s"
 msgid "Upload failed (HTTP %s): %s"
 msgstr "Отпремање није успело (HTTP %s): %s"
 
+# en-hash: a581add5493e4acf7fb8739c3b1981bb
+msgid "Upload failed (Network error): %s"
+msgstr "Отпремање није успело (мрежна грешка): %s"
+
+# en-hash: 7fe4bdeb8f9a1be31a8886a37b11d32c
+msgid "Upload incomplete: relay received only %s of %s. The wireless connection was cut off."
+msgstr "Otpremanje nepotpuno: relej je primio samo %s od %s. Bežična veza je prekinuta."
+
 # en-hash: 55c11e4b0000b4cf083ae1ff648d5946
 msgid "Uploading backup archive..."
 msgstr "Отпремање архиве копије..."
+
+# en-hash: ea6476a63b0c316c17f39f6ff17267c8
+msgid "Uploading: %s / %s (%d%%)"
+msgstr "Отпремање: %s / %s (%d%%)"
 
 # en-hash: 86650eb950d0e08a5dd35fbcd4303482
 msgid "User Plugins"

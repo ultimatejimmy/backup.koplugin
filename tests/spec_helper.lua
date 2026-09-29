@@ -7,8 +7,26 @@ package.path = package.path .. ";./backup.koplugin/?.lua"
 package.path = package.path .. ";../backup.koplugin/?.lua"
 package.path = package.path .. ";./?.lua"
 package.path = package.path .. ";../?.lua"
-package.path = package.path .. ";/mnt/c/Users/jpautz/squashfs-root/usr/lib/koreader/?.lua"
-package.path = package.path .. ";c:/Users/jpautz/squashfs-root/usr/lib/koreader/?.lua"
+
+local koreader_bases = {
+    "/usr/lib/koreader",
+    "/home/jimmy/squashfs-root/usr/lib/koreader",
+    "/mnt/c/Users/jpautz/squashfs-root/usr/lib/koreader",
+    "c:/Users/jpautz/squashfs-root/usr/lib/koreader",
+}
+local env_base = os.getenv("KOREADER_APP_DIR")
+if env_base and env_base ~= "" then
+    table.insert(koreader_bases, 1, env_base)
+end
+for _, base in ipairs(koreader_bases) do
+    if base and base ~= "" then
+        package.path = package.path .. ";" .. base .. "/?.lua"
+        package.path = package.path .. ";" .. base .. "/common/?.lua"
+        package.path = package.path .. ";" .. base .. "/libs/?.lua"
+        package.path = package.path .. ";" .. base .. "/frontend/?.lua"
+        package.path = package.path .. ";" .. base .. "/ffi/?.lua"
+    end
+end
 
 -- Mock gettext
 package.loaded["gettext"] = function(str) return str end
@@ -114,6 +132,7 @@ _G.G_reader_settings = {
 -- Mock lfs
 local ok_real_lfs, real_lfs = pcall(require, "lfs")
 if ok_real_lfs and real_lfs then
+    package.preload["libs/libkoreader-lfs"] = function() return real_lfs end
     package.loaded["libs/libkoreader-lfs"] = real_lfs
     package.loaded["lfs"] = real_lfs
 end
