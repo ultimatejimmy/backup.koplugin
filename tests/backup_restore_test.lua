@@ -378,5 +378,66 @@ describe("backup_restore", function()
             rf:close()
             assert.are.equal(icon_data, content)
         end)
+
+        it("restores profiles.lua and gestures.lua to data_dir/settings and preserves profiles_autoexec during cross-device restore", function()
+            local archive_path = backup_dir .. "/profiles_test_backup.tar"
+            local writer = ArchiverMgr.createWriter(archive_path, "tar")
+
+            local profiles_content = "return { DayReading = { settings = { name = 'DayReading', qm_show = true } } }"
+            local gestures_content = "return { double_tap = { action = 'profile_exec_DayReading' } }"
+            local foreign_settings = {
+                frontlight_intensity = 95, -- Hardware key to be stripped
+                screen_dpi = 212,          -- Hardware key to be stripped
+                profiles_autoexec = {
+                    onDocumentOpen = { "DayReading" }
+                },
+                line_spacing = 110,
+            }
+
+            writer:addMemory("settings/settings.reader.lua", Sanitizer.dumpSettings(foreign_settings))
+            writer:addMemory("settings/profiles.lua", profiles_content)
+            writer:addMemory("settings/gestures.lua", gestures_content)
+
+            local manifest = Manifest.create{
+                backup_name = "Profiles Test Backup",
+                components = {
+                    [Constants.COMPONENTS.SETTINGS] = true,
+                },
+            }
+            manifest.device.model = "Kobo Clara 2E"
+            manifest.device.platform = "kobo"
+            writer:addMemory(Constants.MANIFEST_FILE_NAME, Manifest.serialize(manifest))
+            writer:close()
+
+            local ok, msg = RestoreEngine.executeRestore(archive_path, {
+                mode = Sanitizer.MODE_SANITIZED,
+                selected_components = {
+                    [Constants.COMPONENTS.SETTINGS] = true,
+                },
+            })
+            assert.is_true(ok)
+
+            -- Verify profiles.lua was deployed to settings
+            local pf = io.open(data_dir .. "/settings/profiles.lua", "rb")
+            assert.is_not_nil(pf)
+            local p_data = pf:read("*all")
+            pf:close()
+            assert.are.equal(profiles_content, p_data)
+
+            -- Verify gestures.lua was deployed to settings
+            local gf = io.open(data_dir .. "/settings/gestures.lua", "rb")
+            assert.is_not_nil(gf)
+            local g_data = gf:read("*all")
+            gf:close()
+            assert.are.equal(gestures_content, g_data)
+
+            -- Verify profiles_autoexec was preserved while hardware keys preserved current device values
+            assert.is_not_nil(_G.G_reader_settings.data.profiles_autoexec)
+            assert.are.same({ "DayReading" }, _G.G_reader_settings.data.profiles_autoexec.onDocumentOpen)
+            assert.are.equal(110, _G.G_reader_settings.data.line_spacing)
+            -- Foreign hardware values (95 and 212) were stripped, preserving target device hardware defaults (20 and 300)
+            assert.are.equal(20, _G.G_reader_settings.data.frontlight_intensity)
+            assert.are.equal(300, _G.G_reader_settings.data.screen_dpi)
+        end)
     end)
 end)

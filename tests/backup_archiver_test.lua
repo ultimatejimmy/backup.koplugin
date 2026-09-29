@@ -504,5 +504,85 @@ describe("backup_archiver", function()
             assert.is_nil(content:find("docsettings/sidecars"))
             assert.is_nil(content:find("history/history.lua"))
         end)
+
+        it("includes profiles.lua and gestures.lua when SETTINGS is true", function()
+            local lfs = require("libs/libkoreader-lfs")
+            local custom_data_dir = "/tmp/test_profiles_backup_data"
+            os.execute("mkdir -p " .. custom_data_dir .. "/settings")
+
+            local pf = io.open(custom_data_dir .. "/settings/profiles.lua", "w")
+            if pf then
+                pf:write("return { NightMode = { settings = { name = 'NightMode', qm_show = true } } }")
+                pf:close()
+            end
+
+            local gf = io.open(custom_data_dir .. "/settings/gestures.lua", "w")
+            if gf then
+                gf:write("return { swipe_up = { action = 'profile_exec_NightMode' } }")
+                gf:close()
+            end
+
+            local sf = io.open(custom_data_dir .. "/settings.reader.lua", "w")
+            if sf then
+                sf:write("return { profiles_autoexec = { onWake = { 'NightMode' } } }")
+                sf:close()
+            end
+
+            local ok, res = ArchiverMgr.createBackup{
+                archive_path = test_out,
+                format = "tar",
+                backup_name = "test_profiles_backup",
+                data_dir = custom_data_dir,
+                components = {
+                    settings = true,
+                },
+            }
+            assert.is_true(ok)
+            assert.is_table(res)
+
+            local f = io.open(test_out, "rb")
+            assert.is_not_nil(f)
+            local content = f:read("*all")
+            f:close()
+
+            assert.is_not_nil(content:find("settings/profiles.lua"))
+            assert.is_not_nil(content:find("settings/gestures.lua"))
+            assert.is_not_nil(content:find("settings/settings.reader.lua"))
+
+            os.execute("rm -rf " .. custom_data_dir)
+        end)
+
+        it("includes user quickmenu.koplugin under plugins component", function()
+            local lfs = require("libs/libkoreader-lfs")
+            local custom_data_dir = "/tmp/test_qm_plugin_backup_data"
+            os.execute("mkdir -p " .. custom_data_dir .. "/plugins/quickmenu.koplugin")
+
+            local mf = io.open(custom_data_dir .. "/plugins/quickmenu.koplugin/main.lua", "w")
+            if mf then
+                mf:write("-- mock quickmenu plugin")
+                mf:close()
+            end
+
+            local ok, res = ArchiverMgr.createBackup{
+                archive_path = test_out,
+                format = "tar",
+                backup_name = "test_qm_plugin_backup",
+                data_dir = custom_data_dir,
+                components = {
+                    plugins = true,
+                },
+            }
+            assert.is_true(ok)
+            assert.is_table(res)
+
+            local f = io.open(test_out, "rb")
+            assert.is_not_nil(f)
+            local content = f:read("*all")
+            f:close()
+
+            assert.is_not_nil(content:find("plugins/quickmenu.koplugin/main.lua"))
+
+            os.execute("rm -rf " .. custom_data_dir)
+        end)
     end)
 end)
