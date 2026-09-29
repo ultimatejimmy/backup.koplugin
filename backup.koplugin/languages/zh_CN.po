@@ -281,6 +281,10 @@ msgstr "格式: .%s"
 msgid "HTTPS address of the ephemeral Beam relay:"
 msgstr "临时 Beam 中继服务器的 HTTPS 地址:"
 
+# en-hash: 8f67973007158337346584551b093be8
+msgid "Icons"
+msgstr "图标"
+
 # en-hash: 185fdf3f043056d88a297a1a45e410f1
 msgid "Invalid Beam archive format."
 msgstr "无效的 Beam 归档格式。"

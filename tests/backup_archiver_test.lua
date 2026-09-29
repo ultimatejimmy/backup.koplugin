@@ -126,6 +126,38 @@ describe("backup_archiver", function()
             os.execute("rm -rf " .. data_dir)
         end)
 
+        it("creates backup with custom icons when icons component is enabled", function()
+            local lfs = require("libs/libkoreader-lfs")
+            local data_dir = "/tmp/test_icons_backup_data"
+            os.execute("mkdir -p " .. data_dir .. "/icons")
+            local ic_f = io.open(data_dir .. "/icons/bookmark.svg", "w")
+            if ic_f then
+                ic_f:write("<svg>custom-icon</svg>")
+                ic_f:close()
+            end
+
+            local ok, res = ArchiverMgr.createBackup{
+                archive_path = test_out,
+                format = "tar",
+                backup_name = "test_icons_backup",
+                data_dir = data_dir,
+                components = {
+                    icons = true,
+                },
+            }
+            assert.is_true(ok)
+            assert.is_table(res)
+
+            local f = io.open(test_out, "rb")
+            assert.is_not_nil(f)
+            local content = f:read("*all")
+            f:close()
+
+            assert.is_not_nil(content:find("icons/bookmark%.svg"))
+
+            os.execute("rm -rf " .. data_dir)
+        end)
+
         it("excludes bookinfo_cache.sqlite3 and statistics.sqlite3 from settings", function()
             local lfs = require("libs/libkoreader-lfs")
             local data_dir = "/tmp/test_stats_backup_data"

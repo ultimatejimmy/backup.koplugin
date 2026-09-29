@@ -130,6 +130,70 @@ describe("backup_sanitizer", function()
         end)
     end)
 
+    describe("Cross-Device Hardware and Path Normalization", function()
+        it("adapts color_rendering based on target device screen capability", function()
+            local Device = require("device")
+            local orig_hasColor = Device.hasColorScreen
+
+            -- 1. Target is a color screen (e.g. desktop/Android)
+            Device.hasColorScreen = function() return true end
+            local sanitized_color = Sanitizer.sanitize(sample_settings, Sanitizer.MODE_SANITIZED, {})
+            assert.is_true(sanitized_color.color_rendering)
+
+            -- 2. Target is a grayscale screen (e.g. Kobo / Kindle)
+            Device.hasColorScreen = function() return false end
+            local foreign_color_settings = { color_rendering = true, font_size = 28 }
+            local sanitized_gray = Sanitizer.sanitize(foreign_color_settings, Sanitizer.MODE_SANITIZED, {})
+            assert.is_false(sanitized_gray.color_rendering)
+
+            -- 3. Target device already has an explicit preference
+            local current_pref = { color_rendering = false }
+            local sanitized_pref = Sanitizer.sanitize(foreign_color_settings, Sanitizer.MODE_SANITIZED, current_pref)
+            assert.is_false(sanitized_pref.color_rendering)
+
+            Device.hasColorScreen = orig_hasColor
+        end)
+
+        it("preserves target home_dir and updates folder_shortcuts", function()
+            local current_target = {
+                home_dir = "/mnt/c/Users/jpautz/Documents/ebooks",
+                folder_shortcuts = {
+                    ["/mnt/c/Users/jpautz/Documents/ebooks"] = {
+                        providers = { home_dir = true },
+                        time = 1700000000,
+                    },
+                },
+            }
+
+            local foreign_kindle = {
+                home_dir = "/mnt/us/Books",
+                inbox_dir = "/mnt/us/documents/Books",
+                FilebrowserPlus_dataPath = "/mnt/us",
+                folder_shortcuts = {
+                    ["/mnt/us/Books"] = {
+                        providers = { home_dir = true },
+                        time = 1600000000,
+                    },
+                },
+                font_size = 36,
+            }
+
+            local sanitized = Sanitizer.sanitize(foreign_kindle, Sanitizer.MODE_SANITIZED, current_target)
+
+            -- Must preserve target device's books folder
+            assert.are.equal("/mnt/c/Users/jpautz/Documents/ebooks", sanitized.home_dir)
+            -- Foreign inbox_dir and plugin data path must be stripped
+            assert.is_nil(sanitized.inbox_dir)
+            assert.is_nil(sanitized.FilebrowserPlus_dataPath)
+            -- Folder shortcuts must contain target home_dir and NOT contain Kindle /mnt/us
+            assert.is_nil(sanitized.folder_shortcuts["/mnt/us/Books"])
+            assert.is_not_nil(sanitized.folder_shortcuts["/mnt/c/Users/jpautz/Documents/ebooks"])
+            assert.is_true(sanitized.folder_shortcuts["/mnt/c/Users/jpautz/Documents/ebooks"].providers.home_dir)
+            -- Portable preferences must still be imported
+            assert.are.equal(36, sanitized.font_size)
+        end)
+    end)
+
     describe("dumpSettings", function()
         it("serializes to valid executable Lua code", function()
             local code = Sanitizer.dumpSettings({ a = 1, b = "hello", c = { true, false } })

@@ -671,7 +671,15 @@ function ArchiverMgr.createBackup(options)
             end
         end
 
-        -- 5. Screensavers
+        -- 5. Icons
+        if components[Constants.COMPONENTS.ICONS] then
+            local ic_dir = data_dir .. "/icons"
+            if lfs and lfs.attributes and lfs.attributes(ic_dir, "mode") == "directory" then
+                collectFiles(ArchiverMgr.scanDirectory(ic_dir, "icons", false))
+            end
+        end
+
+        -- 6. Screensavers
         if components[Constants.COMPONENTS.SCREENSAVERS] then
             local sc_dir = data_dir .. "/screensavers"
             if lfs and lfs.attributes and lfs.attributes(sc_dir, "mode") == "directory" then
@@ -679,7 +687,7 @@ function ArchiverMgr.createBackup(options)
             end
         end
 
-        -- 6. Style Tweaks
+        -- 7. Style Tweaks
         if components[Constants.COMPONENTS.STYLETWEAKS] then
             local st_dir = data_dir .. "/styletweaks"
             if lfs and lfs.attributes and lfs.attributes(st_dir, "mode") == "directory" then

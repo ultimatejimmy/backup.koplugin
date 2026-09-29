@@ -99,6 +99,7 @@ Constants.HARDWARE_KEYS = {
     ["device_id"] = true,
     ["wifi_timeout"] = true,
     ["wifi_connection_checker"] = true,
+    ["terminal_shell"] = true,
 }
 
 -- Settings containing absolute filesystem paths that vary across platforms
@@ -109,9 +110,12 @@ Constants.DEVICE_PATH_KEYS = {
     ["lastdir"] = true,
     ["lastfile"] = true,
     ["download_dir"] = true,
+    ["inbox_dir"] = true,
     ["annotations_export_folder"] = true,
     ["extra_plugin_paths"] = true,
     ["screensaver_dir"] = true,
+    ["FilebrowserPlus_dataPath"] = true,
+    ["folder_shortcuts"] = true,
 }
 
 -- Available backup components that can be toggled by the user
@@ -120,6 +124,7 @@ Constants.COMPONENTS = {
     PLUGINS = "plugins",
     PATCHES = "patches",
     FONTS = "fonts",
+    ICONS = "icons",
     SCREENSAVERS = "screensavers",
     STYLETWEAKS = "styletweaks",
     DOCSETTINGS = "docsettings",
@@ -133,6 +138,7 @@ Constants.DEFAULT_COMPONENT_SELECTION = {
     [Constants.COMPONENTS.PLUGINS] = true,
     [Constants.COMPONENTS.PATCHES] = true,
     [Constants.COMPONENTS.FONTS] = true,
+    [Constants.COMPONENTS.ICONS] = true,
     [Constants.COMPONENTS.SCREENSAVERS] = true,
     [Constants.COMPONENTS.STYLETWEAKS] = true,
     [Constants.COMPONENTS.DOCSETTINGS] = false, -- Opt-in (can be thousands of files)

@@ -624,6 +624,7 @@ function BackupUI.showCreateDialog()
             { key = Constants.COMPONENTS.PLUGINS, label = _("User Plugins") },
             { key = Constants.COMPONENTS.PATCHES, label = _("Patches") },
             { key = Constants.COMPONENTS.FONTS, label = _("Fonts") },
+            { key = Constants.COMPONENTS.ICONS, label = _("Icons") },
             { key = Constants.COMPONENTS.SCREENSAVERS, label = _("Screensavers") },
             { key = Constants.COMPONENTS.STYLETWEAKS, label = _("Style Tweaks") },
             { key = Constants.COMPONENTS.DOCSETTINGS, label = _("Reading Progress & Notes") },
@@ -972,6 +973,7 @@ function BackupUI.showArchiveDetailSheet(filepath, on_back_cb)
                     checked_func = function() return sanitize_toggle end,
                     callback = function()
                         sanitize_toggle = not sanitize_toggle
+                        refresh(1, 1)
                     end,
                 },
             },
@@ -982,6 +984,7 @@ function BackupUI.showArchiveDetailSheet(filepath, on_back_cb)
                     checked_func = function() return clean_slate_toggle end,
                     callback = function()
                         clean_slate_toggle = not clean_slate_toggle
+                        refresh(1, 2)
                     end,
                 },
             },

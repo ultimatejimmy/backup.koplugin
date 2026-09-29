@@ -281,6 +281,10 @@ msgstr "형식: .%s"
 msgid "HTTPS address of the ephemeral Beam relay:"
 msgstr "임시 Beam 중계 서버의 HTTPS 주소:"
 
+# en-hash: 8f67973007158337346584551b093be8
+msgid "Icons"
+msgstr "아이콘"
+
 # en-hash: 185fdf3f043056d88a297a1a45e410f1
 msgid "Invalid Beam archive format."
 msgstr "잘못된 Beam 압축 형식입니다."

@@ -124,11 +124,21 @@ function Manifest.isSameDevice(manifest)
     if not manifest or not manifest.device then
         return false
     end
+    if manifest.device.is_fallback then
+        return false
+    end
     local cur_model = Manifest.getDeviceModel()
     local cur_platform = Manifest.getPlatformName()
 
     local backup_model = manifest.device.model or ""
     local backup_platform = manifest.device.platform or ""
+
+    if backup_model == "" or backup_model:lower() == "unknown" then
+        return false
+    end
+    if backup_platform == "" or backup_platform:lower() == "unknown" then
+        return false
+    end
 
     if cur_model:lower() ~= backup_model:lower() then
         return false

@@ -212,6 +212,9 @@ msgstr "Format: .%s"
 msgid "HTTPS address of the ephemeral Beam relay:"
 msgstr "HTTPS address of the ephemeral Beam relay:"
 
+msgid "Icons"
+msgstr "Icons"
+
 msgid "Invalid Beam archive format."
 msgstr "Invalid Beam archive format."
 

@@ -281,6 +281,10 @@ msgstr "Формат: .%s"
 msgid "HTTPS address of the ephemeral Beam relay:"
 msgstr "HTTPS адреса привременог Beam сервера:"
 
+# en-hash: 8f67973007158337346584551b093be8
+msgid "Icons"
+msgstr "Иконе"
+
 # en-hash: 185fdf3f043056d88a297a1a45e410f1
 msgid "Invalid Beam archive format."
 msgstr "Неважећи формат Beam архиве."

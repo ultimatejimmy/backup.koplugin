@@ -182,12 +182,18 @@ function RestoreEngine.inspectArchive(archive_path)
                 [Constants.COMPONENTS.PLUGINS] = true,
                 [Constants.COMPONENTS.PATCHES] = true,
                 [Constants.COMPONENTS.FONTS] = true,
+                [Constants.COMPONENTS.ICONS] = true,
                 [Constants.COMPONENTS.SCREENSAVERS] = true,
                 [Constants.COMPONENTS.STYLETWEAKS] = true,
                 [Constants.COMPONENTS.DOCSETTINGS] = true,
                 [Constants.COMPONENTS.HISTORY] = true,
                 [Constants.COMPONENTS.DICTIONARIES] = true,
             },
+        }
+        manifest.device = {
+            model = "Unknown",
+            platform = "unknown",
+            is_fallback = true,
         }
     end
 
@@ -233,11 +239,13 @@ function RestoreEngine.executeRestore(archive_path, options)
 
     local selected_components = options.selected_components or manifest.components or Constants.DEFAULT_COMPONENT_SELECTION
 
-    -- 2. Create safety rollback snapshot
-    local ok_roll, roll_err = RestoreEngine.createRollbackSnapshot()
-    if not ok_roll then
-        -- Non-fatal warning, but log it
-        print("Warning: Failed to create pre-restore rollback snapshot:", roll_err)
+    -- 2. Create safety rollback snapshot (skip during undo to avoid overwriting rollback with current state)
+    if not options.is_undo then
+        local ok_roll, roll_err = RestoreEngine.createRollbackSnapshot()
+        if not ok_roll then
+            -- Non-fatal warning, but log it
+            print("Warning: Failed to create pre-restore rollback snapshot:", roll_err)
+        end
     end
 
     -- 3. Extract archive to staging directory
@@ -260,8 +268,20 @@ function RestoreEngine.executeRestore(archive_path, options)
         end
 
         if lfs.attributes(staged_settings, "mode") == "file" then
-            local cur_settings_tbl = (_G.G_reader_settings and _G.G_reader_settings.data) or {}
-            local sanitized_data, stripped, reset = Sanitizer.sanitizeFile(staged_settings, mode, cur_settings_tbl)
+            local cur_settings_tbl = (_G.G_reader_settings and _G.G_reader_settings.data)
+            if not cur_settings_tbl or not next(cur_settings_tbl) then
+                local current_file = data_dir .. "/settings.reader.lua"
+                local ok_cur, cur_data = pcall(dofile, current_file)
+                if ok_cur and type(cur_data) == "table" then
+                    cur_settings_tbl = cur_data
+                else
+                    cur_settings_tbl = {}
+                end
+            end
+            local target_options = {
+                books_dir = options.books_dir or ArchiverMgr.getEffectiveBooksDir(),
+            }
+            local sanitized_data, stripped, reset = Sanitizer.sanitizeFile(staged_settings, mode, cur_settings_tbl, target_options)
 
             if sanitized_data then
                 stripped_keys = stripped
@@ -342,7 +362,15 @@ function RestoreEngine.executeRestore(archive_path, options)
         end
     end
 
-    -- 8. Process screensavers
+    -- 8. Process icons
+    if selected_components[Constants.COMPONENTS.ICONS] then
+        local staged_icons = staging_dir .. "/icons"
+        if lfs.attributes(staged_icons, "mode") == "directory" then
+            RestoreEngine.copyDir(staged_icons, data_dir .. "/icons")
+        end
+    end
+
+    -- 9. Process screensavers
     if selected_components[Constants.COMPONENTS.SCREENSAVERS] then
         local staged_screensavers = staging_dir .. "/screensavers"
         if lfs.attributes(staged_screensavers, "mode") == "directory" then
@@ -350,7 +378,7 @@ function RestoreEngine.executeRestore(archive_path, options)
         end
     end
 
-    -- 9. Process style tweaks
+    -- 10. Process style tweaks
     if selected_components[Constants.COMPONENTS.STYLETWEAKS] then
         local staged_tweaks = staging_dir .. "/styletweaks"
         if lfs.attributes(staged_tweaks, "mode") == "directory" then
@@ -526,6 +554,7 @@ function RestoreEngine.undoLastRestore()
     return RestoreEngine.executeRestore(target_path, {
         mode = Sanitizer.MODE_RAW,
         clean_slate = false,
+        is_undo = true,
     })
 end
 

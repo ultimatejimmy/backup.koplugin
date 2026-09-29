@@ -29,7 +29,7 @@ describe("backup_restore", function()
 
         -- Write initial settings.reader.lua
         local f = io.open(data_dir .. "/settings.reader.lua", "wb")
-        f:write("return " .. Sanitizer.dumpSettings(_G.G_reader_settings.data))
+        f:write(Sanitizer.dumpSettings(_G.G_reader_settings.data))
         f:close()
     end)
 
@@ -112,10 +112,12 @@ describe("backup_restore", function()
             assert.are.equal(40, _G.G_reader_settings.data.font_size)
             assert.are.equal(130, _G.G_reader_settings.data.line_spacing)
 
-            -- 2. Hardware keys and device paths must be stripped
-            assert.is_nil(_G.G_reader_settings.data.frontlight_intensity)
+            -- 2. Hardware keys and device paths must be sanitized:
+            -- Target device's own hardware settings and books folder are preserved,
+            -- while foreign hardware keys and paths are not imported.
+            assert.are.equal(20, _G.G_reader_settings.data.frontlight_intensity)
             assert.is_nil(_G.G_reader_settings.data.dev_no_hw_dither)
-            assert.is_nil(_G.G_reader_settings.data.home_dir)
+            assert.are.equal("/mnt/onboard/original", _G.G_reader_settings.data.home_dir)
 
             -- 3. Staging folder must be cleaned up
             local staging = data_dir .. "/cache/" .. Constants.STAGING_DIR_NAME
@@ -309,6 +311,72 @@ describe("backup_restore", function()
             assert.is_nil(h_content:find("/mnt/onboard/Books"))
 
             os.execute("rm -rf \"" .. kindle_books_dir .. "\"")
+        end)
+
+        it("treats archives without manifest.json as unknown cross-device archives", function()
+            local archive_path = backup_dir .. "/no_manifest_backup.tar"
+            local writer = ArchiverMgr.createWriter(archive_path, "tar")
+            writer:addMemory("settings/settings.reader.lua", "return { font_size = 24 }")
+            writer:close()
+
+            local inspect, err = RestoreEngine.inspectArchive(archive_path)
+            assert.is_not_nil(inspect)
+            assert.is_false(inspect.is_same_device)
+            assert.are.equal("Unknown", inspect.backup_model)
+        end)
+
+        it("undoLastRestore reverts to rollback snapshot without overwriting it", function()
+            local ok_roll, roll_path = RestoreEngine.createRollbackSnapshot()
+            assert.is_true(ok_roll)
+            assert.is_true(RestoreEngine.hasRollbackSnapshot())
+
+            -- Simulate a bad restore that mutated settings
+            _G.G_reader_settings.data.home_dir = "/mnt/us/bad_path"
+            _G.G_reader_settings.data.font_size = 99
+            local sf = io.open(data_dir .. "/settings.reader.lua", "wb")
+            sf:write(Sanitizer.dumpSettings(_G.G_reader_settings.data))
+            sf:close()
+
+            -- Perform undo
+            local ok_undo, err_undo = RestoreEngine.undoLastRestore()
+            assert.is_true(ok_undo)
+
+            -- Verified restored to original snapshot
+            assert.are.equal("/mnt/onboard/original", _G.G_reader_settings.data.home_dir)
+            assert.are.equal(20, _G.G_reader_settings.data.font_size)
+        end)
+
+        it("restores custom icons to data_dir/icons when ICONS is selected", function()
+            local archive_path = backup_dir .. "/icons_test_backup.tar"
+            local writer = ArchiverMgr.createWriter(archive_path, "tar")
+
+            local icon_data = "<svg viewBox='0 0 24 24'><circle cx='12' cy='12' r='10'/></svg>"
+            writer:addMemory("settings/settings.reader.lua", "return {}")
+            writer:addMemory("icons/custom_star.svg", icon_data)
+
+            local manifest = Manifest.create{
+                backup_name = "Icons Test Backup",
+                components = {
+                    [Constants.COMPONENTS.ICONS] = true,
+                },
+            }
+            writer:addMemory(Constants.MANIFEST_FILE_NAME, Manifest.serialize(manifest))
+            writer:close()
+
+            local ok, msg = RestoreEngine.executeRestore(archive_path, {
+                mode = Sanitizer.MODE_RAW,
+                selected_components = {
+                    [Constants.COMPONENTS.ICONS] = true,
+                },
+            })
+            assert.is_true(ok)
+
+            local restored_icon = data_dir .. "/icons/custom_star.svg"
+            local rf = io.open(restored_icon, "rb")
+            assert.is_not_nil(rf)
+            local content = rf:read("*all")
+            rf:close()
+            assert.are.equal(icon_data, content)
         end)
     end)
 end)

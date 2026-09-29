@@ -90,6 +90,7 @@ package.loaded["device"] = {
     isTouchDevice = function() return true end,
     hasDPad = function() return false end,
     canRestart = function() return true end,
+    hasColorScreen = function() return false end,
     screen = {
         getWidth = function() return 1072 end,
         getHeight = function() return 1448 end,
