@@ -40,5 +40,7 @@ For detailed guides and walkthroughs, visit our [Wiki](https://github.com/ultima
 ## Support me
 
 [liberapay](https://liberapay.com/ultimatejimmy) 
+
 [ko-fi](https://ko-fi.com/G0J627UAY9)
+
 [Buy me a coffee](https://www.buymeacoffee.com/ultimatejimmy)
