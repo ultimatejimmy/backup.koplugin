@@ -20,9 +20,9 @@ describe("backup_beam", function()
             assert.is_truthy(pin:match("^%d%d%d%d%d%d$"))
         end)
 
-        it("formats 6-digit PIN with a dash for display", function()
-            assert.equals("482-910", Beam.formatPin("482910"))
-            assert.equals("123-456", Beam.formatPin("123-456"))
+        it("formats 6-digit PIN for display with a space", function()
+            assert.equals("482 910", Beam.formatPin("482910"))
+            assert.equals("123 456", Beam.formatPin("123-456"))
         end)
 
         it("cleans and validates user input PIN strings", function()

@@ -121,6 +121,14 @@ msgstr "Закрыть"
 msgid "Code expires in 15 minutes\nSingle-use end-to-end encrypted"
 msgstr "Код действует 15 минут\nСквозное шифрование (одноразовый)"
 
+# en-hash: 86aac18111beed926d7ba20edf59b7ce
+msgid "Components to Restore: %s ▸"
+msgstr "Компоненты для восстановления: %s ▸"
+
+# en-hash: 8019b3bf9614191cdcd24f143bbaafa0
+msgid "Components: %s ▸"
+msgstr "Компоненты: %s ▸"
+
 # en-hash: 1bef0388877dbf64dcd100acd4a793db
 msgid "Connecting and downloading backup archive..."
 msgstr "Подключение и загрузка архива..."
@@ -321,6 +329,10 @@ msgstr "Новая папка"
 msgid "No backup files found in:\n%s"
 msgstr "Файлы резервных копий не найдены в:\n%s"
 
+# en-hash: bc4c1050aeeb3ff4240c4894b98f32a9
+msgid "No items found."
+msgstr "Элементы не найдены."
+
 # en-hash: 9257ea893e1902fd67376e7ec30c29aa
 msgid "No rollback snapshot available to undo."
 msgstr "Нет доступного снимка для отката."
@@ -459,7 +471,7 @@ msgstr "Выбрать папку для копий"
 
 # en-hash: a7fad80dbd7a0ee23639d348f1dbd4a5
 msgid "Select Books Folder"
-msgstr "Выбрать папку книг"
+msgstr "Выбрать папку с книгами"
 
 # en-hash: deffb03a57b0deaf912f04da4575848f
 msgid "Select Folder"

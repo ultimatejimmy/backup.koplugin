@@ -121,6 +121,14 @@ msgstr "Tutup"
 msgid "Code expires in 15 minutes\nSingle-use end-to-end encrypted"
 msgstr "Kode kedaluwarsa dalam 15 menit\nTerenkripsi ujung-ke-ujung (sekali pakai)"
 
+# en-hash: 86aac18111beed926d7ba20edf59b7ce
+msgid "Components to Restore: %s ▸"
+msgstr "Komponen untuk dipulihkan: %s ▸"
+
+# en-hash: 8019b3bf9614191cdcd24f143bbaafa0
+msgid "Components: %s ▸"
+msgstr "Komponen: %s ▸"
+
 # en-hash: 1bef0388877dbf64dcd100acd4a793db
 msgid "Connecting and downloading backup archive..."
 msgstr "Menghubungkan dan mengunduh arsip cadangan..."
@@ -320,6 +328,10 @@ msgstr "Folder Baru"
 # en-hash: ff40c126b8b46780477108211fcf70a6
 msgid "No backup files found in:\n%s"
 msgstr "Tidak ada file cadangan ditemukan di:\n%s"
+
+# en-hash: bc4c1050aeeb3ff4240c4894b98f32a9
+msgid "No items found."
+msgstr "Tidak ada item yang ditemukan."
 
 # en-hash: 9257ea893e1902fd67376e7ec30c29aa
 msgid "No rollback snapshot available to undo."

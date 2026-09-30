@@ -223,6 +223,8 @@ package.loaded["ui/uimanager"] = {
     show = function(self, widget) end,
     close = function(self, widget) end,
     setDirty = function(self, widget) end,
+    nextTick = function(self, fn, ...) if fn then return fn(...) end end,
+    schedule = function(self, time, fn, ...) if fn then return fn(...) end end,
 }
 package.loaded["ui/widget/inputdialog"] = {
     new = function(self, args)

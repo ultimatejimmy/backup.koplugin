@@ -166,7 +166,8 @@ end
 function ArchiverMgr.shouldExclude(name, full_path)
     if not name or name == "" then return true end
     if name == "." or name == ".." then return true end
-    if name == ".git" or name == ".github" or name == ".DS_Store" or name == "Thumbs.db" then return true end
+    if name == ".git" or name == ".github" or name == ".DS_Store" or name == "Thumbs.db" or name == "__MACOSX" then return true end
+    if name:match("^%._") then return true end
     if name:match("%.tmp$") or name:match("%.bak$") or name == "crash.log" then return true end
     if name == "cache" or name == "backup_staging" then return true end
     if name:match("^bookinfo_cache%.sqlite3") then return true end
@@ -179,8 +180,9 @@ end
 -- @param entry_prefix string: prefix in archive
 -- @param is_plugins_dir boolean: if true, skips core KOReader plugins
 -- @param is_settings_dir boolean: if true, skips statistics and vocabulary databases
+-- @param allowed_items table: optional set of top-level item names to include
 -- @return table: array of { disk_path = "...", archive_path = "..." }
-function ArchiverMgr.scanDirectory(base_dir, entry_prefix, is_plugins_dir, is_settings_dir)
+function ArchiverMgr.scanDirectory(base_dir, entry_prefix, is_plugins_dir, is_settings_dir, allowed_items)
     local files = {}
     if not lfs or not lfs.attributes then return files end
     if lfs.attributes(base_dir, "mode") ~= "directory" then return files end
@@ -192,28 +194,45 @@ function ArchiverMgr.scanDirectory(base_dir, entry_prefix, is_plugins_dir, is_se
                 local rel = (rel_path ~= "") and (rel_path .. "/" .. item) or item
                 local mode = lfs.attributes(full, "mode")
 
-                if mode == "directory" then
-                    -- If scanning plugins directory, skip core KOReader plugins
-                    local skip = false
-                    if is_plugins_dir and rel_path == "" then
-                        local clean_name = item:lower()
-                        if Constants.CORE_KOREADER_PLUGINS[clean_name] then
-                            skip = true
+                -- If allowed_items filter is provided, enforce it on top-level entries
+                local item_allowed = true
+                if rel_path == "" and allowed_items then
+                    local matched = allowed_items[item]
+                    if not matched then
+                        local stem = item:gsub("%.ifo$", ""):gsub("%.idx$", ""):gsub("%.dict%.dz$", ""):gsub("%.dict$", ""):gsub("%.dz$", "")
+                        if allowed_items[stem] or allowed_items[stem .. ".ifo"] then
+                            matched = true
                         end
                     end
-                    if not skip then
-                        recurse(full, rel)
+                    if not matched then
+                        item_allowed = false
                     end
-                elseif mode == "file" then
-                    local skip = false
-                    if is_settings_dir and (item:match("%.sqlite3") or item:match("%.db") or item:match("%.sqlite")) then
-                        skip = true
-                    end
-                    if not skip then
-                        table.insert(files, {
-                            disk_path = full,
-                            archive_path = (entry_prefix ~= "") and (entry_prefix .. "/" .. rel) or rel,
-                        })
+                end
+
+                if item_allowed then
+                    if mode == "directory" then
+                        -- If scanning plugins directory, only include valid .koplugin directories, skip core KOReader plugins
+                        local skip = false
+                        if is_plugins_dir and rel_path == "" then
+                            local clean_name = item:lower()
+                            if Constants.CORE_KOREADER_PLUGINS[clean_name] or not item:match("%.koplugin$") then
+                                skip = true
+                            end
+                        end
+                        if not skip then
+                            recurse(full, rel)
+                        end
+                    elseif mode == "file" then
+                        local skip = false
+                        if is_settings_dir and (item:match("%.sqlite3") or item:match("%.db") or item:match("%.sqlite")) then
+                            skip = true
+                        end
+                        if not skip then
+                            table.insert(files, {
+                                disk_path = full,
+                                archive_path = (entry_prefix ~= "") and (entry_prefix .. "/" .. rel) or rel,
+                            })
+                        end
                     end
                 end
             end
@@ -222,6 +241,128 @@ function ArchiverMgr.scanDirectory(base_dir, entry_prefix, is_plugins_dir, is_se
 
     recurse(base_dir, "")
     return files
+end
+
+--- Scans and returns list of installed third-party user plugins.
+-- @param data_dir string: KOReader data directory
+-- @return table: sorted array of plugin directory names
+function ArchiverMgr.getAvailablePlugins(data_dir)
+    local list = {}
+    local p_dir = (data_dir or ".") .. "/plugins"
+    if not lfs or not lfs.attributes or lfs.attributes(p_dir, "mode") ~= "directory" then
+        return list
+    end
+    for item in lfs.dir(p_dir) do
+        if not ArchiverMgr.shouldExclude(item, p_dir .. "/" .. item) then
+            local full = p_dir .. "/" .. item
+            if lfs.attributes(full, "mode") == "directory" and item:match("%.koplugin$") then
+                local clean_name = item:lower()
+                if not Constants.CORE_KOREADER_PLUGINS[clean_name] then
+                    table.insert(list, item)
+                end
+            end
+        end
+    end
+    table.sort(list)
+    return list
+end
+
+--- Scans and returns list of installed user patches.
+-- @param data_dir string: KOReader data directory
+-- @return table: sorted array of patch file names
+function ArchiverMgr.getAvailablePatches(data_dir)
+    local list = {}
+    local pt_dir = (data_dir or ".") .. "/patches"
+    if not lfs or not lfs.attributes or lfs.attributes(pt_dir, "mode") ~= "directory" then
+        return list
+    end
+    for item in lfs.dir(pt_dir) do
+        if not ArchiverMgr.shouldExclude(item, pt_dir .. "/" .. item) then
+            table.insert(list, item)
+        end
+    end
+    table.sort(list)
+    return list
+end
+
+--- Scans and returns list of installed custom fonts.
+-- @param data_dir string: KOReader data directory
+-- @return table: sorted array of font file/folder names
+function ArchiverMgr.getAvailableFonts(data_dir)
+    local list = {}
+    local f_dir = (data_dir or ".") .. "/fonts"
+    if not lfs or not lfs.attributes or lfs.attributes(f_dir, "mode") ~= "directory" then
+        return list
+    end
+    for item in lfs.dir(f_dir) do
+        if not ArchiverMgr.shouldExclude(item, f_dir .. "/" .. item) then
+            local full = f_dir .. "/" .. item
+            local mode = lfs.attributes(full, "mode")
+            local lower = item:lower()
+            if mode == "directory" or lower:match("%.[ot]tf$") or lower:match("%.ttc$") or lower:match("%.woff2?$") then
+                table.insert(list, item)
+            end
+        end
+    end
+    table.sort(list)
+    return list
+end
+
+--- Scans and returns list of installed dictionaries and OCR datasets.
+-- @param data_dir string: KOReader data directory
+-- @return table: sorted array of dictionary/tessdata items
+function ArchiverMgr.getAvailableDictionaries(data_dir)
+    local list = {}
+    local seen = {}
+    local base = data_dir or "."
+
+    local dict_dirs = {
+        base .. "/data/dict",
+        base .. "/dict",
+        base .. "/data/dict_ext",
+    }
+    if _G.G_defaults and type(_G.G_defaults.readSetting) == "function" then
+        local d = _G.G_defaults:readSetting("STARDICT_DATA_DIR")
+        if d and d ~= "" then table.insert(dict_dirs, d) end
+    end
+    local env_dict = os.getenv("STARDICT_DATA_DIR")
+    if env_dict and env_dict ~= "" then table.insert(dict_dirs, env_dict) end
+
+    for _, dict_dir in ipairs(dict_dirs) do
+        if lfs and lfs.attributes and lfs.attributes(dict_dir, "mode") == "directory" then
+            for item in lfs.dir(dict_dir) do
+                if not ArchiverMgr.shouldExclude(item, dict_dir .. "/" .. item) then
+                    local full = dict_dir .. "/" .. item
+                    local mode = lfs.attributes(full, "mode")
+                    if mode == "directory" and not seen[item] then
+                        seen[item] = true
+                        table.insert(list, item)
+                    elseif mode == "file" and item:match("%.ifo$") and not seen[item] then
+                        seen[item] = true
+                        table.insert(list, item)
+                    end
+                end
+            end
+        end
+    end
+
+    local tess_dirs = {
+        base .. "/data/tessdata",
+        base .. "/tessdata",
+    }
+    for _, tess_dir in ipairs(tess_dirs) do
+        if lfs and lfs.attributes and lfs.attributes(tess_dir, "mode") == "directory" then
+            for item in lfs.dir(tess_dir) do
+                if not ArchiverMgr.shouldExclude(item, tess_dir .. "/" .. item) and not seen[item] then
+                    seen[item] = true
+                    table.insert(list, item)
+                end
+            end
+        end
+    end
+
+    table.sort(list)
+    return list
 end
 
 --- Resolves the effective books/library directory.
@@ -651,7 +792,7 @@ function ArchiverMgr.createBackup(options)
         if components[Constants.COMPONENTS.PLUGINS] then
             local p_dir = data_dir .. "/plugins"
             if lfs and lfs.attributes and lfs.attributes(p_dir, "mode") == "directory" then
-                collectFiles(ArchiverMgr.scanDirectory(p_dir, "plugins", true))
+                collectFiles(ArchiverMgr.scanDirectory(p_dir, "plugins", true, false, options.selected_plugins))
             end
         end
 
@@ -659,7 +800,7 @@ function ArchiverMgr.createBackup(options)
         if components[Constants.COMPONENTS.PATCHES] then
             local pt_dir = data_dir .. "/patches"
             if lfs and lfs.attributes and lfs.attributes(pt_dir, "mode") == "directory" then
-                collectFiles(ArchiverMgr.scanDirectory(pt_dir, "patches", false))
+                collectFiles(ArchiverMgr.scanDirectory(pt_dir, "patches", false, false, options.selected_patches))
             end
         end
 
@@ -667,7 +808,7 @@ function ArchiverMgr.createBackup(options)
         if components[Constants.COMPONENTS.FONTS] then
             local f_dir = data_dir .. "/fonts"
             if lfs and lfs.attributes and lfs.attributes(f_dir, "mode") == "directory" then
-                collectFiles(ArchiverMgr.scanDirectory(f_dir, "fonts", false))
+                collectFiles(ArchiverMgr.scanDirectory(f_dir, "fonts", false, false, options.selected_fonts))
             end
         end
 
@@ -742,17 +883,28 @@ function ArchiverMgr.createBackup(options)
         if components[Constants.COMPONENTS.DICTIONARIES] then
             local dict_dir = data_dir .. "/data/dict"
             if lfs and lfs.attributes and lfs.attributes(dict_dir, "mode") == "directory" then
-                collectFiles(ArchiverMgr.scanDirectory(dict_dir, "data/dict", false))
+                collectFiles(ArchiverMgr.scanDirectory(dict_dir, "data/dict", false, false, options.selected_dictionaries))
+            end
+            local dict_alt = data_dir .. "/dict"
+            if lfs and lfs.attributes and lfs.attributes(dict_alt, "mode") == "directory" then
+                collectFiles(ArchiverMgr.scanDirectory(dict_alt, "dict", false, false, options.selected_dictionaries))
             end
             local tess_dir = data_dir .. "/data/tessdata"
             if lfs and lfs.attributes and lfs.attributes(tess_dir, "mode") == "directory" then
-                collectFiles(ArchiverMgr.scanDirectory(tess_dir, "data/tessdata", false))
+                collectFiles(ArchiverMgr.scanDirectory(tess_dir, "data/tessdata", false, false, options.selected_dictionaries))
+            end
+            local tess_alt = data_dir .. "/tessdata"
+            if lfs and lfs.attributes and lfs.attributes(tess_alt, "mode") == "directory" then
+                collectFiles(ArchiverMgr.scanDirectory(tess_alt, "tessdata", false, false, options.selected_dictionaries))
             end
         end
 
         local total_files = #pending_entries
         local current_files = 0
         local current_bytes = 0
+
+        local font_descriptors = {}
+        local dict_descriptors = {}
 
         for idx, item in ipairs(pending_entries) do
             if is_canceled and is_canceled() then
@@ -787,6 +939,21 @@ function ArchiverMgr.createBackup(options)
                 elseif item.archive_path:match("^patches/") then
                     local patch_name = item.archive_path:gsub("^patches/", "")
                     table.insert(patch_list, patch_name)
+                elseif item.archive_path:match("^fonts/") then
+                    local f_name = item.archive_path:match("^fonts/([^/]+)")
+                    if f_name and not font_descriptors[f_name] then
+                        font_descriptors[f_name] = true
+                    end
+                elseif item.archive_path:match("^data/dict/") then
+                    local d_name = item.archive_path:match("^data/dict/([^/]+)")
+                    if d_name and not dict_descriptors[d_name] then
+                        dict_descriptors[d_name] = true
+                    end
+                elseif item.archive_path:match("^data/tessdata/") then
+                    local t_name = item.archive_path:match("^data/tessdata/([^/]+)")
+                    if t_name and not dict_descriptors[t_name] then
+                        dict_descriptors[t_name] = true
+                    end
                 end
             end
         end
@@ -806,12 +973,22 @@ function ArchiverMgr.createBackup(options)
         table.sort(p_list, function(a, b) return a.dirname < b.dirname end)
         table.sort(patch_list)
 
+        local f_list = {}
+        for k, _ in pairs(font_descriptors) do table.insert(f_list, k) end
+        table.sort(f_list)
+
+        local d_list = {}
+        for k, _ in pairs(dict_descriptors) do table.insert(d_list, k) end
+        table.sort(d_list)
+
         local manifest = Manifest.create{
             backup_name = backup_name,
             backup_type = "modular",
             components = components,
             plugins = p_list,
             patches = patch_list,
+            fonts = f_list,
+            dictionaries = d_list,
             books_dir = books_dir,
         }
         writer:addMemory(Constants.MANIFEST_FILE_NAME, Manifest.serialize(manifest))

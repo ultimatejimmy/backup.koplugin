@@ -439,5 +439,65 @@ describe("backup_restore", function()
             assert.are.equal(20, _G.G_reader_settings.data.frontlight_intensity)
             assert.are.equal(300, _G.G_reader_settings.data.screen_dpi)
         end)
+
+        it("selectively restores only chosen plugins and patches", function()
+            local test_archive = "/tmp/test_selective_restore.tar"
+            local writer = ArchiverMgr.createWriter(test_archive, "tar")
+            assert.is_not_nil(writer)
+
+            writer:addMemory("plugins/keep.koplugin/main.lua", "-- keep plugin")
+            writer:addMemory("plugins/skip.koplugin/main.lua", "-- skip plugin")
+            writer:addMemory("patches/1-keep.lua", "-- keep patch")
+            writer:addMemory("patches/2-skip.lua", "-- skip patch")
+
+            local manifest = Manifest.create{
+                backup_name = "Selective Restore Test",
+                components = {
+                    [Constants.COMPONENTS.PLUGINS] = true,
+                    [Constants.COMPONENTS.PATCHES] = true,
+                },
+                plugins = { { dirname = "keep.koplugin" }, { dirname = "skip.koplugin" } },
+                patches = { "1-keep.lua", "2-skip.lua" },
+            }
+            writer:addMemory(Constants.MANIFEST_FILE_NAME, Manifest.serialize(manifest))
+            writer:close()
+
+            local insp = RestoreEngine.inspectArchive(test_archive)
+            assert.is_not_nil(insp)
+            assert.are.equal(2, #insp.available_plugins)
+            assert.are.equal(2, #insp.available_patches)
+
+            local ok = RestoreEngine.executeRestore(test_archive, {
+                selected_components = {
+                    [Constants.COMPONENTS.PLUGINS] = true,
+                    [Constants.COMPONENTS.PATCHES] = true,
+                },
+                selected_plugins = {
+                    ["keep.koplugin"] = true,
+                    ["skip.koplugin"] = false,
+                },
+                selected_patches = {
+                    ["1-keep.lua"] = true,
+                    ["2-skip.lua"] = false,
+                },
+            })
+            assert.is_true(ok)
+
+            local f_keep_p = io.open(data_dir .. "/plugins/keep.koplugin/main.lua", "r")
+            assert.is_not_nil(f_keep_p)
+            f_keep_p:close()
+
+            local f_skip_p = io.open(data_dir .. "/plugins/skip.koplugin/main.lua", "r")
+            assert.is_nil(f_skip_p)
+
+            local f_keep_pt = io.open(data_dir .. "/patches/1-keep.lua", "r")
+            assert.is_not_nil(f_keep_pt)
+            f_keep_pt:close()
+
+            local f_skip_pt = io.open(data_dir .. "/patches/2-skip.lua", "r")
+            assert.is_nil(f_skip_pt)
+
+            os.remove(test_archive)
+        end)
     end)
 end)

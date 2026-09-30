@@ -131,5 +131,10 @@ describe("backup_main_menu", function()
         local dynamic_sub = menu_items.backup.sub_item_table_func()
         assert.is_table(dynamic_sub)
         assert.is_true(#dynamic_sub >= 5)
+
+        assert.is_true(menu_items.backup.keep_menu_open)
+        for _, item in ipairs(dynamic_sub) do
+            assert.is_true(item.keep_menu_open)
+        end
     end)
 end)

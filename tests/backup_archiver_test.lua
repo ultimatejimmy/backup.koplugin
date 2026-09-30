@@ -584,5 +584,121 @@ describe("backup_archiver", function()
 
             os.execute("rm -rf " .. custom_data_dir)
         end)
+
+        it("discovers available plugins, patches, fonts, and dictionaries", function()
+            local test_dir = "/tmp/test_discovery_backup_data"
+            os.execute("mkdir -p " .. test_dir .. "/plugins/myplugin.koplugin")
+            os.execute("mkdir -p " .. test_dir .. "/plugins/statistics.koplugin") -- core plugin, should be skipped
+            os.execute("mkdir -p " .. test_dir .. "/plugins/__MACOSX") -- mac junk, should be skipped
+            os.execute("mkdir -p " .. test_dir .. "/plugins/Floating-Dictionary.koplugin-main") -- not a .koplugin, should be skipped
+            os.execute("mkdir -p " .. test_dir .. "/patches")
+            os.execute("mkdir -p " .. test_dir .. "/fonts")
+            os.execute("mkdir -p " .. test_dir .. "/data/dict")
+            os.execute("mkdir -p " .. test_dir .. "/dict/subfolder-dict")
+
+            local pf = io.open(test_dir .. "/patches/1-mypatch.lua", "w")
+            if pf then pf:write("patch") pf:close() end
+
+            local ff = io.open(test_dir .. "/fonts/MyFont.ttf", "w")
+            if ff then ff:write("font") ff:close() end
+
+            local df = io.open(test_dir .. "/data/dict/stardict-test.ifo", "w")
+            if df then df:write("dict") df:close() end
+
+            local plugins = ArchiverMgr.getAvailablePlugins(test_dir)
+            assert.are.equal(1, #plugins)
+            assert.are.equal("myplugin.koplugin", plugins[1])
+
+            local patches = ArchiverMgr.getAvailablePatches(test_dir)
+            assert.are.equal(1, #patches)
+            assert.are.equal("1-mypatch.lua", patches[1])
+
+            local fonts = ArchiverMgr.getAvailableFonts(test_dir)
+            assert.are.equal(1, #fonts)
+            assert.are.equal("MyFont.ttf", fonts[1])
+
+            local dicts = ArchiverMgr.getAvailableDictionaries(test_dir)
+            assert.are.equal(2, #dicts)
+            assert.are.equal("stardict-test.ifo", dicts[1])
+            assert.are.equal("subfolder-dict", dicts[2])
+
+            os.execute("rm -rf " .. test_dir)
+        end)
+
+        it("filters items selectively using selected_plugins, selected_patches, selected_fonts", function()
+            local test_dir = "/tmp/test_selective_backup_data"
+            os.execute("mkdir -p " .. test_dir .. "/plugins/pluginA.koplugin")
+            os.execute("mkdir -p " .. test_dir .. "/plugins/pluginB.koplugin")
+            os.execute("mkdir -p " .. test_dir .. "/patches")
+
+            local p1 = io.open(test_dir .. "/plugins/pluginA.koplugin/main.lua", "w")
+            if p1 then p1:write("pA") p1:close() end
+
+            local p2 = io.open(test_dir .. "/plugins/pluginB.koplugin/main.lua", "w")
+            if p2 then p2:write("pB") p2:close() end
+
+            local pt1 = io.open(test_dir .. "/patches/1-patchA.lua", "w")
+            if pt1 then pt1:write("ptA") pt1:close() end
+
+            local pt2 = io.open(test_dir .. "/patches/2-patchB.lua", "w")
+            if pt2 then pt2:write("ptB") pt2:close() end
+
+            local ok, res = ArchiverMgr.createBackup{
+                archive_path = test_out,
+                format = "tar",
+                backup_name = "test_selective_backup",
+                data_dir = test_dir,
+                components = {
+                    plugins = true,
+                    patches = true,
+                },
+                selected_plugins = {
+                    ["pluginA.koplugin"] = true,
+                    ["pluginB.koplugin"] = false,
+                },
+                selected_patches = {
+                    ["1-patchA.lua"] = false,
+                    ["2-patchB.lua"] = true,
+                },
+            }
+            assert.is_true(ok)
+
+            local f = io.open(test_out, "rb")
+            assert.is_not_nil(f)
+            local content = f:read("*all")
+            f:close()
+
+            -- pluginA should be included, pluginB excluded
+            assert.is_not_nil(content:find("plugins/pluginA.koplugin/main.lua", 1, true))
+            assert.is_nil(content:find("plugins/pluginB.koplugin/main.lua", 1, true))
+
+            -- patchB should be included, patchA excluded
+            assert.is_not_nil(content:find("patches/2-patchB.lua", 1, true))
+            assert.is_nil(content:find("patches/1-patchA.lua", 1, true))
+
+            os.execute("rm -rf " .. test_dir)
+        end)
+
+        it("filters out non-font files like README.md in getAvailableFonts", function()
+            local test_dir = "/tmp/test_font_scan_dir"
+            os.execute("mkdir -p " .. test_dir .. "/fonts/fontFamilyDir")
+            local f1 = io.open(test_dir .. "/fonts/Custom-Font.ttf", "w")
+            if f1 then f1:write("ttf"); f1:close() end
+            local f2 = io.open(test_dir .. "/fonts/Other-Font.otf", "w")
+            if f2 then f2:write("otf"); f2:close() end
+            local f3 = io.open(test_dir .. "/fonts/README.md", "w")
+            if f3 then f3:write("readme"); f3:close() end
+            local f4 = io.open(test_dir .. "/fonts/notes.txt", "w")
+            if f4 then f4:write("notes"); f4:close() end
+
+            local fonts = ArchiverMgr.getAvailableFonts(test_dir)
+            assert.is_table(fonts)
+            assert.are.equal(3, #fonts)
+            assert.are.equal("Custom-Font.ttf", fonts[1])
+            assert.are.equal("Other-Font.otf", fonts[2])
+            assert.are.equal("fontFamilyDir", fonts[3])
+
+            os.execute("rm -rf " .. test_dir)
+        end)
     end)
 end)

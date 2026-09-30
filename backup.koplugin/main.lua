@@ -142,36 +142,42 @@ function Backup:getSubMenuItems()
     return {
         {
             text = _("Create Backup"),
+            keep_menu_open = true,
             callback = function()
                 BackupUI.showCreateDialog()
             end,
         },
         {
             text = _("Restore Backup"),
+            keep_menu_open = true,
             callback = function()
                 BackupUI.showRestoreDialog()
             end,
         },
         {
             text = _("Beam to Device"),
+            keep_menu_open = true,
             callback = function()
                 BackupUI.showBeamSelectBackupDialog()
             end,
         },
         {
             text = _("Receive via Beam Code"),
+            keep_menu_open = true,
             callback = function()
                 BackupUI.showBeamReceiveDialog()
             end,
         },
         {
             text = _("Manage Backups"),
+            keep_menu_open = true,
             callback = function()
                 BackupUI.showManageBackupsDialog()
             end,
         },
         {
             text = _("Undo Last Restore"),
+            keep_menu_open = true,
             enabled_func = function()
                 return RestoreEngine.hasRollbackSnapshot()
             end,
@@ -181,6 +187,7 @@ function Backup:getSubMenuItems()
         },
         {
             text = _("Backup & Restore Settings"),
+            keep_menu_open = true,
             callback = function()
                 BackupUI.showSettingsDialog()
             end,
@@ -194,6 +201,7 @@ function Backup:addToMainMenu(menu_items)
     menu_items.backup = {
         sorting_hint = "tools",
         text = _("Device Backup & Restore"),
+        keep_menu_open = true,
         sub_item_table = items,
         sub_item_table_func = function()
             return self:getSubMenuItems()

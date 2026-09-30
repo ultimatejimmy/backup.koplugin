@@ -95,7 +95,7 @@ msgstr "Помилка вивантаження Beam:\n%s"
 
 # en-hash: 7111d6b15f836624b077a3dcdd7087bf
 msgid "Books Folder:\n%s"
-msgstr "Папка з книгами:\n%s"
+msgstr "Папка книг:\n%s"
 
 # en-hash: 12d72fb625ec7cee14aac12f2392eee1
 msgid "Browse Folder"
@@ -120,6 +120,14 @@ msgstr "Закрити"
 # en-hash: e04433a9dbc7f8a04dfa1bad54d8e186
 msgid "Code expires in 15 minutes\nSingle-use end-to-end encrypted"
 msgstr "Код дійсний 15 хвилин\nНаскрізне шифрування (одноразовий)"
+
+# en-hash: 86aac18111beed926d7ba20edf59b7ce
+msgid "Components to Restore: %s ▸"
+msgstr "Компоненти для відновлення: %s ▸"
+
+# en-hash: 8019b3bf9614191cdcd24f143bbaafa0
+msgid "Components: %s ▸"
+msgstr "Компоненти: %s ▸"
 
 # en-hash: 1bef0388877dbf64dcd100acd4a793db
 msgid "Connecting and downloading backup archive..."
@@ -320,6 +328,10 @@ msgstr "Нова папка"
 # en-hash: ff40c126b8b46780477108211fcf70a6
 msgid "No backup files found in:\n%s"
 msgstr "Резервних копій не знайдено в:\n%s"
+
+# en-hash: bc4c1050aeeb3ff4240c4894b98f32a9
+msgid "No items found."
+msgstr "Елементів не знайдено."
 
 # en-hash: 9257ea893e1902fd67376e7ec30c29aa
 msgid "No rollback snapshot available to undo."

@@ -94,6 +94,8 @@ function Manifest.create(options)
         components = options.components or Constants.DEFAULT_COMPONENT_SELECTION,
         installed_plugins = options.plugins or {},
         installed_patches = options.patches or {},
+        installed_fonts = options.fonts or {},
+        installed_dictionaries = options.dictionaries or {},
     }
 
     return manifest

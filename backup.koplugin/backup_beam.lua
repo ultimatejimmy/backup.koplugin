@@ -141,12 +141,12 @@ function Beam.generatePin()
     return string.format("%06d", n)
 end
 
---- Formats a 6-digit PIN for readable display (e.g. "482-910").
+--- Formats a 6-digit PIN for readable display (e.g. "482 910").
 function Beam.formatPin(pin)
     if not pin then return "" end
     local clean = tostring(pin):gsub("%D", "")
     if #clean == 6 then
-        return clean:sub(1, 3) .. "-" .. clean:sub(4, 6)
+        return clean:sub(1, 3) .. " " .. clean:sub(4, 6)
     end
     return tostring(pin)
 end

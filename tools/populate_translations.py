@@ -9,13 +9,21 @@ import sys
 import hashlib
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-PLUGIN_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, '..', 'backup.koplugin'))
-if not os.path.exists(PLUGIN_DIR):
-    PLUGIN_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, '..'))
+if os.path.exists(os.path.join(SCRIPT_DIR, 'sync_translations.py')):
+    TOOLS_DIR = SCRIPT_DIR
+    if os.path.exists(os.path.join(SCRIPT_DIR, '..', '_meta.lua')):
+        PLUGIN_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, '..'))
+    elif os.path.exists(os.path.join(SCRIPT_DIR, '..', 'backup.koplugin', '_meta.lua')):
+        PLUGIN_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, '..', 'backup.koplugin'))
+    else:
+        PLUGIN_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, '..'))
+else:
+    TOOLS_DIR = os.path.join(SCRIPT_DIR, 'tools')
+    PLUGIN_DIR = SCRIPT_DIR
 
 import importlib.util
 
-SPEC = importlib.util.spec_from_file_location("sync_translations", os.path.join(PLUGIN_DIR, 'tools', 'sync_translations.py'))
+SPEC = importlib.util.spec_from_file_location("sync_translations", os.path.join(TOOLS_DIR, 'sync_translations.py'))
 sync_translations = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(sync_translations)
 
@@ -62,6 +70,9 @@ ADDITIONAL_KEYS = {
         '%d backups found in this folder': 'تم العثور على %d نسخة احتياطية في هذا المجلد',
         'Books Folder:\n%s': 'مجلد الكتب:\n%s',
         'Select Books Folder': 'حدد مجلد الكتب',
+        'Components: %s ▸': 'المكونات: %s ▸',
+        'Components to Restore: %s ▸': 'مكونات الاستعادة: %s ▸',
+        'No items found.': 'لم يتم العثور على عناصر.',
     },
     'de': {
         'Beam Relay Server': 'Beam-Relay-Server',
@@ -72,6 +83,9 @@ ADDITIONAL_KEYS = {
         '%d backups found in this folder': '%d Sicherungen in diesem Ordner gefunden',
         'Books Folder:\n%s': 'Bücherordner:\n%s',
         'Select Books Folder': 'Bücherordner auswählen',
+        'Components: %s ▸': 'Komponenten: %s ▸',
+        'Components to Restore: %s ▸': 'Wiederherzustellende Komponenten: %s ▸',
+        'No items found.': 'Keine Elemente gefunden.',
     },
     'es': {
         'Beam Relay Server': 'Servidor de retransmisión Beam',
@@ -82,6 +96,9 @@ ADDITIONAL_KEYS = {
         '%d backups found in this folder': 'Se encontraron %d copias de seguridad en esta carpeta',
         'Books Folder:\n%s': 'Carpeta de libros:\n%s',
         'Select Books Folder': 'Seleccionar carpeta de libros',
+        'Components: %s ▸': 'Componentes: %s ▸',
+        'Components to Restore: %s ▸': 'Componentes a restaurar: %s ▸',
+        'No items found.': 'No se encontraron elementos.',
     },
     'fr': {
         'Beam Relay Server': 'Serveur relais Beam',
@@ -92,6 +109,9 @@ ADDITIONAL_KEYS = {
         '%d backups found in this folder': '%d sauvegardes trouvées dans ce dossier',
         'Books Folder:\n%s': 'Dossier des livres :\n%s',
         'Select Books Folder': 'Sélectionner le dossier des livres',
+        'Components: %s ▸': 'Composants : %s ▸',
+        'Components to Restore: %s ▸': 'Composants à restaurer : %s ▸',
+        'No items found.': 'Aucun élément trouvé.',
     },
     'hu': {
         'Beam Relay Server': 'Beam továbbító szerver',
@@ -102,6 +122,9 @@ ADDITIONAL_KEYS = {
         '%d backups found in this folder': '%d biztonsági mentés található ebben a mappában',
         'Books Folder:\n%s': 'Könyvek mappája:\n%s',
         'Select Books Folder': 'Könyvek mappájának kiválasztása',
+        'Components: %s ▸': 'Összetevők: %s ▸',
+        'Components to Restore: %s ▸': 'Helyreállítandó összetevők: %s ▸',
+        'No items found.': 'Nem találhatók elemek.',
     },
     'id': {
         'Beam Relay Server': 'Server Relai Beam',
@@ -112,6 +135,9 @@ ADDITIONAL_KEYS = {
         '%d backups found in this folder': '%d cadangan ditemukan di folder ini',
         'Books Folder:\n%s': 'Folder Buku:\n%s',
         'Select Books Folder': 'Pilih Folder Buku',
+        'Components: %s ▸': 'Komponen: %s ▸',
+        'Components to Restore: %s ▸': 'Komponen untuk dipulihkan: %s ▸',
+        'No items found.': 'Tidak ada item yang ditemukan.',
     },
     'it': {
         'Beam Relay Server': 'Server relay Beam',
@@ -122,6 +148,9 @@ ADDITIONAL_KEYS = {
         '%d backups found in this folder': '%d backup trovati in questa cartella',
         'Books Folder:\n%s': 'Cartella dei libri:\n%s',
         'Select Books Folder': 'Seleziona cartella dei libri',
+        'Components: %s ▸': 'Componenti: %s ▸',
+        'Components to Restore: %s ▸': 'Componenti da ripristinare: %s ▸',
+        'No items found.': 'Nessun elemento trovato.',
     },
     'ja': {
         'Beam Relay Server': 'Beam リレーサーバー',
@@ -132,6 +161,9 @@ ADDITIONAL_KEYS = {
         '%d backups found in this folder': 'このフォルダ内で %d 個のバックアップが見つかりました',
         'Books Folder:\n%s': '書籍フォルダ:\n%s',
         'Select Books Folder': '書籍フォルダを選択',
+        'Components: %s ▸': 'コンポーネント: %s ▸',
+        'Components to Restore: %s ▸': '復元するコンポーネント: %s ▸',
+        'No items found.': '項目が見つかりませんでした。',
     },
     'ko': {
         'Beam Relay Server': 'Beam 릴레이 서버',
@@ -142,6 +174,9 @@ ADDITIONAL_KEYS = {
         '%d backups found in this folder': '이 폴더에서 백업 %d개를 찾았습니다',
         'Books Folder:\n%s': '도서 폴더:\n%s',
         'Select Books Folder': '도서 폴더 선택',
+        'Components: %s ▸': '구성 요소: %s ▸',
+        'Components to Restore: %s ▸': '복원할 구성 요소: %s ▸',
+        'No items found.': '항목을 찾을 수 없습니다.',
     },
     'nl': {
         'Beam Relay Server': 'Beam-relayserver',
@@ -152,6 +187,9 @@ ADDITIONAL_KEYS = {
         '%d backups found in this folder': '%d reservekopieën gevonden in deze map',
         'Books Folder:\n%s': 'Boekenmap:\n%s',
         'Select Books Folder': 'Boekenmap selecteren',
+        'Components: %s ▸': 'Onderdelen: %s ▸',
+        'Components to Restore: %s ▸': 'Te herstellen onderdelen: %s ▸',
+        'No items found.': 'Geen items gevonden.',
     },
     'pl': {
         'Beam Relay Server': 'Serwer przekaźnikowy Beam',
@@ -162,6 +200,9 @@ ADDITIONAL_KEYS = {
         '%d backups found in this folder': 'Znaleziono %d kopii zapasowych w tym folderze',
         'Books Folder:\n%s': 'Folder książek:\n%s',
         'Select Books Folder': 'Wybierz folder książek',
+        'Components: %s ▸': 'Składniki: %s ▸',
+        'Components to Restore: %s ▸': 'Składniki do przywrócenia: %s ▸',
+        'No items found.': 'Nie znaleziono elementów.',
     },
     'pt_br': {
         'Beam Relay Server': 'Servidor de retransmissão Beam',
@@ -172,6 +213,9 @@ ADDITIONAL_KEYS = {
         '%d backups found in this folder': '%d backups encontrados nesta pasta',
         'Books Folder:\n%s': 'Pasta de livros:\n%s',
         'Select Books Folder': 'Selecionar pasta de livros',
+        'Components: %s ▸': 'Componentes: %s ▸',
+        'Components to Restore: %s ▸': 'Componentes a restaurar: %s ▸',
+        'No items found.': 'Nenhum item encontrado.',
     },
     'ru': {
         'Beam Relay Server': 'Сервер ретрансляции Beam',
@@ -182,6 +226,9 @@ ADDITIONAL_KEYS = {
         '%d backups found in this folder': 'В этой папке найдено резервных копий: %d',
         'Books Folder:\n%s': 'Папка книг:\n%s',
         'Select Books Folder': 'Выбрать папку с книгами',
+        'Components: %s ▸': 'Компоненты: %s ▸',
+        'Components to Restore: %s ▸': 'Компоненты для восстановления: %s ▸',
+        'No items found.': 'Элементы не найдены.',
     },
     'sk': {
         'Beam Relay Server': 'Relay server Beam',
@@ -192,6 +239,9 @@ ADDITIONAL_KEYS = {
         '%d backups found in this folder': '%d záloh v tomto priečinku',
         'Books Folder:\n%s': 'Priečinok kníh:\n%s',
         'Select Books Folder': 'Vybrať priečinok kníh',
+        'Components: %s ▸': 'Komponenty: %s ▸',
+        'Components to Restore: %s ▸': 'Komponenty na obnovenie: %s ▸',
+        'No items found.': 'Nenašli sa žiadne položky.',
     },
     'sr': {
         'Beam Relay Server': 'Beam релејни сервер',
@@ -202,6 +252,9 @@ ADDITIONAL_KEYS = {
         '%d backups found in this folder': 'Пронађено је %d резервних копија у овој фасцикли',
         'Books Folder:\n%s': 'Фасцикла са књигама:\n%s',
         'Select Books Folder': 'Изаберите фасциклу са књигама',
+        'Components: %s ▸': 'Компоненте: %s ▸',
+        'Components to Restore: %s ▸': 'Компоненте за враћање: %s ▸',
+        'No items found.': 'Није пронађена ниједна ставка.',
     },
     'tr': {
         'Beam Relay Server': 'Beam Aktarım Sunucusu',
@@ -212,6 +265,9 @@ ADDITIONAL_KEYS = {
         '%d backups found in this folder': 'Bu klasörde %d yedek bulundu',
         'Books Folder:\n%s': 'Kitaplar Klasörü:\n%s',
         'Select Books Folder': 'Kitaplar Klasörünü Seç',
+        'Components: %s ▸': 'Bileşenler: %s ▸',
+        'Components to Restore: %s ▸': 'Geri Yüklenecek Bileşenler: %s ▸',
+        'No items found.': 'Öğe bulunamadı.',
     },
     'uk': {
         'Beam Relay Server': 'Сервер ретрансляції Beam',
@@ -222,6 +278,9 @@ ADDITIONAL_KEYS = {
         '%d backups found in this folder': 'У цій папці знайдено %d резервних копій',
         'Books Folder:\n%s': 'Папка книг:\n%s',
         'Select Books Folder': 'Вибрати папку з книгами',
+        'Components: %s ▸': 'Компоненти: %s ▸',
+        'Components to Restore: %s ▸': 'Компоненти для відновлення: %s ▸',
+        'No items found.': 'Елементів не знайдено.',
     },
     'zh_CN': {
         'Beam Relay Server': 'Beam 中继服务器',
@@ -232,6 +291,9 @@ ADDITIONAL_KEYS = {
         '%d backups found in this folder': '在此文件夹中找到 %d 个备份',
         'Books Folder:\n%s': '书籍文件夹：\n%s',
         'Select Books Folder': '选择书籍文件夹',
+        'Components: %s ▸': '组件：%s ▸',
+        'Components to Restore: %s ▸': '要恢复的组件：%s ▸',
+        'No items found.': '未找到任何项目。',
     },
 }
 
@@ -277,7 +339,7 @@ def main():
         print(f"✅ Generated {lang_code}.po ({lang_name}): {len(final_tr)} keys")
 
     print("\n--- Running Audit to Verify 100% Parity ---")
-    SPEC_AUDIT = importlib.util.spec_from_file_location("audit_translations", os.path.join(PLUGIN_DIR, 'tools', 'audit_translations.py'))
+    SPEC_AUDIT = importlib.util.spec_from_file_location("audit_translations", os.path.join(TOOLS_DIR, 'audit_translations.py'))
     audit_translations = importlib.util.module_from_spec(SPEC_AUDIT)
     SPEC_AUDIT.loader.exec_module(audit_translations)
     issues = audit_translations.run_audit()

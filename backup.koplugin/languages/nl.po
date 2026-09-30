@@ -121,6 +121,14 @@ msgstr "Sluiten"
 msgid "Code expires in 15 minutes\nSingle-use end-to-end encrypted"
 msgstr "Code verloopt over 15 minuten\nEenmalig gebruik, end-to-end versleuteld"
 
+# en-hash: 86aac18111beed926d7ba20edf59b7ce
+msgid "Components to Restore: %s ▸"
+msgstr "Te herstellen onderdelen: %s ▸"
+
+# en-hash: 8019b3bf9614191cdcd24f143bbaafa0
+msgid "Components: %s ▸"
+msgstr "Onderdelen: %s ▸"
+
 # en-hash: 1bef0388877dbf64dcd100acd4a793db
 msgid "Connecting and downloading backup archive..."
 msgstr "Verbinden en back-up downloaden..."
@@ -320,6 +328,10 @@ msgstr "Nieuwe map"
 # en-hash: ff40c126b8b46780477108211fcf70a6
 msgid "No backup files found in:\n%s"
 msgstr "Geen back-upbestanden gevonden in:\n%s"
+
+# en-hash: bc4c1050aeeb3ff4240c4894b98f32a9
+msgid "No items found."
+msgstr "Geen items gevonden."
 
 # en-hash: 9257ea893e1902fd67376e7ec30c29aa
 msgid "No rollback snapshot available to undo."

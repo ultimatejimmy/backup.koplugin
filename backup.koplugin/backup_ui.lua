@@ -390,7 +390,6 @@ function BackupUI.showMainMenu()
             {
                 text = _("Create Backup"),
                 callback = function()
-                    closeMain()
                     BackupUI.showCreateDialog()
                 end,
             },
@@ -399,7 +398,6 @@ function BackupUI.showMainMenu()
             {
                 text = _("Restore Backup"),
                 callback = function()
-                    closeMain()
                     BackupUI.showRestoreDialog()
                 end,
             },
@@ -408,7 +406,6 @@ function BackupUI.showMainMenu()
             {
                 text = _("Beam to Device"),
                 callback = function()
-                    closeMain()
                     BackupUI.showBeamSelectBackupDialog()
                 end,
             },
@@ -417,7 +414,6 @@ function BackupUI.showMainMenu()
             {
                 text = _("Receive via Beam Code"),
                 callback = function()
-                    closeMain()
                     BackupUI.showBeamReceiveDialog()
                 end,
             },
@@ -430,7 +426,6 @@ function BackupUI.showMainMenu()
                 text = _("Undo Last Restore"),
                 bold = true,
                 callback = function()
-                    closeMain()
                     BackupUI.showUndoRestoreConfirmation()
                 end,
             },
@@ -441,7 +436,6 @@ function BackupUI.showMainMenu()
         {
             text = _("Manage Backups"),
             callback = function()
-                closeMain()
                 BackupUI.showManageBackupsDialog()
             end,
         },
@@ -451,7 +445,6 @@ function BackupUI.showMainMenu()
         {
             text = _("Backup & Restore Settings"),
             callback = function()
-                closeMain()
                 BackupUI.showSettingsDialog()
             end,
         },
@@ -474,19 +467,386 @@ end
 -- 2. Create Backup Wizard
 -- --------------------------------------------------------------------------
 -- --------------------------------------------------------------------------
--- 2. Create Backup Wizard
+-- 2. Create & Restore Sub-Dialogs (Components, Plugins, Patches, Fonts, Dictionaries)
 -- --------------------------------------------------------------------------
-function BackupUI.showCreateDialog()
-    local s = getPluginSettings()
-    local now = os.time()
-    local current_name = "backup_" .. os.date("%Y-%m-%d_%H%M%S", now)
-    local components = {}
-    for k, v in pairs(Constants.DEFAULT_COMPONENT_SELECTION) do
-        components[k] = v
-    end
-    local chosen_format = s.default_format or "zip"
+
+local function showItemSelectionDialog(opts)
+    opts = opts or {}
+    local title = opts.title or ""
+    local items = opts.items or {}
+    local selected = opts.selected or {}
+    local on_done = opts.on_done
+    local empty_msg = opts.empty_msg or ""
     local focus_state = createFocusState()
 
+    local dialog
+    local refresh
+
+    local function closeDlg()
+        if dialog then
+            local d = dialog
+            dialog = nil
+            UIManager:close(d)
+        end
+    end
+
+    refresh = function(target_x, target_y)
+        local focus_x, focus_y
+        if target_x and target_y then
+            focus_x = target_x
+            focus_y = target_y
+        elseif dialog and dialog.selected then
+            focus_x = dialog.selected.x
+            focus_y = dialog.selected.y
+        end
+        focus_state:onBeforeRefresh()
+        if dialog then
+            local d = dialog
+            dialog = nil
+            UIManager:close(d)
+        end
+
+        local buttons = {}
+        if #items == 0 then
+            table.insert(buttons, {
+                {
+                    text = (empty_msg and empty_msg ~= "") and empty_msg or _("No items found."),
+                    enabled = false,
+                }
+            })
+        else
+            for item_idx, item_name in ipairs(items) do
+                local row_idx = #buttons + 1
+                table.insert(buttons, {
+                    {
+                        text = item_name,
+                        align = "left",
+                        checked_func = function()
+                            return selected[item_name] == true
+                        end,
+                        callback = function()
+                            selected[item_name] = not selected[item_name]
+                            refresh(1, row_idx)
+                        end,
+                    }
+                })
+            end
+
+            local preset_row_idx = #buttons + 1
+            table.insert(buttons, {
+                {
+                    text = _("Select All"),
+                    callback = function()
+                        for _, name in ipairs(items) do selected[name] = true end
+                        refresh(1, preset_row_idx)
+                    end,
+                },
+                {
+                    text = _("Clear All"),
+                    callback = function()
+                        for _, name in ipairs(items) do selected[name] = false end
+                        refresh(2, preset_row_idx)
+                    end,
+                },
+            })
+        end
+
+        table.insert(buttons, {
+            {
+                text = _("Done"),
+                bold = true,
+                callback = function()
+                    closeDlg()
+                    if on_done then
+                        UIManager:nextTick(function()
+                            on_done(selected)
+                        end)
+                    end
+                end,
+            }
+        })
+
+        local screen_w = (Device.screen and Device.screen.getWidth and Device.screen:getWidth()) or 600
+        dialog = ButtonDialog:new{
+            title = title,
+            buttons = buttons,
+            width = math.floor(screen_w * 0.94),
+            tap_close_callback = function()
+                closeDlg()
+                if on_done then
+                    UIManager:nextTick(function()
+                        on_done(selected)
+                    end)
+                end
+            end,
+        }
+        focus_state:wrapDialog(dialog)
+        UIManager:show(dialog)
+        focus_state:applyFocus(dialog, focus_x, focus_y)
+    end
+
+    refresh()
+end
+
+local function showComponentsSelectionDialog(opts)
+    opts = opts or {}
+    local title = opts.title or _("Create Backup")
+    local components = opts.components or {}
+    local allowed_components = opts.allowed_components
+    local on_done = opts.on_done
+    local focus_state = createFocusState()
+
+    local available_plugins = opts.available_plugins or {}
+    local selected_plugins = opts.selected_plugins or {}
+    local available_patches = opts.available_patches or {}
+    local selected_patches = opts.selected_patches or {}
+    local available_fonts = opts.available_fonts or {}
+    local selected_fonts = opts.selected_fonts or {}
+    local available_dicts = opts.available_dicts or {}
+    local selected_dicts = opts.selected_dicts or {}
+
+    local dialog
+    local refresh
+
+    local function closeDlg()
+        if dialog then
+            local d = dialog
+            dialog = nil
+            UIManager:close(d)
+        end
+    end
+
+    local function getSelectedCount(avail, sel)
+        local count = 0
+        for _, name in ipairs(avail) do
+            if sel[name] == true then count = count + 1 end
+        end
+        return count
+    end
+
+    refresh = function(target_x, target_y)
+        local focus_x, focus_y
+        if target_x and target_y then
+            focus_x = target_x
+            focus_y = target_y
+        elseif dialog and dialog.selected then
+            focus_x = dialog.selected.x
+            focus_y = dialog.selected.y
+        end
+        focus_state:onBeforeRefresh()
+        if dialog then
+            local d = dialog
+            dialog = nil
+            UIManager:close(d)
+        end
+
+        local all_specs = {
+            { key = Constants.COMPONENTS.SETTINGS, label = _("Settings & UI Gestures") },
+            { key = Constants.COMPONENTS.PLUGINS, label = _("User Plugins"), is_drill = true, avail = available_plugins, sel = selected_plugins, dlg_title = _("User Plugins") },
+            { key = Constants.COMPONENTS.PATCHES, label = _("Patches"), is_drill = true, avail = available_patches, sel = selected_patches, dlg_title = _("Patches") },
+            { key = Constants.COMPONENTS.FONTS, label = _("Fonts"), is_drill = true, avail = available_fonts, sel = selected_fonts, dlg_title = _("Fonts") },
+            { key = Constants.COMPONENTS.ICONS, label = _("Icons") },
+            { key = Constants.COMPONENTS.SCREENSAVERS, label = _("Screensavers") },
+            { key = Constants.COMPONENTS.STYLETWEAKS, label = _("Style Tweaks") },
+            { key = Constants.COMPONENTS.DOCSETTINGS, label = _("Reading Progress & Notes") },
+            { key = Constants.COMPONENTS.HISTORY, label = _("Reading History & Stats") },
+            { key = Constants.COMPONENTS.DICTIONARIES, label = _("Dictionaries & OCR Data"), is_drill = true, avail = available_dicts, sel = selected_dicts, dlg_title = _("Dictionaries & OCR Data") },
+        }
+
+        local buttons = {}
+        for spec_idx, spec in ipairs(all_specs) do
+            local key = spec.key
+            if not allowed_components or allowed_components[key] ~= nil then
+                local row_idx = #buttons + 1
+                if spec.is_drill then
+                    local total = #(spec.avail)
+                    local sel_count = getSelectedCount(spec.avail, spec.sel)
+                    local drill_text = string.format("(%d/%d) ▸", sel_count, total)
+
+                    table.insert(buttons, {
+                        {
+                            text = spec.label,
+                            align = "left",
+                            checked_func = function()
+                                return components[key] == true
+                            end,
+                            callback = function()
+                                components[key] = not components[key]
+                                refresh(1, row_idx)
+                            end,
+                        },
+                        {
+                            text = drill_text,
+                            width = sc(95),
+                            callback = function()
+                                closeDlg()
+                                UIManager:nextTick(function()
+                                    showItemSelectionDialog{
+                                        title = spec.dlg_title,
+                                        items = spec.avail,
+                                        selected = spec.sel,
+                                        empty_msg = _("No items found."),
+                                        on_done = function(updated_sel)
+                                            if spec.sel ~= updated_sel then
+                                                for k, v in pairs(updated_sel) do spec.sel[k] = v end
+                                            end
+                                            if getSelectedCount(spec.avail, spec.sel) > 0 then
+                                                components[key] = true
+                                            end
+                                            refresh(2, row_idx)
+                                        end,
+                                    }
+                                end)
+                            end,
+                        }
+                    })
+                else
+                    table.insert(buttons, {
+                        {
+                            text = spec.label,
+                            align = "left",
+                            checked_func = function()
+                                return components[key] == true
+                            end,
+                            callback = function()
+                                components[key] = not components[key]
+                                refresh(1, row_idx)
+                            end,
+                        },
+                    })
+                end
+            end
+        end
+
+        local preset_row_idx = #buttons + 1
+        table.insert(buttons, {
+            {
+                text = _("Select All"),
+                callback = function()
+                    for k, _ in pairs(Constants.COMPONENTS) do
+                        if not allowed_components or allowed_components[Constants.COMPONENTS[k]] ~= nil then
+                            components[Constants.COMPONENTS[k]] = true
+                        end
+                    end
+                    for _, name in ipairs(available_plugins) do selected_plugins[name] = true end
+                    for _, name in ipairs(available_patches) do selected_patches[name] = true end
+                    for _, name in ipairs(available_fonts) do selected_fonts[name] = true end
+                    for _, name in ipairs(available_dicts) do selected_dicts[name] = true end
+                    refresh(1, preset_row_idx)
+                end,
+            },
+            {
+                text = _("Recommended"),
+                callback = function()
+                    for k, _ in pairs(Constants.COMPONENTS) do
+                        if not allowed_components or allowed_components[Constants.COMPONENTS[k]] ~= nil then
+                            components[Constants.COMPONENTS[k]] = false
+                        end
+                    end
+                    for k, v in pairs(Constants.DEFAULT_COMPONENT_SELECTION) do
+                        if not allowed_components or allowed_components[k] ~= nil then
+                            components[k] = v
+                        end
+                    end
+                    refresh(2, preset_row_idx)
+                end,
+            },
+            {
+                text = _("Clear All"),
+                callback = function()
+                    for k, _ in pairs(Constants.COMPONENTS) do
+                        if not allowed_components or allowed_components[Constants.COMPONENTS[k]] ~= nil then
+                            components[Constants.COMPONENTS[k]] = false
+                        end
+                    end
+                    refresh(3, preset_row_idx)
+                end,
+            },
+        })
+
+        table.insert(buttons, {
+            {
+                text = _("Done"),
+                bold = true,
+                callback = function()
+                    closeDlg()
+                    if on_done then
+                        UIManager:nextTick(function()
+                            on_done(components)
+                        end)
+                    end
+                end,
+            }
+        })
+
+        local screen_w = (Device.screen and Device.screen.getWidth and Device.screen:getWidth()) or 600
+        dialog = ButtonDialog:new{
+            title = title,
+            buttons = buttons,
+            width = math.floor(screen_w * 0.94),
+            tap_close_callback = function()
+                closeDlg()
+                if on_done then
+                    UIManager:nextTick(function()
+                        on_done(components)
+                    end)
+                end
+            end,
+        }
+        focus_state:wrapDialog(dialog)
+        UIManager:show(dialog)
+        focus_state:applyFocus(dialog, focus_x, focus_y)
+    end
+
+    refresh()
+end
+
+-- --------------------------------------------------------------------------
+-- 2b. Create Backup Wizard
+-- --------------------------------------------------------------------------
+function BackupUI.showCreateDialog(wizard_state)
+    local s = getPluginSettings()
+    local data_dir = getDataDir()
+    local now = os.time()
+
+    local state = wizard_state
+    if not state then
+        local initial_components = {}
+        for k, v in pairs(Constants.DEFAULT_COMPONENT_SELECTION) do
+            initial_components[k] = v
+        end
+        local avail_plugins = ArchiverMgr.getAvailablePlugins(data_dir)
+        local sel_plugins = {}
+        for _, p in ipairs(avail_plugins) do sel_plugins[p] = true end
+
+        local avail_patches = ArchiverMgr.getAvailablePatches(data_dir)
+        local sel_patches = {}
+        for _, pt in ipairs(avail_patches) do sel_patches[pt] = true end
+
+        local avail_fonts = ArchiverMgr.getAvailableFonts(data_dir)
+        local sel_fonts = {}
+        for _, f in ipairs(avail_fonts) do sel_fonts[f] = true end
+
+        local avail_dicts = ArchiverMgr.getAvailableDictionaries(data_dir)
+        local sel_dicts = {}
+        for _, d in ipairs(avail_dicts) do sel_dicts[d] = true end
+
+        state = {
+            current_name = "backup_" .. os.date("%Y-%m-%d_%H%M%S", now),
+            chosen_format = s.default_format or "zip",
+            components = initial_components,
+            available_plugins = avail_plugins,
+            selected_plugins = sel_plugins,
+            available_patches = avail_patches,
+            selected_patches = sel_patches,
+            available_fonts = avail_fonts,
+            selected_fonts = sel_fonts,
+            available_dicts = avail_dicts,
+            selected_dicts = sel_dicts,
+        }
+    end
+
+    local focus_state = createFocusState()
     local dialog
     local refresh
 
@@ -504,13 +864,14 @@ function BackupUI.showCreateDialog()
     local function startBackupCreation(name_input)
         closeDialog(true)
         local backup_dir = getEffectiveBackupDir()
-        local archive_name = (name_input and name_input ~= "") and name_input or current_name
-        local filename = archive_name .. "." .. chosen_format
+        local archive_name = (name_input and name_input ~= "") and name_input or state.current_name
+        local filename = archive_name .. "." .. state.chosen_format
         local full_archive_path = backup_dir .. "/" .. filename
 
         local is_canceled = false
         local pbar
         local info_msg
+        local file_widget
 
         if ok_pbd and ProgressbarDialog then
             pbar = ProgressbarDialog:new{
@@ -525,6 +886,18 @@ function BackupUI.showCreateDialog()
                 end,
             }
             pbar:show()
+            if pbar[1] and pbar[1][1] then
+                local vg = pbar[1][1]
+                local max_w = (vg[2] and vg[2].max_width) or (Device.screen:getWidth() - Device.screen:scaleBySize(80))
+                file_widget = TextWidget:new{
+                    text = "",
+                    face = Font:getFace("smallffont"),
+                    max_width = max_w,
+                    truncate_with_ellipsis = true,
+                    truncate_left = true,
+                }
+                table.insert(vg, 3, file_widget)
+            end
         else
             info_msg = InfoMessage:new{
                 text = _("Creating backup archive...\nPlease wait."),
@@ -538,13 +911,25 @@ function BackupUI.showCreateDialog()
                 pbar.progress_max = 100
                 pbar:reportProgress(pct)
                 local file_disp = current_path and current_path:match("([^/\\]+)$") or current_path or ""
-                local info_text = string.format(_("Archiving (%d/%d - %s):\n%s"),
+                local template = _("Archiving (%d/%d - %s):\n%s")
+                local info_text = string.format(template,
                     curr_files, math.max(total_files, 1), util.getFriendlySize(curr_bytes), file_disp)
+                local line1, line2 = info_text:match("^(.-)\n(.*)$")
+                if not line1 then
+                    line1 = info_text
+                    line2 = file_disp
+                end
+
                 if pbar[1] and pbar[1][1] then
                     local vg = pbar[1][1]
                     if vg[2] and type(vg[2].setText) == "function" then
-                        vg[2]:setText(info_text)
+                        vg[2]:setText(line1)
                     end
+                    if file_widget and type(file_widget.setText) == "function" then
+                        file_widget:setText(line2)
+                    end
+                    pbar[1]._size = nil
+                    vg._size = nil
                 end
             end
         end
@@ -552,10 +937,14 @@ function BackupUI.showCreateDialog()
         UIManager:nextTick(function()
             local ok, res = ArchiverMgr.createBackup{
                 archive_path = full_archive_path,
-                format = chosen_format,
-                components = components,
+                format = state.chosen_format,
+                components = state.components,
+                selected_plugins = state.selected_plugins,
+                selected_patches = state.selected_patches,
+                selected_fonts = state.selected_fonts,
+                selected_dictionaries = state.selected_dicts,
                 backup_name = archive_name,
-                data_dir = getDataDir(),
+                data_dir = data_dir,
                 books_dir = s.custom_books_dir or ArchiverMgr.getEffectiveBooksDir(),
                 is_canceled = function() return is_canceled end,
                 on_progress = function(curr_files, total_files, curr_bytes, total_bytes, current_path)
@@ -603,6 +992,16 @@ function BackupUI.showCreateDialog()
         end)
     end
 
+    local function getComponentSummary()
+        local total = 0
+        local active = 0
+        for k, _ in pairs(Constants.DEFAULT_COMPONENT_SELECTION) do
+            total = total + 1
+            if state.components[k] then active = active + 1 end
+        end
+        return string.format("(%d/%d)", active, total)
+    end
+
     refresh = function(target_x, target_y)
         local focus_x, focus_y
         if target_x and target_y then
@@ -619,122 +1018,98 @@ function BackupUI.showCreateDialog()
             UIManager:close(d)
         end
 
-        local component_specs = {
-            { key = Constants.COMPONENTS.SETTINGS, label = _("Settings & UI Gestures") },
-            { key = Constants.COMPONENTS.PLUGINS, label = _("User Plugins") },
-            { key = Constants.COMPONENTS.PATCHES, label = _("Patches") },
-            { key = Constants.COMPONENTS.FONTS, label = _("Fonts") },
-            { key = Constants.COMPONENTS.ICONS, label = _("Icons") },
-            { key = Constants.COMPONENTS.SCREENSAVERS, label = _("Screensavers") },
-            { key = Constants.COMPONENTS.STYLETWEAKS, label = _("Style Tweaks") },
-            { key = Constants.COMPONENTS.DOCSETTINGS, label = _("Reading Progress & Notes") },
-            { key = Constants.COMPONENTS.HISTORY, label = _("Reading History & Stats") },
-            { key = Constants.COMPONENTS.DICTIONARIES, label = _("Dictionaries & OCR Data") },
-        }
-
-        local buttons = {}
-        for _, spec in ipairs(component_specs) do
-            local key = spec.key
-            local row_idx = #buttons + 1
-            table.insert(buttons, {
+        local buttons = {
+            {
                 {
-                    text = spec.label,
+                    text = string.format(_("Components: %s ▸"), getComponentSummary()),
                     align = "left",
-                    checked_func = function()
-                        return components[key] == true
-                    end,
                     callback = function()
-                        components[key] = not components[key]
-                        refresh(1, row_idx)
+                        closeDialog()
+                        showComponentsSelectionDialog{
+                            title = _("Create Backup"),
+                            components = state.components,
+                            available_plugins = state.available_plugins,
+                            selected_plugins = state.selected_plugins,
+                            available_patches = state.available_patches,
+                            selected_patches = state.selected_patches,
+                            available_fonts = state.available_fonts,
+                            selected_fonts = state.selected_fonts,
+                            available_dicts = state.available_dicts,
+                            selected_dicts = state.selected_dicts,
+                            on_done = function(updated_components)
+                                state.components = updated_components
+                                BackupUI.showCreateDialog(state)
+                            end,
+                        }
+                    end,
+                }
+            },
+            {
+                {
+                    text = string.format(_("Format: .%s"), state.chosen_format:upper()),
+                    callback = function()
+                        state.chosen_format = (state.chosen_format == "zip") and "tar.gz" or "zip"
+                        refresh(1, 2)
                     end,
                 },
-            })
-        end
-
-        local select_all_row_idx = #buttons + 1
-        table.insert(buttons, {
-            {
-                text = _("Select All"),
-                callback = function()
-                    for k, _ in pairs(Constants.COMPONENTS) do components[Constants.COMPONENTS[k]] = true end
-                    refresh(1, select_all_row_idx)
-                end,
-            },
-            {
-                text = _("Recommended"),
-                callback = function()
-                    for k, _ in pairs(Constants.COMPONENTS) do components[Constants.COMPONENTS[k]] = false end
-                    for k, v in pairs(Constants.DEFAULT_COMPONENT_SELECTION) do components[k] = v end
-                    refresh(2, select_all_row_idx)
-                end,
-            },
-            {
-                text = _("Clear All"),
-                callback = function()
-                    for k, _ in pairs(Constants.COMPONENTS) do components[Constants.COMPONENTS[k]] = false end
-                    refresh(3, select_all_row_idx)
-                end,
-            },
-        })
-
-        local format_row_idx = #buttons + 1
-        table.insert(buttons, {
-            {
-                text = string.format(_("Format: .%s"), chosen_format:upper()),
-                callback = function()
-                    chosen_format = (chosen_format == "zip") and "tar.gz" or "zip"
-                    refresh(1, format_row_idx)
-                end,
-            },
-            {
-                text = string.format(_("Name: %s"), current_name),
-                callback = function()
-                    local name_dialog
-                    name_dialog = InputDialog:new{
-                        title = _("Backup Name"),
-                        description = _("Enter custom filename (without extension):"),
-                        input = current_name,
-                        buttons = {
-                            {
+                {
+                    text = _("Backup Name"),
+                    callback = function()
+                        local name_dialog
+                        name_dialog = InputDialog:new{
+                            title = _("Backup Name"),
+                            description = _("Enter custom filename (without extension):"),
+                            input = state.current_name,
+                            buttons = {
                                 {
-                                    text = _("Cancel"),
-                                    callback = function() UIManager:close(name_dialog) end,
-                                },
-                                {
-                                    text = _("Save"),
-                                    is_enter_default = true,
-                                    callback = function()
-                                        local new_name = name_dialog:getInputText()
-                                        UIManager:close(name_dialog)
-                                        if new_name and new_name ~= "" then
-                                            current_name = new_name:gsub("[/\\?%%*:|\"<>]", "_")
-                                            refresh(2, format_row_idx)
-                                        end
-                                    end,
+                                    {
+                                        text = _("Cancel"),
+                                        callback = function() UIManager:close(name_dialog) end,
+                                    },
+                                    {
+                                        text = _("Save"),
+                                        is_enter_default = true,
+                                        callback = function()
+                                            local new_name = name_dialog:getInputText()
+                                            UIManager:close(name_dialog)
+                                            if new_name and new_name ~= "" then
+                                                state.current_name = new_name:gsub("[/\\?%%*:|\"<>]", "_")
+                                                refresh(2, 2)
+                                            end
+                                        end,
+                                    },
                                 },
                             },
-                        },
-                    }
-                    UIManager:show(name_dialog)
-                end,
-            },
-        })
-
-        table.insert(buttons, {
-            {
-                text = _("Cancel"),
-                callback = function()
-                    closeDialog()
-                end,
+                        }
+                        UIManager:show(name_dialog)
+                    end,
+                }
             },
             {
-                text = _("Create Backup"),
-                bold = true,
-                callback = function()
-                    startBackupCreation(current_name)
-                end,
+                {
+                    text = string.format(_("Archive: %s"), state.current_name),
+                    callback = function()
+                        -- Quick tap opens rename as well
+                        refresh(2, 2)
+                    end,
+                }
             },
-        })
+            {
+                {
+                    text = _("Cancel"),
+                    callback = function()
+                        closeDialog()
+                    end,
+                },
+                {
+                    text = _("Create Backup"),
+                    bold = true,
+                    callback = function()
+                        startBackupCreation(state.current_name)
+                    end,
+                },
+            }
+        }
 
         dialog = ButtonDialog:new{
             title = _("Create Backup"),
@@ -882,6 +1257,28 @@ function BackupUI.showArchiveDetailSheet(filepath, on_back_cb)
     local sanitize_toggle = not is_same
     local clean_slate_toggle = s.clean_slate_restore or false
 
+    local allowed_components = inspect.components or {}
+    local selected_components = {}
+    for k, v in pairs(allowed_components) do
+        if v then selected_components[k] = true end
+    end
+
+    local avail_plugins = inspect.available_plugins or {}
+    local sel_plugins = {}
+    for _, p in ipairs(avail_plugins) do sel_plugins[p] = true end
+
+    local avail_patches = inspect.available_patches or {}
+    local sel_patches = {}
+    for _, pt in ipairs(avail_patches) do sel_patches[pt] = true end
+
+    local avail_fonts = inspect.available_fonts or {}
+    local sel_fonts = {}
+    for _, f in ipairs(avail_fonts) do sel_fonts[f] = true end
+
+    local avail_dicts = inspect.available_dictionaries or {}
+    local sel_dicts = {}
+    for _, d in ipairs(avail_dicts) do sel_dicts[d] = true end
+
     local dialog
     local focus_state = createFocusState()
     local refresh
@@ -920,6 +1317,11 @@ function BackupUI.showArchiveDetailSheet(filepath, on_back_cb)
                         mode = mode,
                         clean_slate = clean_slate_toggle,
                         books_dir = s.custom_books_dir or ArchiverMgr.getEffectiveBooksDir(),
+                        selected_components = selected_components,
+                        selected_plugins = sel_plugins,
+                        selected_patches = sel_patches,
+                        selected_fonts = sel_fonts,
+                        selected_dictionaries = sel_dicts,
                     })
                     UIManager:close(info, "ui")
                     UIManager:setDirty("all", "ui")
@@ -946,6 +1348,22 @@ function BackupUI.showArchiveDetailSheet(filepath, on_back_cb)
         UIManager:show(confirm)
     end
 
+    local function getRestoreComponentSummary()
+        local total = 0
+        local active = 0
+        for k, v in pairs(allowed_components) do
+            if v then
+                total = total + 1
+                if selected_components[k] then active = active + 1 end
+            end
+        end
+        if active == total then
+            return string.format("(%d/%d)", active, total)
+        else
+            return string.format("(%d/%d)", active, total)
+        end
+    end
+
     refresh = function(target_x, target_y)
         local focus_x, focus_y
         if target_x and target_y then
@@ -968,12 +1386,40 @@ function BackupUI.showArchiveDetailSheet(filepath, on_back_cb)
         local buttons = {
             {
                 {
+                    text = string.format(_("Components to Restore: %s ▸"), getRestoreComponentSummary()),
+                    align = "left",
+                    callback = function()
+                        dismissDialog()
+                        showComponentsSelectionDialog{
+                            title = _("Restore Backup"),
+                            components = selected_components,
+                            allowed_components = allowed_components,
+                            available_plugins = avail_plugins,
+                            selected_plugins = sel_plugins,
+                            available_patches = avail_patches,
+                            selected_patches = sel_patches,
+                            available_fonts = avail_fonts,
+                            selected_fonts = sel_fonts,
+                            available_dicts = avail_dicts,
+                            selected_dicts = sel_dicts,
+                            on_done = function(updated)
+                                for k, v in pairs(updated) do
+                                    selected_components[k] = v
+                                end
+                                refresh(1, 1)
+                            end,
+                        }
+                    end,
+                }
+            },
+            {
+                {
                     text = _("Sanitize Hardware Settings"),
                     align = "left",
                     checked_func = function() return sanitize_toggle end,
                     callback = function()
                         sanitize_toggle = not sanitize_toggle
-                        refresh(1, 1)
+                        refresh(1, 2)
                     end,
                 },
             },
@@ -984,7 +1430,7 @@ function BackupUI.showArchiveDetailSheet(filepath, on_back_cb)
                     checked_func = function() return clean_slate_toggle end,
                     callback = function()
                         clean_slate_toggle = not clean_slate_toggle
-                        refresh(1, 2)
+                        refresh(1, 3)
                     end,
                 },
             },
@@ -1667,7 +2113,7 @@ function BackupUI.showBeamSendDialog(filepath, on_finish_cb)
                     end
 
                     local filename = filepath:match("([^/\\]+)$") or "backup archive"
-                    local display_code = formatted_pin:gsub("%-", " - ")
+                    local display_code = formatted_pin
 
                     local buttons = {
                         {

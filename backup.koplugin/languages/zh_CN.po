@@ -95,7 +95,7 @@ msgstr "Beam 上传失败:\n%s"
 
 # en-hash: 7111d6b15f836624b077a3dcdd7087bf
 msgid "Books Folder:\n%s"
-msgstr "图书文件夹：\n%s"
+msgstr "书籍文件夹：\n%s"
 
 # en-hash: 12d72fb625ec7cee14aac12f2392eee1
 msgid "Browse Folder"
@@ -120,6 +120,14 @@ msgstr "关闭"
 # en-hash: e04433a9dbc7f8a04dfa1bad54d8e186
 msgid "Code expires in 15 minutes\nSingle-use end-to-end encrypted"
 msgstr "验证码 15 分钟内有效\n端到端加密，一次性使用"
+
+# en-hash: 86aac18111beed926d7ba20edf59b7ce
+msgid "Components to Restore: %s ▸"
+msgstr "要恢复的组件：%s ▸"
+
+# en-hash: 8019b3bf9614191cdcd24f143bbaafa0
+msgid "Components: %s ▸"
+msgstr "组件：%s ▸"
 
 # en-hash: 1bef0388877dbf64dcd100acd4a793db
 msgid "Connecting and downloading backup archive..."
@@ -321,6 +329,10 @@ msgstr "新建文件夹"
 msgid "No backup files found in:\n%s"
 msgstr "未在下列目录中找到备份文件:\n%s"
 
+# en-hash: bc4c1050aeeb3ff4240c4894b98f32a9
+msgid "No items found."
+msgstr "未找到任何项目。"
+
 # en-hash: 9257ea893e1902fd67376e7ec30c29aa
 msgid "No rollback snapshot available to undo."
 msgstr "没有可供撤销的回滚快照。"
@@ -459,7 +471,7 @@ msgstr "选择备份文件夹"
 
 # en-hash: a7fad80dbd7a0ee23639d348f1dbd4a5
 msgid "Select Books Folder"
-msgstr "选择图书文件夹"
+msgstr "选择书籍文件夹"
 
 # en-hash: deffb03a57b0deaf912f04da4575848f
 msgid "Select Folder"

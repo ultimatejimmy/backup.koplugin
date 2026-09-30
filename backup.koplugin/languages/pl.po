@@ -95,7 +95,7 @@ msgstr "Wysyłanie Beam nie powiodło się:\n%s"
 
 # en-hash: 7111d6b15f836624b077a3dcdd7087bf
 msgid "Books Folder:\n%s"
-msgstr "Folder Książek:\n%s"
+msgstr "Folder książek:\n%s"
 
 # en-hash: 12d72fb625ec7cee14aac12f2392eee1
 msgid "Browse Folder"
@@ -120,6 +120,14 @@ msgstr "Zamknij"
 # en-hash: e04433a9dbc7f8a04dfa1bad54d8e186
 msgid "Code expires in 15 minutes\nSingle-use end-to-end encrypted"
 msgstr "Kod wygasa za 15 minut\nSzyfrowanie end-to-end, jednorazowe"
+
+# en-hash: 86aac18111beed926d7ba20edf59b7ce
+msgid "Components to Restore: %s ▸"
+msgstr "Składniki do przywrócenia: %s ▸"
+
+# en-hash: 8019b3bf9614191cdcd24f143bbaafa0
+msgid "Components: %s ▸"
+msgstr "Składniki: %s ▸"
 
 # en-hash: 1bef0388877dbf64dcd100acd4a793db
 msgid "Connecting and downloading backup archive..."
@@ -321,6 +329,10 @@ msgstr "Nowy folder"
 msgid "No backup files found in:\n%s"
 msgstr "Nie znaleziono plików kopii w:\n%s"
 
+# en-hash: bc4c1050aeeb3ff4240c4894b98f32a9
+msgid "No items found."
+msgstr "Nie znaleziono elementów."
+
 # en-hash: 9257ea893e1902fd67376e7ec30c29aa
 msgid "No rollback snapshot available to undo."
 msgstr "Brak punktu przywracania do wycofania zmian."
@@ -459,7 +471,7 @@ msgstr "Wybierz folder kopii"
 
 # en-hash: a7fad80dbd7a0ee23639d348f1dbd4a5
 msgid "Select Books Folder"
-msgstr "Wybierz Folder Książek"
+msgstr "Wybierz folder książek"
 
 # en-hash: deffb03a57b0deaf912f04da4575848f
 msgid "Select Folder"

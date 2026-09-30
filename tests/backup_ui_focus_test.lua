@@ -41,6 +41,7 @@ describe("backup_ui non-touch selector / focus management", function()
             table.insert(shown_dialogs, d)
         end
         UIManager.close = function(self, d) end
+        UIManager.nextTick = function(self, fn, ...) if fn then return fn(...) end end
     end)
 
     it("does not show the non-touch selector when changing options on touch devices", function()
@@ -112,19 +113,19 @@ describe("backup_ui non-touch selector / focus management", function()
         last_dialog:onFocusMove({0, 1})
 
         -- User then touches a button with their finger (not through onPress)
-        local clear_all_btn = nil
+        local format_btn = nil
         for _, row in ipairs(last_dialog.buttons) do
             for _, btn in ipairs(row) do
-                if btn.text and btn.text == "Clear All" then
-                    clear_all_btn = btn
+                if btn.text and btn.text:match("^Format:") then
+                    format_btn = btn
                     break
                 end
             end
         end
-        assert.is_not_nil(clear_all_btn)
+        assert.is_not_nil(format_btn)
 
         -- Touch tap
-        clear_all_btn.callback()
+        format_btn.callback()
 
         local last_call = move_focus_calls[#move_focus_calls]
         assert.are.equal(FocusManager.NOT_FOCUS, last_call.flags)
@@ -152,5 +153,56 @@ describe("backup_ui non-touch selector / focus management", function()
 
         local last_call = move_focus_calls[#move_focus_calls]
         assert.are.equal(FocusManager.FORCED_FOCUS, last_call.flags)
+    end)
+
+    it("opens drill-down dialogs and returns cleanly without crash or gettext shadowing", function()
+        BackupUI.showCreateDialog()
+        assert.is_not_nil(last_dialog)
+
+        -- Find Components button
+        local comp_btn = nil
+        for _, row in ipairs(last_dialog.buttons) do
+            for _, btn in ipairs(row) do
+                if btn.text and btn.text:match("^Components:") then
+                    comp_btn = btn
+                    break
+                end
+            end
+        end
+        assert.is_not_nil(comp_btn)
+        comp_btn.callback()
+
+        -- Verify components dialog opened
+        local comp_dlg = last_dialog
+        assert.is_not_nil(comp_dlg)
+
+        -- Find a drill-down button (e.g. row with 2 columns)
+        local drill_btn = nil
+        for _, row in ipairs(comp_dlg.buttons) do
+            if #row >= 2 and row[2].text and row[2].text:find("▸") then
+                drill_btn = row[2]
+                break
+            end
+        end
+        assert.is_not_nil(drill_btn)
+
+        -- Tapping drill button should open item selection child dialog without error
+        drill_btn.callback()
+        local child_dlg = last_dialog
+        assert.is_not_nil(child_dlg)
+        assert.is_true(#child_dlg.buttons >= 1)
+
+        -- Find Done button on child dialog
+        local done_btn = nil
+        for _, row in ipairs(child_dlg.buttons) do
+            for _, btn in ipairs(row) do
+                if btn.text == "Done" then
+                    done_btn = btn
+                    break
+                end
+            end
+        end
+        assert.is_not_nil(done_btn)
+        done_btn.callback()
     end)
 end)

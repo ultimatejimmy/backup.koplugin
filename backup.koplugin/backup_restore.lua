@@ -60,8 +60,10 @@ end
 --- Recursively copies all files from src_dir to dest_dir.
 -- @param src_dir string
 -- @param dest_dir string
--- @param exclude_filter function(filename)|string: optional filter function or lua pattern to skip matching filenames
-function RestoreEngine.copyDir(src_dir, dest_dir, exclude_filter)
+-- @param exclude_filter function(filename, is_root)|string: optional filter function or lua pattern to skip matching filenames
+-- @param is_root boolean: optional flag indicating if current scan is top-level
+function RestoreEngine.copyDir(src_dir, dest_dir, exclude_filter, is_root)
+    if is_root == nil then is_root = true end
     if not lfs or not lfs.attributes or lfs.attributes(src_dir, "mode") ~= "directory" then
         return false, string.format(_("Source directory does not exist: %s"), tostring(src_dir))
     end
@@ -73,7 +75,7 @@ function RestoreEngine.copyDir(src_dir, dest_dir, exclude_filter)
         if item ~= "." and item ~= ".." then
             local skip = false
             if type(exclude_filter) == "function" then
-                skip = exclude_filter(item)
+                skip = exclude_filter(item, is_root)
             elseif type(exclude_filter) == "string" then
                 skip = item:match(exclude_filter)
             end
@@ -84,7 +86,7 @@ function RestoreEngine.copyDir(src_dir, dest_dir, exclude_filter)
                 local mode = lfs.attributes(src_item, "mode")
 
                 if mode == "directory" then
-                    RestoreEngine.copyDir(src_item, dest_item, exclude_filter)
+                    RestoreEngine.copyDir(src_item, dest_item, exclude_filter, false)
                 elseif mode == "file" then
                     local sf = io.open(src_item, "rb")
                     if sf then
@@ -201,12 +203,29 @@ function RestoreEngine.inspectArchive(archive_path)
     local cur_model = Manifest.getDeviceModel()
     local backup_model = (manifest.device and manifest.device.model) or "Unknown"
 
+    -- Extract plugin list
+    local plugins_list = {}
+    if manifest.installed_plugins and #manifest.installed_plugins > 0 then
+        for _, p in ipairs(manifest.installed_plugins) do
+            local name = type(p) == "table" and p.dirname or tostring(p)
+            table.insert(plugins_list, name)
+        end
+    end
+
+    local patches_list = manifest.installed_patches or {}
+    local fonts_list = manifest.installed_fonts or {}
+    local dicts_list = manifest.installed_dictionaries or {}
+
     return {
         manifest = manifest,
         is_same_device = is_same,
         current_model = cur_model,
         backup_model = backup_model,
         components = manifest.components or {},
+        available_plugins = plugins_list,
+        available_patches = patches_list,
+        available_fonts = fonts_list,
+        available_dictionaries = dicts_list,
     }
 end
 
@@ -342,7 +361,14 @@ function RestoreEngine.executeRestore(archive_path, options)
             end
 
             -- Copy staged plugins
-            RestoreEngine.copyDir(staged_plugins, target_plugins)
+            local plugin_filter = nil
+            if options.selected_plugins then
+                plugin_filter = function(item, is_root)
+                    if not is_root then return false end
+                    return options.selected_plugins[item] ~= true
+                end
+            end
+            RestoreEngine.copyDir(staged_plugins, target_plugins, plugin_filter)
         end
     end
 
@@ -350,7 +376,14 @@ function RestoreEngine.executeRestore(archive_path, options)
     if selected_components[Constants.COMPONENTS.PATCHES] then
         local staged_patches = staging_dir .. "/patches"
         if lfs.attributes(staged_patches, "mode") == "directory" then
-            RestoreEngine.copyDir(staged_patches, data_dir .. "/patches")
+            local patch_filter = nil
+            if options.selected_patches then
+                patch_filter = function(item, is_root)
+                    if not is_root then return false end
+                    return options.selected_patches[item] ~= true
+                end
+            end
+            RestoreEngine.copyDir(staged_patches, data_dir .. "/patches", patch_filter)
         end
     end
 
@@ -358,7 +391,14 @@ function RestoreEngine.executeRestore(archive_path, options)
     if selected_components[Constants.COMPONENTS.FONTS] then
         local staged_fonts = staging_dir .. "/fonts"
         if lfs.attributes(staged_fonts, "mode") == "directory" then
-            RestoreEngine.copyDir(staged_fonts, data_dir .. "/fonts")
+            local font_filter = nil
+            if options.selected_fonts then
+                font_filter = function(item, is_root)
+                    if not is_root then return false end
+                    return options.selected_fonts[item] ~= true
+                end
+            end
+            RestoreEngine.copyDir(staged_fonts, data_dir .. "/fonts", font_filter)
         end
     end
 
@@ -514,13 +554,20 @@ function RestoreEngine.executeRestore(archive_path, options)
 
     -- 12. Process dictionaries & OCR data
     if selected_components[Constants.COMPONENTS.DICTIONARIES] then
+        local dict_filter = nil
+        if options.selected_dictionaries then
+            dict_filter = function(item, is_root)
+                if not is_root then return false end
+                return options.selected_dictionaries[item] ~= true
+            end
+        end
         local staged_dict = staging_dir .. "/data/dict"
         if lfs.attributes(staged_dict, "mode") == "directory" then
-            RestoreEngine.copyDir(staged_dict, data_dir .. "/data/dict")
+            RestoreEngine.copyDir(staged_dict, data_dir .. "/data/dict", dict_filter)
         end
         local staged_tess = staging_dir .. "/data/tessdata"
         if lfs.attributes(staged_tess, "mode") == "directory" then
-            RestoreEngine.copyDir(staged_tess, data_dir .. "/data/tessdata")
+            RestoreEngine.copyDir(staged_tess, data_dir .. "/data/tessdata", dict_filter)
         end
     end
 

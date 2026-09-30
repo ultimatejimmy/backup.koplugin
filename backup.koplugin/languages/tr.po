@@ -121,6 +121,14 @@ msgstr "Kapat"
 msgid "Code expires in 15 minutes\nSingle-use end-to-end encrypted"
 msgstr "Kod 15 dakika içinde sona erer\nTek kullanımlık uçtan uca şifreli"
 
+# en-hash: 86aac18111beed926d7ba20edf59b7ce
+msgid "Components to Restore: %s ▸"
+msgstr "Geri Yüklenecek Bileşenler: %s ▸"
+
+# en-hash: 8019b3bf9614191cdcd24f143bbaafa0
+msgid "Components: %s ▸"
+msgstr "Bileşenler: %s ▸"
+
 # en-hash: 1bef0388877dbf64dcd100acd4a793db
 msgid "Connecting and downloading backup archive..."
 msgstr "Bağlanılıyor ve yedek arşivi indiriliyor..."
@@ -320,6 +328,10 @@ msgstr "Yeni Klasör"
 # en-hash: ff40c126b8b46780477108211fcf70a6
 msgid "No backup files found in:\n%s"
 msgstr "Şurada yedek dosyası bulunamadı:\n%s"
+
+# en-hash: bc4c1050aeeb3ff4240c4894b98f32a9
+msgid "No items found."
+msgstr "Öğe bulunamadı."
 
 # en-hash: 9257ea893e1902fd67376e7ec30c29aa
 msgid "No rollback snapshot available to undo."

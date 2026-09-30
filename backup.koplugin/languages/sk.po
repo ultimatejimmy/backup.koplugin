@@ -95,7 +95,7 @@ msgstr "Nahrávanie Beam zlyhalo:\n%s"
 
 # en-hash: 7111d6b15f836624b077a3dcdd7087bf
 msgid "Books Folder:\n%s"
-msgstr "Priečinok s knihami:\n%s"
+msgstr "Priečinok kníh:\n%s"
 
 # en-hash: 12d72fb625ec7cee14aac12f2392eee1
 msgid "Browse Folder"
@@ -120,6 +120,14 @@ msgstr "Zavrieť"
 # en-hash: e04433a9dbc7f8a04dfa1bad54d8e186
 msgid "Code expires in 15 minutes\nSingle-use end-to-end encrypted"
 msgstr "Kód vyprší o 15 minút\nJednorazové koncové šifrovanie"
+
+# en-hash: 86aac18111beed926d7ba20edf59b7ce
+msgid "Components to Restore: %s ▸"
+msgstr "Komponenty na obnovenie: %s ▸"
+
+# en-hash: 8019b3bf9614191cdcd24f143bbaafa0
+msgid "Components: %s ▸"
+msgstr "Komponenty: %s ▸"
 
 # en-hash: 1bef0388877dbf64dcd100acd4a793db
 msgid "Connecting and downloading backup archive..."
@@ -321,6 +329,10 @@ msgstr "Nový priečinok"
 msgid "No backup files found in:\n%s"
 msgstr "Nenašli sa žiadne záložné súbory v:\n%s"
 
+# en-hash: bc4c1050aeeb3ff4240c4894b98f32a9
+msgid "No items found."
+msgstr "Nenašli sa žiadne položky."
+
 # en-hash: 9257ea893e1902fd67376e7ec30c29aa
 msgid "No rollback snapshot available to undo."
 msgstr "Nie je k dispozícii žiadny bod obnovenia."
@@ -459,7 +471,7 @@ msgstr "Vybrať priečinok záloh"
 
 # en-hash: a7fad80dbd7a0ee23639d348f1dbd4a5
 msgid "Select Books Folder"
-msgstr "Vybrať priečinok s knihami"
+msgstr "Vybrať priečinok kníh"
 
 # en-hash: deffb03a57b0deaf912f04da4575848f
 msgid "Select Folder"

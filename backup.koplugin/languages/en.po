@@ -92,6 +92,12 @@ msgstr "Close"
 msgid "Code expires in 15 minutes\nSingle-use end-to-end encrypted"
 msgstr "Code expires in 15 minutes\nSingle-use end-to-end encrypted"
 
+msgid "Components to Restore: %s ▸"
+msgstr "Components to Restore: %s ▸"
+
+msgid "Components: %s ▸"
+msgstr "Components: %s ▸"
+
 msgid "Connecting and downloading backup archive..."
 msgstr "Connecting and downloading backup archive..."
 
@@ -241,6 +247,9 @@ msgstr "New Folder"
 
 msgid "No backup files found in:\n%s"
 msgstr "No backup files found in:\n%s"
+
+msgid "No items found."
+msgstr "No items found."
 
 msgid "No rollback snapshot available to undo."
 msgstr "No rollback snapshot available to undo."
