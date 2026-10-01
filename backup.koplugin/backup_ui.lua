@@ -42,6 +42,8 @@ local Retention = require("backup_retention")
 local RestoreEngine = require("backup_restore")
 local FolderPicker = require("backup_folder_picker")
 local Beam = require("backup_beam")
+local Cloud = require("backup_cloud")
+local OAuth = require("backup_cloud_oauth")
 
 local ok_size, Size = pcall(require, "ui/size")
 if not ok_size or not Size then
@@ -317,7 +319,19 @@ local function getPluginSettings()
             retention_limit = 5,
             clean_slate_restore = false,
             beam_relay_url = Constants.BEAM_DEFAULT_RELAY_URL,
+            cloud_provider = "none",
+            cloud_remote_dir = Constants.CLOUD_DEFAULT_REMOTE_DIR or "koreader_backups",
+            cloud_prune_remote = true,
         }
+    end
+    if not _settings_cache.cloud_provider then
+        _settings_cache.cloud_provider = "none"
+    end
+    if not _settings_cache.cloud_remote_dir then
+        _settings_cache.cloud_remote_dir = Constants.CLOUD_DEFAULT_REMOTE_DIR or "koreader_backups"
+    end
+    if _settings_cache.cloud_prune_remote == nil then
+        _settings_cache.cloud_prune_remote = true
     end
     return _settings_cache
 end
@@ -1139,39 +1153,68 @@ function BackupUI.showRestoreDialog()
         end
     end
 
+    local s = getPluginSettings()
+    local has_cloud = s.cloud_provider and s.cloud_provider ~= "none" and Cloud.isConfigured(s.cloud_provider)
+
     if #backups == 0 then
-        local confirm
-        confirm = ConfirmBox:new{
-            text = string.format(_("No backup files found in:\n%s"), backup_dir),
-            ok_text = _("Browse Folder"),
-            cancel_text = _("Cancel"),
-            ok_callback = function()
-                UIManager:close(confirm)
-                FolderPicker.show{
-                    title = _("Select Backup Folder"),
-                    initial_path = backup_dir,
-                    on_confirm = function(chosen)
-                        if chosen and chosen ~= "" then
-                            local s = getPluginSettings()
-                            s.custom_backup_dir = chosen
-                            savePluginSettings()
-                        end
-                        UIManager:nextTick(function()
-                            BackupUI.showRestoreDialog()
-                        end)
+        local empty_buttons = {
+            {
+                {
+                    text = _("Browse Folder"),
+                    callback = function()
+                        closeRestore()
+                        FolderPicker.show{
+                            title = _("Select Backup Folder"),
+                            initial_path = backup_dir,
+                            on_confirm = function(chosen)
+                                if chosen and chosen ~= "" then
+                                    s.custom_backup_dir = chosen
+                                    savePluginSettings()
+                                end
+                                UIManager:nextTick(function()
+                                    BackupUI.showRestoreDialog()
+                                end)
+                            end,
+                            on_cancel = function()
+                                UIManager:nextTick(function()
+                                    BackupUI.showRestoreDialog()
+                                end)
+                            end,
+                        }
                     end,
-                    on_cancel = function()
-                        UIManager:nextTick(function()
-                            BackupUI.showRestoreDialog()
-                        end)
-                    end,
-                }
-            end,
-            cancel_callback = function()
-                UIManager:close(confirm)
-            end,
+                },
+            },
         }
-        UIManager:show(confirm)
+
+        if has_cloud then
+            table.insert(empty_buttons, 1, {
+                {
+                    text = string.format(_("Download from %s"), Cloud.getProviderLabel(s.cloud_provider)),
+                    bold = true,
+                    callback = function()
+                        closeRestore()
+                        BackupUI.showCloudDownloadDialog(function()
+                            BackupUI.showRestoreDialog()
+                        end)
+                    end,
+                },
+            })
+        end
+
+        table.insert(empty_buttons, {
+            {
+                text = _("Cancel"),
+                callback = function()
+                    closeRestore()
+                end,
+            },
+        })
+
+        dialog = ButtonDialog:new{
+            title = _("Restore Backup"),
+            buttons = empty_buttons,
+        }
+        UIManager:show(dialog)
         return
     end
 
@@ -1195,32 +1238,45 @@ function BackupUI.showRestoreDialog()
         })
     end
 
-    table.insert(buttons, {
-        {
-            text = _("Browse Folder"),
+    local action_row = {}
+    if has_cloud then
+        table.insert(action_row, {
+            text = string.format(_("Download from %s"), Cloud.getProviderLabel(s.cloud_provider)),
             callback = function()
                 closeRestore()
-                FolderPicker.show{
-                    title = _("Select Backup Folder"),
-                    initial_path = backup_dir,
-                    on_confirm = function(chosen)
-                        if chosen and chosen ~= "" then
-                            local s = getPluginSettings()
-                            s.custom_backup_dir = chosen
-                            savePluginSettings()
-                        end
-                        UIManager:nextTick(function()
-                            BackupUI.showRestoreDialog()
-                        end)
-                    end,
-                    on_cancel = function()
-                        UIManager:nextTick(function()
-                            BackupUI.showRestoreDialog()
-                        end)
-                    end,
-                }
+                BackupUI.showCloudDownloadDialog(function()
+                    BackupUI.showRestoreDialog()
+                end)
             end,
-        },
+        })
+    end
+    table.insert(action_row, {
+        text = _("Browse Folder"),
+        callback = function()
+            closeRestore()
+            FolderPicker.show{
+                title = _("Select Backup Folder"),
+                initial_path = backup_dir,
+                on_confirm = function(chosen)
+                    if chosen and chosen ~= "" then
+                        s.custom_backup_dir = chosen
+                        savePluginSettings()
+                    end
+                    UIManager:nextTick(function()
+                        BackupUI.showRestoreDialog()
+                    end)
+                end,
+                on_cancel = function()
+                    UIManager:nextTick(function()
+                        BackupUI.showRestoreDialog()
+                    end)
+                end,
+            }
+        end,
+    })
+    table.insert(buttons, action_row)
+
+    table.insert(buttons, {
         {
             text = _("Cancel"),
             callback = function()
@@ -1447,6 +1503,21 @@ function BackupUI.showArchiveDetailSheet(filepath, on_back_cb)
                     end,
                 },
                 {
+                    text = _("Upload to Cloud"),
+                    enabled_func = function()
+                        local s_curr = getPluginSettings()
+                        return s_curr.cloud_provider and s_curr.cloud_provider ~= "none" and Cloud.isConfigured(s_curr.cloud_provider)
+                    end,
+                    callback = function()
+                        dismissDialog()
+                        BackupUI.showCloudUploadDialog(filepath, function()
+                            if on_back_cb then
+                                UIManager:nextTick(on_back_cb)
+                            end
+                        end)
+                    end,
+                },
+                {
                     text = _("Delete"),
                     callback = function()
                         local del_confirm
@@ -1591,6 +1662,21 @@ function BackupUI.showManageBackupsDialog()
                             BackupUI.showArchiveDetailSheet(b.filepath, function()
                                 BackupUI.showManageBackupsDialog()
                             end)
+                        end)
+                    end,
+                },
+            })
+        end
+
+        local s = getPluginSettings()
+        if s.cloud_provider and s.cloud_provider ~= "none" and Cloud.isConfigured(s.cloud_provider) then
+            table.insert(buttons, {
+                {
+                    text = string.format(_("Cloud Backups (%s) ▸"), Cloud.getProviderLabel(s.cloud_provider)),
+                    callback = function()
+                        closeDialog()
+                        BackupUI.showManageCloudBackupsDialog(function()
+                            BackupUI.showManageBackupsDialog()
                         end)
                     end,
                 },
@@ -1833,6 +1919,85 @@ function BackupUI.showSettingsDialog()
             },
             {
                 {
+                    text = string.format(_("Cloud Storage: %s"), Cloud.getProviderLabel(s.cloud_provider or "none")),
+                    callback = function()
+                        closeSettings()
+                        BackupUI.showCloudProviderPicker(function()
+                            BackupUI.showSettingsDialog()
+                        end)
+                    end,
+                },
+            },
+            ((s.cloud_provider and s.cloud_provider ~= "none") and {
+                {
+                    text = (s.cloud_provider == "gdrive" and not Cloud.isConfigured("gdrive"))
+                        and _("Connect Google Drive")
+                        or string.format(_("Configure %s"), Cloud.getProviderLabel(s.cloud_provider)),
+                    callback = function()
+                        closeSettings()
+                        BackupUI.showCloudConfigDialog(s.cloud_provider, function()
+                            BackupUI.showSettingsDialog()
+                        end)
+                    end,
+                },
+                {
+                    text = _("Test Cloud Connection"),
+                    callback = function()
+                        local info = InfoMessage:new{ text = _("Testing cloud connection...") }
+                        UIManager:show(info)
+                        UIManager:nextTick(function()
+                            Cloud.testConnection(s.cloud_provider, function(ok, msg)
+                                UIManager:close(info)
+                                UIManager:show(InfoMessage:new{
+                                    text = msg or (ok and _("Connection successful!") or _("Connection failed")),
+                                    timeout = 4,
+                                })
+                            end)
+                        end)
+                    end,
+                },
+            } or nil),
+            ((s.cloud_provider and s.cloud_provider ~= "none") and {
+                {
+                    text = string.format(_("Remote Folder: %s"), s.cloud_remote_dir or Constants.CLOUD_DEFAULT_REMOTE_DIR or "koreader_backups"),
+                    callback = function()
+                        closeSettings()
+                        local folder_dlg
+                        folder_dlg = InputDialog:new{
+                            title = _("Remote Backup Folder"),
+                            description = _("Name of folder on remote storage:"),
+                            input = s.cloud_remote_dir or Constants.CLOUD_DEFAULT_REMOTE_DIR or "koreader_backups",
+                            buttons = {
+                                {
+                                    {
+                                        text = _("Cancel"),
+                                        callback = function()
+                                            UIManager:close(folder_dlg)
+                                            UIManager:nextTick(function() refresh() end)
+                                        end,
+                                    },
+                                    {
+                                        text = _("Save"),
+                                        is_enter_default = true,
+                                        callback = function()
+                                            local new_val = folder_dlg:getInputText()
+                                            UIManager:close(folder_dlg)
+                                            if new_val and new_val ~= "" then
+                                                s.cloud_remote_dir = new_val:gsub("^/+", ""):gsub("/+$", "")
+                                                savePluginSettings()
+                                            end
+                                            UIManager:nextTick(function() refresh() end)
+                                        end,
+                                    },
+                                },
+                            },
+                        }
+                        UIManager:show(folder_dlg)
+                    end,
+                },
+            } or nil),
+            {
+                {
                     text = _("Close"),
                     callback = function()
                         closeSettings()
@@ -1840,6 +2005,15 @@ function BackupUI.showSettingsDialog()
                 },
             },
         }
+
+        -- Filter out nil rows
+        local clean_buttons = {}
+        for _, row in ipairs(buttons) do
+            if row ~= nil then
+                table.insert(clean_buttons, row)
+            end
+        end
+        buttons = clean_buttons
 
         dialog = ButtonDialog:new{
             title = _("Backup & Restore Settings"),
@@ -2369,6 +2543,955 @@ function BackupUI.showBeamReceiveDialog()
             },
         }
         UIManager:show(pin_dialog)
+    end)
+end
+
+-- --------------------------------------------------------------------------
+-- 8. Cloud Storage Operations & Dialogs
+-- --------------------------------------------------------------------------
+
+--- Shows provider selection picker for Cloud Storage.
+function BackupUI.showCloudProviderPicker(on_finish_cb)
+    local s = getPluginSettings()
+    local dialog
+
+    local function closePicker()
+        if dialog then
+            local d = dialog
+            dialog = nil
+            UIManager:close(d)
+        end
+    end
+
+    local providers = {
+        { id = Constants.CLOUD_PROVIDERS.NONE, label = _("None (Disabled)") },
+        { id = Constants.CLOUD_PROVIDERS.GDRIVE, label = _("Google Drive") },
+        { id = Constants.CLOUD_PROVIDERS.WEBDAV, label = _("WebDAV (Nextcloud / NAS)") },
+        { id = Constants.CLOUD_PROVIDERS.FTP, label = _("FTP / FTPS") },
+        { id = Constants.CLOUD_PROVIDERS.SFTP, label = _("SFTP (SSH)") },
+    }
+
+    local buttons = {}
+    for _, p in ipairs(providers) do
+        local pid = p.id
+        local is_active = (s.cloud_provider == pid)
+        table.insert(buttons, {
+            {
+                text = p.label,
+                align = "left",
+                checked_func = function() return is_active end,
+                callback = function()
+                    closePicker()
+                    s.cloud_provider = pid
+                    savePluginSettings()
+                    if pid ~= Constants.CLOUD_PROVIDERS.NONE then
+                        UIManager:nextTick(function()
+                            BackupUI.showCloudConfigDialog(pid, on_finish_cb)
+                        end)
+                    else
+                        if on_finish_cb then UIManager:nextTick(on_finish_cb) end
+                    end
+                end,
+            },
+        })
+    end
+
+    table.insert(buttons, {
+        {
+            text = _("Cancel"),
+            callback = function()
+                closePicker()
+                if on_finish_cb then UIManager:nextTick(on_finish_cb) end
+            end,
+        },
+    })
+
+    dialog = ButtonDialog:new{
+        title = _("Select Cloud Storage Provider"),
+        buttons = buttons,
+    }
+    UIManager:show(dialog)
+end
+
+--- Shows the provider-specific configuration dialog.
+function BackupUI.showCloudConfigDialog(provider, on_finish_cb)
+    local s = getPluginSettings()
+    provider = provider or s.cloud_provider
+
+    if provider == Constants.CLOUD_PROVIDERS.GDRIVE then
+        -- Google Drive: OAuth2 device-code authorization flow
+        if Cloud.isConfigured(Constants.CLOUD_PROVIDERS.GDRIVE) then
+            local gdialog
+            local buttons = {
+                {
+                    {
+                        text = _("Test Connection"),
+                        callback = function()
+                            local info = InfoMessage:new{ text = _("Testing Google Drive connection...") }
+                            UIManager:show(info)
+                            UIManager:nextTick(function()
+                                Cloud.testConnection(Constants.CLOUD_PROVIDERS.GDRIVE, function(ok, msg)
+                                    UIManager:close(info)
+                                    UIManager:show(InfoMessage:new{
+                                        text = msg or (ok and _("Connection successful!") or _("Connection failed")),
+                                        timeout = 4,
+                                    })
+                                end)
+                            end)
+                        end,
+                    },
+                },
+                {
+                    {
+                        text = _("Disconnect / Log Out"),
+                        callback = function()
+                            UIManager:close(gdialog)
+                            OAuth.clearTokens(Constants.CLOUD_PROVIDERS.GDRIVE)
+                            UIManager:show(InfoMessage:new{ text = _("Disconnected from Google Drive."), timeout = 3 })
+                            if on_finish_cb then UIManager:nextTick(on_finish_cb) end
+                        end,
+                    },
+                },
+                {
+                    {
+                        text = _("Done"),
+                        bold = true,
+                        callback = function()
+                            UIManager:close(gdialog)
+                            if on_finish_cb then UIManager:nextTick(on_finish_cb) end
+                        end,
+                    },
+                },
+            }
+            gdialog = ButtonDialog:new{
+                title = _("Google Drive Account"),
+                buttons = buttons,
+            }
+            UIManager:show(gdialog)
+            return
+        end
+
+        -- Not authenticated yet: start device-code grant
+        Beam.ensureNetwork(function()
+            local req_info = InfoMessage:new{ text = _("Contacting Google Drive...") }
+            UIManager:show(req_info)
+
+            OAuth.requestDeviceCode(Constants.CLOUD_PROVIDERS.GDRIVE, {}, function(ok, info)
+                UIManager:close(req_info)
+
+                if not ok or not info then
+                    UIManager:show(ConfirmBox:new{
+                        text = string.format(_("Failed to start Google Drive authorization:\n%s"), tostring(info)),
+                        ok_text = _("Retry"),
+                        cancel_text = _("Cancel"),
+                        ok_callback = function()
+                            BackupUI.showCloudConfigDialog(Constants.CLOUD_PROVIDERS.GDRIVE, on_finish_cb)
+                        end,
+                        cancel_callback = function()
+                            if on_finish_cb then UIManager:nextTick(on_finish_cb) end
+                        end,
+                    })
+                    return
+                end
+
+                local flow_active = true
+                local auth_dialog
+                local function closeAuth()
+                    flow_active = false
+                    if auth_dialog then
+                        local d = auth_dialog
+                        auth_dialog = nil
+                        UIManager:close(d)
+                    end
+                end
+
+                local buttons = {
+                    {
+                        {
+                            text = _("Cancel"),
+                            callback = function()
+                                closeAuth()
+                                if on_finish_cb then UIManager:nextTick(on_finish_cb) end
+                            end,
+                        },
+                    },
+                }
+
+                auth_dialog = ButtonDialog:new{
+                    title = _("Connect Google Drive"),
+                    buttons = buttons,
+                }
+
+                local avail_w = auth_dialog:getAddedWidgetAvailableWidth()
+                local content = VerticalGroup:new{
+                    align = "center",
+                    not_focusable = true,
+                    VerticalSpan:new{ width = sc(8) },
+                    TextBoxWidget:new{
+                        text = _("On your phone or computer, open:"),
+                        face = Font:getFace("cfont", 20),
+                        alignment = "center",
+                        width = avail_w,
+                    },
+                    VerticalSpan:new{ width = sc(6) },
+                    TextWidget:new{
+                        text = info.verification_url or "https://www.google.com/device",
+                        face = Font:getFace("cfont", 22),
+                        bold = true,
+                    },
+                    VerticalSpan:new{ width = sc(12) },
+                    TextBoxWidget:new{
+                        text = _("And enter this code:"),
+                        face = Font:getFace("cfont", 20),
+                        alignment = "center",
+                        width = avail_w,
+                    },
+                    VerticalSpan:new{ width = sc(6) },
+                    FrameContainer:new{
+                        bordersize = sc(2),
+                        padding_top = sc(10),
+                        padding_bottom = sc(10),
+                        padding_left = sc(28),
+                        padding_right = sc(28),
+                        background = Blitbuffer.COLOR_WHITE,
+                        TextWidget:new{
+                            text = info.user_code or "",
+                            face = Font:getFace("tfont", 34),
+                            bold = true,
+                        },
+                    },
+                    VerticalSpan:new{ width = sc(14) },
+                    TextBoxWidget:new{
+                        text = _("Waiting for authorization..."),
+                        face = Font:getFace("cfont", 18),
+                        alignment = "center",
+                        width = avail_w,
+                    },
+                    VerticalSpan:new{ width = sc(8) },
+                }
+
+                auth_dialog:addWidget(content)
+                UIManager:show(auth_dialog)
+
+                -- Polling loop
+                local poll_interval = math.max(3, info.interval or 5)
+                local function pollStep()
+                    if not flow_active then return end
+
+                    OAuth.pollToken(Constants.CLOUD_PROVIDERS.GDRIVE, info.device_code, {}, function(poll_ok, token_data, raw_res)
+                        if not flow_active then return end
+
+                        if poll_ok and token_data and token_data.access_token then
+                            closeAuth()
+                            OAuth.saveTokens(Constants.CLOUD_PROVIDERS.GDRIVE, token_data)
+                            UIManager:show(InfoMessage:new{
+                                text = _("Connected to Google Drive successfully!"),
+                                timeout = 3,
+                            })
+                            if on_finish_cb then UIManager:nextTick(on_finish_cb) end
+                            return
+                        end
+
+                        if token_data == "authorization_pending" then
+                            if UIManager and UIManager.scheduleIn then
+                                UIManager:scheduleIn(poll_interval, pollStep)
+                            end
+                        elseif token_data == "slow_down" then
+                            poll_interval = poll_interval + 5
+                            if UIManager and UIManager.scheduleIn then
+                                UIManager:scheduleIn(poll_interval, pollStep)
+                            end
+                        elseif token_data == "access_denied" then
+                            closeAuth()
+                            UIManager:show(InfoMessage:new{ text = _("Google Drive authorization was denied."), timeout = 4 })
+                            if on_finish_cb then UIManager:nextTick(on_finish_cb) end
+                        elseif token_data == "expired_token" then
+                            closeAuth()
+                            UIManager:show(InfoMessage:new{ text = _("Authorization code expired. Please try again."), timeout = 4 })
+                            if on_finish_cb then UIManager:nextTick(on_finish_cb) end
+                        else
+                            -- Transient error; continue polling
+                            if UIManager and UIManager.scheduleIn then
+                                UIManager:scheduleIn(poll_interval, pollStep)
+                            end
+                        end
+                    end)
+                end
+
+                if UIManager and UIManager.scheduleIn then
+                    UIManager:scheduleIn(poll_interval, pollStep)
+                end
+            end)
+        end, function()
+            if on_finish_cb then UIManager:nextTick(on_finish_cb) end
+        end)
+
+    elseif provider == Constants.CLOUD_PROVIDERS.WEBDAV then
+        local creds = Cloud.loadCredentials(Constants.CLOUD_PROVIDERS.WEBDAV)
+        local multi_dlg
+        multi_dlg = MultiInputDialog:new{
+            title = _("WebDAV Server Settings"),
+            fields = {
+                {
+                    text = creds.url or "",
+                    hint = _("Server URL (e.g. https://cloud.example.com/remote.php/dav/files/user)"),
+                },
+                {
+                    text = creds.username or "",
+                    hint = _("Username"),
+                },
+                {
+                    text = creds.password or "",
+                    hint = _("Password or App Token"),
+                    text_type = "password",
+                },
+            },
+            buttons = {
+                {
+                    {
+                        text = _("Cancel"),
+                        id = "close",
+                        callback = function()
+                            UIManager:close(multi_dlg)
+                            if on_finish_cb then UIManager:nextTick(on_finish_cb) end
+                        end,
+                    },
+                    {
+                        text = _("Test"),
+                        callback = function()
+                            local fields = multi_dlg:getFields()
+                            local test_creds = {
+                                url = fields[1],
+                                username = fields[2],
+                                password = fields[3],
+                                remote_dir = s.cloud_remote_dir,
+                            }
+                            local info = InfoMessage:new{ text = _("Testing WebDAV connection...") }
+                            UIManager:show(info)
+                            WebDAV.testConnection(test_creds, function(ok, msg)
+                                UIManager:close(info)
+                                UIManager:show(InfoMessage:new{
+                                    text = msg or (ok and _("Connection successful!") or _("Connection failed")),
+                                    timeout = 4,
+                                })
+                            end)
+                        end,
+                    },
+                    {
+                        text = _("Save"),
+                        is_enter_default = true,
+                        callback = function()
+                            local fields = multi_dlg:getFields()
+                            creds.url = fields[1]
+                            creds.username = fields[2]
+                            creds.password = fields[3]
+                            Cloud.saveCredentials(Constants.CLOUD_PROVIDERS.WEBDAV, creds)
+                            UIManager:close(multi_dlg)
+                            UIManager:show(InfoMessage:new{ text = _("WebDAV settings saved."), timeout = 2 })
+                            if on_finish_cb then UIManager:nextTick(on_finish_cb) end
+                        end,
+                    },
+                },
+            },
+        }
+        UIManager:show(multi_dlg)
+        if multi_dlg.onShowKeyboard then multi_dlg:onShowKeyboard() end
+
+    elseif provider == Constants.CLOUD_PROVIDERS.FTP then
+        local creds = Cloud.loadCredentials(Constants.CLOUD_PROVIDERS.FTP)
+        local multi_dlg
+        multi_dlg = MultiInputDialog:new{
+            title = _("FTP Server Settings"),
+            fields = {
+                {
+                    text = creds.host or "",
+                    hint = _("Host (e.g. ftp.example.com)"),
+                },
+                {
+                    text = tostring(creds.port or 21),
+                    hint = _("Port (default 21)"),
+                },
+                {
+                    text = creds.username or "",
+                    hint = _("Username (or 'anonymous')"),
+                },
+                {
+                    text = creds.password or "",
+                    hint = _("Password"),
+                    text_type = "password",
+                },
+            },
+            buttons = {
+                {
+                    {
+                        text = _("Cancel"),
+                        id = "close",
+                        callback = function()
+                            UIManager:close(multi_dlg)
+                            if on_finish_cb then UIManager:nextTick(on_finish_cb) end
+                        end,
+                    },
+                    {
+                        text = _("Test"),
+                        callback = function()
+                            local fields = multi_dlg:getFields()
+                            local test_creds = {
+                                host = fields[1],
+                                port = tonumber(fields[2]) or 21,
+                                username = fields[3],
+                                password = fields[4],
+                                remote_dir = s.cloud_remote_dir,
+                            }
+                            local info = InfoMessage:new{ text = _("Testing FTP connection...") }
+                            UIManager:show(info)
+                            FTP.testConnection(test_creds, function(ok, msg)
+                                UIManager:close(info)
+                                UIManager:show(InfoMessage:new{
+                                    text = msg or (ok and _("Connection successful!") or _("Connection failed")),
+                                    timeout = 4,
+                                })
+                            end)
+                        end,
+                    },
+                    {
+                        text = _("Save"),
+                        is_enter_default = true,
+                        callback = function()
+                            local fields = multi_dlg:getFields()
+                            creds.host = fields[1]
+                            creds.port = tonumber(fields[2]) or 21
+                            creds.username = fields[3]
+                            creds.password = fields[4]
+                            Cloud.saveCredentials(Constants.CLOUD_PROVIDERS.FTP, creds)
+                            UIManager:close(multi_dlg)
+                            UIManager:show(InfoMessage:new{ text = _("FTP settings saved."), timeout = 2 })
+                            if on_finish_cb then UIManager:nextTick(on_finish_cb) end
+                        end,
+                    },
+                },
+            },
+        }
+        UIManager:show(multi_dlg)
+        if multi_dlg.onShowKeyboard then multi_dlg:onShowKeyboard() end
+
+    elseif provider == Constants.CLOUD_PROVIDERS.SFTP then
+        local creds = Cloud.loadCredentials(Constants.CLOUD_PROVIDERS.SFTP)
+        local multi_dlg
+        multi_dlg = MultiInputDialog:new{
+            title = _("SFTP Server Settings"),
+            fields = {
+                {
+                    text = creds.host or "",
+                    hint = _("Host (e.g. sftp.example.com)"),
+                },
+                {
+                    text = tostring(creds.port or 22),
+                    hint = _("Port (default 22)"),
+                },
+                {
+                    text = creds.username or "",
+                    hint = _("Username"),
+                },
+                {
+                    text = creds.password or creds.key_path or "",
+                    hint = _("Password or Key Path (e.g. /path/id_rsa)"),
+                    text_type = "password",
+                },
+            },
+            buttons = {
+                {
+                    {
+                        text = _("Cancel"),
+                        id = "close",
+                        callback = function()
+                            UIManager:close(multi_dlg)
+                            if on_finish_cb then UIManager:nextTick(on_finish_cb) end
+                        end,
+                    },
+                    {
+                        text = _("Test"),
+                        callback = function()
+                            local fields = multi_dlg:getFields()
+                            local test_creds = {
+                                host = fields[1],
+                                port = tonumber(fields[2]) or 22,
+                                username = fields[3],
+                                password = fields[4],
+                                remote_dir = s.cloud_remote_dir,
+                            }
+                            local info = InfoMessage:new{ text = _("Testing SFTP connection...") }
+                            UIManager:show(info)
+                            SFTP.testConnection(test_creds, function(ok, msg)
+                                UIManager:close(info)
+                                UIManager:show(InfoMessage:new{
+                                    text = msg or (ok and _("Connection successful!") or _("Connection failed")),
+                                    timeout = 4,
+                                })
+                            end)
+                        end,
+                    },
+                    {
+                        text = _("Save"),
+                        is_enter_default = true,
+                        callback = function()
+                            local fields = multi_dlg:getFields()
+                            creds.host = fields[1]
+                            creds.port = tonumber(fields[2]) or 22
+                            creds.username = fields[3]
+                            creds.password = fields[4]
+                            Cloud.saveCredentials(Constants.CLOUD_PROVIDERS.SFTP, creds)
+                            UIManager:close(multi_dlg)
+                            UIManager:show(InfoMessage:new{ text = _("SFTP settings saved."), timeout = 2 })
+                            if on_finish_cb then UIManager:nextTick(on_finish_cb) end
+                        end,
+                    },
+                },
+            },
+        }
+        UIManager:show(multi_dlg)
+        if multi_dlg.onShowKeyboard then multi_dlg:onShowKeyboard() end
+    end
+end
+
+--- Uploads a local backup archive to the configured cloud provider.
+function BackupUI.showCloudUploadDialog(filepath, on_finish_cb)
+    if not filepath then
+        if on_finish_cb then UIManager:nextTick(on_finish_cb) end
+        return
+    end
+
+    local s = getPluginSettings()
+    local provider = s.cloud_provider
+    if not Cloud.isConfigured(provider) then
+        UIManager:show(InfoMessage:new{
+            text = string.format(_("%s is not configured. Please configure it in Settings."), Cloud.getProviderLabel(provider)),
+            timeout = 4,
+        })
+        if on_finish_cb then UIManager:nextTick(on_finish_cb) end
+        return
+    end
+
+    Beam.ensureNetwork(function()
+        local pbar = nil
+        if ok_pbd and ProgressbarDialog then
+            pbar = ProgressbarDialog:new{
+                title = string.format(_("Upload to %s"), Cloud.getProviderLabel(provider)),
+                subtitle = _("Preparing upload..."),
+                progress_max = 100,
+                refresh_time_seconds = 1,
+                dismissable = false,
+            }
+            pbar:show()
+        else
+            pbar = InfoMessage:new{ text = _("Uploading backup to cloud...") }
+            UIManager:show(pbar)
+        end
+
+        local function closePbar()
+            if pbar then
+                if pbar.close then
+                    pbar:close()
+                else
+                    UIManager:close(pbar, "ui")
+                end
+                pbar = nil
+                UIManager:setDirty("all", "ui")
+            end
+        end
+
+        local function setPbarSubtitle(text)
+            if pbar and pbar[1] and pbar[1][1] then
+                local vg = pbar[1][1]
+                if vg[2] and type(vg[2].setText) == "function" then
+                    vg[2]:setText(text)
+                end
+            end
+        end
+
+        local function setPbarProgress(val)
+            if not pbar or not pbar.reportProgress then return end
+            pbar.progress_max = 100
+            pbar:reportProgress(math.min(100, math.max(0, math.floor(val or 0))))
+        end
+
+        UIManager:nextTick(function()
+            local upload_opts = {
+                on_progress = function(sent, total, stage)
+                    if not pbar then return end
+                    if stage == "connecting" then
+                        setPbarSubtitle(_("Connecting to cloud..."))
+                        setPbarProgress(5)
+                    elseif stage == "finalizing" then
+                        setPbarSubtitle(_("Finalizing upload..."))
+                        setPbarProgress(95)
+                    else
+                        local pct = (total and total > 0) and math.floor((sent / total) * 100) or 0
+                        setPbarProgress(pct)
+                        if total and total > 0 and util and util.getFriendlySize then
+                            setPbarSubtitle(string.format(_("Uploading: %s / %s (%d%%)"),
+                                util.getFriendlySize(sent), util.getFriendlySize(total), pct))
+                        else
+                            setPbarSubtitle(_("Uploading backup archive..."))
+                        end
+                    end
+                end,
+            }
+
+            Cloud.upload(filepath, upload_opts, function(ok, res)
+                closePbar()
+                if ok then
+                    local filename = filepath:match("([^/\\]+)$") or "backup archive"
+                    UIManager:show(InfoMessage:new{
+                        text = string.format(_("Backup uploaded to %s successfully!\n\nFile: %s"), Cloud.getProviderLabel(provider), filename),
+                        timeout = 4,
+                    })
+                    if on_finish_cb then UIManager:nextTick(on_finish_cb) end
+                else
+                    UIManager:show(ConfirmBox:new{
+                        text = string.format(_("Cloud upload failed:\n%s"), tostring(res)),
+                        ok_text = _("Retry"),
+                        cancel_text = _("Cancel"),
+                        ok_callback = function()
+                            BackupUI.showCloudUploadDialog(filepath, on_finish_cb)
+                        end,
+                        cancel_callback = function()
+                            if on_finish_cb then UIManager:nextTick(on_finish_cb) end
+                        end,
+                    })
+                end
+            end)
+        end)
+    end, function()
+        if on_finish_cb then UIManager:nextTick(on_finish_cb) end
+    end)
+end
+
+--- Shows a dialog listing remote cloud backups for download and restoration.
+function BackupUI.showCloudDownloadDialog(on_finish_cb)
+    local s = getPluginSettings()
+    local provider = s.cloud_provider
+
+    if not Cloud.isConfigured(provider) then
+        UIManager:show(InfoMessage:new{
+            text = string.format(_("%s is not configured. Please configure it in Settings."), Cloud.getProviderLabel(provider)),
+            timeout = 4,
+        })
+        if on_finish_cb then UIManager:nextTick(on_finish_cb) end
+        return
+    end
+
+    Beam.ensureNetwork(function()
+        local fetch_info = InfoMessage:new{ text = string.format(_("Fetching backups from %s..."), Cloud.getProviderLabel(provider)) }
+        UIManager:show(fetch_info)
+
+        Cloud.listRemoteBackups(function(ok, list)
+            UIManager:close(fetch_info)
+
+            if not ok then
+                UIManager:show(ConfirmBox:new{
+                    text = string.format(_("Failed to fetch cloud backups:\n%s"), tostring(list)),
+                    ok_text = _("Retry"),
+                    cancel_text = _("Cancel"),
+                    ok_callback = function()
+                        BackupUI.showCloudDownloadDialog(on_finish_cb)
+                    end,
+                    cancel_callback = function()
+                        if on_finish_cb then UIManager:nextTick(on_finish_cb) end
+                    end,
+                })
+                return
+            end
+
+            if not list or #list == 0 then
+                UIManager:show(InfoMessage:new{
+                    text = string.format(_("No backup files found on %s."), Cloud.getProviderLabel(provider)),
+                    timeout = 3,
+                })
+                if on_finish_cb then UIManager:nextTick(on_finish_cb) end
+                return
+            end
+
+            local dialog
+            local function closeDialog()
+                if dialog then
+                    local d = dialog
+                    dialog = nil
+                    UIManager:close(d)
+                end
+            end
+
+            local buttons = {}
+            for _, b in ipairs(list) do
+                local label = string.format("%s (%s)\n%s", b.filename, b.size_str, b.mtime_str)
+                table.insert(buttons, {
+                    {
+                        text = label,
+                        align = "left",
+                        callback = function()
+                            closeDialog()
+                            local dest_dir = getEffectiveBackupDir()
+                            if util and util.makePath then util.makePath(dest_dir) end
+                            local local_path = dest_dir .. "/" .. b.filename
+
+                            local pbar = nil
+                            if ok_pbd and ProgressbarDialog then
+                                pbar = ProgressbarDialog:new{
+                                    title = string.format(_("Download from %s"), Cloud.getProviderLabel(provider)),
+                                    subtitle = _("Downloading backup archive..."),
+                                    progress_max = 100,
+                                    refresh_time_seconds = 1,
+                                    dismissable = false,
+                                }
+                                pbar:show()
+                            else
+                                pbar = InfoMessage:new{ text = _("Downloading backup from cloud...") }
+                                UIManager:show(pbar)
+                            end
+
+                            local function closeDlPbar()
+                                if pbar then
+                                    if pbar.close then pbar:close() else UIManager:close(pbar, "ui") end
+                                    pbar = nil
+                                    UIManager:setDirty("all", "ui")
+                                end
+                            end
+
+                            local dl_opts = {
+                                on_progress = function(recv, total)
+                                    if not pbar or not pbar.reportProgress then return end
+                                    local pct = (total and total > 0) and math.floor((recv / total) * 100) or 0
+                                    pbar.progress_max = 100
+                                    pbar:reportProgress(pct)
+                                    if pbar[1] and pbar[1][1] then
+                                        local vg = pbar[1][1]
+                                        if vg[2] and type(vg[2].setText) == "function" then
+                                            local text = (total and total > 0 and util and util.getFriendlySize)
+                                                and string.format(_("Downloading: %s / %s (%d%%)"), util.getFriendlySize(recv), util.getFriendlySize(total), pct)
+                                                or string.format(_("Downloading: %s..."), (util and util.getFriendlySize and util.getFriendlySize(recv) or tostring(recv)))
+                                            vg[2]:setText(text)
+                                        end
+                                    end
+                                end,
+                            }
+
+                            Cloud.download(b, local_path, dl_opts, function(dl_ok, dl_res)
+                                closeDlPbar()
+                                if dl_ok then
+                                    UIManager:show(InfoMessage:new{
+                                        text = string.format(_("Downloaded %s successfully!"), b.filename),
+                                        timeout = 2,
+                                    })
+                                    UIManager:nextTick(function()
+                                        BackupUI.showArchiveDetailSheet(local_path, on_finish_cb)
+                                    end)
+                                else
+                                    UIManager:show(ConfirmBox:new{
+                                        text = string.format(_("Download failed:\n%s"), tostring(dl_res)),
+                                        ok_text = _("Retry"),
+                                        cancel_text = _("Cancel"),
+                                        ok_callback = function()
+                                            BackupUI.showCloudDownloadDialog(on_finish_cb)
+                                        end,
+                                        cancel_callback = function()
+                                            if on_finish_cb then UIManager:nextTick(on_finish_cb) end
+                                        end,
+                                    })
+                                end
+                            end)
+                        end,
+                    },
+                })
+            end
+
+            table.insert(buttons, {
+                {
+                    text = _("Cancel"),
+                    callback = function()
+                        closeDialog()
+                        if on_finish_cb then UIManager:nextTick(on_finish_cb) end
+                    end,
+                },
+            })
+
+            dialog = ButtonDialog:new{
+                title = string.format(_("Cloud Backups (%s)"), Cloud.getProviderLabel(provider)),
+                buttons = buttons,
+            }
+            UIManager:show(dialog)
+        end)
+    end, function()
+        if on_finish_cb then UIManager:nextTick(on_finish_cb) end
+    end)
+end
+
+--- Shows a dialog to manage remote cloud backups (download or delete).
+function BackupUI.showManageCloudBackupsDialog(on_finish_cb)
+    local s = getPluginSettings()
+    local provider = s.cloud_provider
+
+    if not Cloud.isConfigured(provider) then
+        UIManager:show(InfoMessage:new{
+            text = string.format(_("%s is not configured."), Cloud.getProviderLabel(provider)),
+            timeout = 3,
+        })
+        if on_finish_cb then UIManager:nextTick(on_finish_cb) end
+        return
+    end
+
+    Beam.ensureNetwork(function()
+        local fetch_info = InfoMessage:new{ text = string.format(_("Fetching backups from %s..."), Cloud.getProviderLabel(provider)) }
+        UIManager:show(fetch_info)
+
+        Cloud.listRemoteBackups(function(ok, list)
+            UIManager:close(fetch_info)
+
+            if not ok or not list or #list == 0 then
+                UIManager:show(InfoMessage:new{
+                    text = (not ok)
+                        and string.format(_("Failed to fetch cloud backups:\n%s"), tostring(list))
+                        or string.format(_("No backup files found on %s."), Cloud.getProviderLabel(provider)),
+                    timeout = 3,
+                })
+                if on_finish_cb then UIManager:nextTick(on_finish_cb) end
+                return
+            end
+
+            local dialog
+            local function closeDialog()
+                if dialog then
+                    local d = dialog
+                    dialog = nil
+                    UIManager:close(d)
+                end
+            end
+
+            local buttons = {}
+            for _, b in ipairs(list) do
+                local label = string.format("%s (%s) • %s", b.filename, b.size_str, b.mtime_str)
+                table.insert(buttons, {
+                    {
+                        text = label,
+                        align = "left",
+                        callback = function()
+                            closeDialog()
+                            -- Detail options for this remote backup: Download or Delete
+                            local detail_dialog
+                            local function closeDetail()
+                                if detail_dialog then
+                                    local dd = detail_dialog
+                                    detail_dialog = nil
+                                    UIManager:close(dd)
+                                end
+                            end
+
+                            local detail_buttons = {
+                                {
+                                    {
+                                        text = _("Download to Device"),
+                                        bold = true,
+                                        callback = function()
+                                            closeDetail()
+                                            local dest_dir = getEffectiveBackupDir()
+                                            if util and util.makePath then util.makePath(dest_dir) end
+                                            local local_path = dest_dir .. "/" .. b.filename
+                                            local info = InfoMessage:new{ text = _("Downloading backup...") }
+                                            UIManager:show(info)
+                                            Cloud.download(b, local_path, {}, function(dl_ok, dl_res)
+                                                UIManager:close(info)
+                                                if dl_ok then
+                                                    UIManager:show(InfoMessage:new{
+                                                        text = string.format(_("Downloaded %s successfully!"), b.filename),
+                                                        timeout = 2,
+                                                    })
+                                                    UIManager:nextTick(function()
+                                                        BackupUI.showArchiveDetailSheet(local_path, function()
+                                                            BackupUI.showManageCloudBackupsDialog(on_finish_cb)
+                                                        end)
+                                                    end)
+                                                else
+                                                    UIManager:show(InfoMessage:new{
+                                                        text = string.format(_("Download failed: %s"), tostring(dl_res)),
+                                                        timeout = 4,
+                                                    })
+                                                    UIManager:nextTick(function()
+                                                        BackupUI.showManageCloudBackupsDialog(on_finish_cb)
+                                                    end)
+                                                end
+                                            end)
+                                        end,
+                                    },
+                                },
+                                {
+                                    {
+                                        text = _("Delete from Cloud"),
+                                        callback = function()
+                                            closeDetail()
+                                            local confirm = ConfirmBox:new{
+                                                text = string.format(_("Delete remote backup '%s' from %s?\nThis action cannot be undone."), b.filename, Cloud.getProviderLabel(provider)),
+                                                ok_text = _("Delete"),
+                                                cancel_text = _("Cancel"),
+                                                ok_callback = function()
+                                                    local d_info = InfoMessage:new{ text = _("Deleting remote backup...") }
+                                                    UIManager:show(d_info)
+                                                    Cloud.deleteRemote(b, function(del_ok, del_err)
+                                                        UIManager:close(d_info)
+                                                        if del_ok then
+                                                            UIManager:show(InfoMessage:new{ text = _("Backup deleted from cloud."), timeout = 2 })
+                                                        else
+                                                            UIManager:show(InfoMessage:new{ text = string.format(_("Delete failed: %s"), tostring(del_err)), timeout = 4 })
+                                                        end
+                                                        UIManager:nextTick(function()
+                                                            BackupUI.showManageCloudBackupsDialog(on_finish_cb)
+                                                        end)
+                                                    end)
+                                                end,
+                                                cancel_callback = function()
+                                                    BackupUI.showManageCloudBackupsDialog(on_finish_cb)
+                                                end,
+                                            }
+                                            UIManager:show(confirm)
+                                        end,
+                                    },
+                                },
+                                {
+                                    {
+                                        text = _("Back"),
+                                        callback = function()
+                                            closeDetail()
+                                            BackupUI.showManageCloudBackupsDialog(on_finish_cb)
+                                        end,
+                                    },
+                                },
+                            }
+
+                            detail_dialog = ButtonDialog:new{
+                                title = b.filename,
+                                buttons = detail_buttons,
+                            }
+                            UIManager:show(detail_dialog)
+                        end,
+                    },
+                })
+            end
+
+            table.insert(buttons, {
+                {
+                    text = _("Close"),
+                    callback = function()
+                        closeDialog()
+                        if on_finish_cb then UIManager:nextTick(on_finish_cb) end
+                    end,
+                },
+            })
+
+            dialog = ButtonDialog:new{
+                title = string.format(_("Manage %s Backups"), Cloud.getProviderLabel(provider)),
+                buttons = buttons,
+            }
+            UIManager:show(dialog)
+        end)
+    end, function()
+        if on_finish_cb then UIManager:nextTick(on_finish_cb) end
     end)
 end
 

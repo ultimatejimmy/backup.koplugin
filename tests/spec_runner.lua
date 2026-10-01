@@ -207,6 +207,9 @@ for k, v in pairs(package.loaded) do base_loaded[k] = v end
 local test_files = {
     "backup_archiver_test.lua",
     "backup_beam_test.lua",
+    "backup_cloud_oauth_test.lua",
+    "backup_cloud_webdav_test.lua",
+    "backup_cloud_dispatch_test.lua",
     "backup_folder_picker_test.lua",
     "backup_localization_test.lua",
     "backup_main_menu_test.lua",

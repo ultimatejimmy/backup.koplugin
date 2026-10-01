@@ -146,4 +146,35 @@ function Retention.deleteBackup(filepath)
     return ok, err
 end
 
+--- Enforces rolling retention limit on a list of remote backup items.
+-- @param remote_backups table: array of remote backup items sorted newest first
+-- @param max_count number: max backups to keep (0 = unlimited)
+-- @param delete_fn function(item, callback): delete handler
+-- @param callback function(pruned_count)
+function Retention.pruneRemote(remote_backups, max_count, delete_fn, callback)
+    max_count = tonumber(max_count) or 0
+    if max_count <= 0 or not remote_backups or #remote_backups <= max_count or not delete_fn then
+        if callback then callback(0) end
+        return 0
+    end
+
+    local to_prune = {}
+    for i = max_count + 1, #remote_backups do
+        table.insert(to_prune, remote_backups[i])
+    end
+
+    local pruned_count = 0
+    local function doNext(idx)
+        if idx > #to_prune then
+            if callback then callback(pruned_count) end
+            return
+        end
+        delete_fn(to_prune[idx], function(ok)
+            if ok then pruned_count = pruned_count + 1 end
+            doNext(idx + 1)
+        end)
+    end
+    doNext(1)
+end
+
 return Retention

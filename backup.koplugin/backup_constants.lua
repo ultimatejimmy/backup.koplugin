@@ -155,7 +155,28 @@ Constants.DEFAULT_SETTINGS = {
     clean_slate_restore = false, -- whether to delete unlisted user plugins on restore
     auto_sanitize_cross_device = true, -- auto-detect and sanitize on cross-device restore
     beam_relay_url = "https://nameless-grass-2b44.ultimatejimmy.workers.dev", -- default edge relay URL
+    cloud_provider = "none", -- "none", "gdrive", "webdav", "ftp", "sftp"
+    cloud_remote_dir = "koreader_backups",
+    cloud_prune_remote = true,
 }
+
+-- Cloud storage providers (Phase 1: WebDAV, FTP, SFTP, Google Drive)
+Constants.CLOUD_PROVIDERS = {
+    NONE = "none",
+    GDRIVE = "gdrive",
+    WEBDAV = "webdav",
+    FTP = "ftp",
+    SFTP = "sftp",
+    ONEDRIVE = "onedrive", -- Phase 2
+    DROPBOX = "dropbox",   -- Phase 2
+}
+
+Constants.CLOUD_DEFAULT_REMOTE_DIR = "koreader_backups"
+
+-- OAuth2 app registrations (installed-app / device-code flow — client_id is public by design)
+Constants.OAUTH_GDRIVE_CLIENT_ID = "444320595925-2mlkslggov1f25qv45th2tq3dl466f9u.apps.googleusercontent.com"
+Constants.OAUTH_ONEDRIVE_CLIENT_ID = nil -- Phase 2
+Constants.OAUTH_DROPBOX_CLIENT_ID = nil  -- Phase 2
 
 -- Beam cross-device transfer constants
 Constants.BEAM_DEFAULT_RELAY_URL = "https://nameless-grass-2b44.ultimatejimmy.workers.dev"

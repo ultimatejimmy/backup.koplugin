@@ -11,11 +11,20 @@ msgstr "\n\nSanitized %d hardware keys for device compatibility."
 msgid "%d backups found in this folder"
 msgstr "%d backups found in this folder"
 
+msgid "%s is not configured."
+msgstr "%s is not configured."
+
+msgid "%s is not configured. Please configure it in Settings."
+msgstr "%s is not configured. Please configure it in Settings."
+
 msgid "+ New"
 msgstr "+ New"
 
 msgid ".. (Parent Folder)"
 msgstr ".. (Parent Folder)"
+
+msgid "And enter this code:"
+msgstr "And enter this code:"
 
 msgid "Archive: %s"
 msgstr "Archive: %s"
@@ -25,6 +34,15 @@ msgstr "Archiving (%d/%d - %s):\n%s"
 
 msgid "Are you sure you want to restore this backup?\n\nAn automatic safety rollback snapshot will be created before any files are updated."
 msgstr "Are you sure you want to restore this backup?\n\nAn automatic safety rollback snapshot will be created before any files are updated."
+
+msgid "Authentication failed. Please verify your username and password."
+msgstr "Authentication failed. Please verify your username and password."
+
+msgid "Authorization code expired. Please try again."
+msgstr "Authorization code expired. Please try again."
+
+msgid "Back"
+msgstr "Back"
 
 msgid "Backup & Restore Settings"
 msgstr "Backup & Restore Settings"
@@ -41,11 +59,17 @@ msgstr "Backup created successfully!\n\nFile: %s\nSize: %s\nArchived files: %d"
 msgid "Backup creation canceled."
 msgstr "Backup creation canceled."
 
+msgid "Backup deleted from cloud."
+msgstr "Backup deleted from cloud."
+
 msgid "Backup received successfully!\n\nFile: %s"
 msgstr "Backup received successfully!\n\nFile: %s"
 
 msgid "Backup restored successfully!"
 msgstr "Backup restored successfully!"
+
+msgid "Backup uploaded to %s successfully!\n\nFile: %s"
+msgstr "Backup uploaded to %s successfully!\n\nFile: %s"
 
 msgid "Beam Relay Server"
 msgstr "Beam Relay Server"
@@ -89,6 +113,18 @@ msgstr "Clear All"
 msgid "Close"
 msgstr "Close"
 
+msgid "Cloud Backups (%s)"
+msgstr "Cloud Backups (%s)"
+
+msgid "Cloud Backups (%s) ▸"
+msgstr "Cloud Backups (%s) ▸"
+
+msgid "Cloud Storage: %s"
+msgstr "Cloud Storage: %s"
+
+msgid "Cloud upload failed:\n%s"
+msgstr "Cloud upload failed:\n%s"
+
 msgid "Code expires in 15 minutes\nSingle-use end-to-end encrypted"
 msgstr "Code expires in 15 minutes\nSingle-use end-to-end encrypted"
 
@@ -98,17 +134,50 @@ msgstr "Components to Restore: %s ▸"
 msgid "Components: %s ▸"
 msgstr "Components: %s ▸"
 
+msgid "Configure %s"
+msgstr "Configure %s"
+
+msgid "Connect Google Drive"
+msgstr "Connect Google Drive"
+
+msgid "Connected to Google Drive successfully!"
+msgstr "Connected to Google Drive successfully!"
+
+msgid "Connected to server, but could not create folder: %s"
+msgstr "Connected to server, but could not create folder: %s"
+
 msgid "Connecting and downloading backup archive..."
 msgstr "Connecting and downloading backup archive..."
 
 msgid "Connecting to Beam relay..."
 msgstr "Connecting to Beam relay..."
 
+msgid "Connecting to cloud..."
+msgstr "Connecting to cloud..."
+
+msgid "Connection failed"
+msgstr "Connection failed"
+
+msgid "Connection successful!"
+msgstr "Connection successful!"
+
+msgid "Contacting Google Drive..."
+msgstr "Contacting Google Drive..."
+
 msgid "Corrupted filename in Beam payload."
 msgstr "Corrupted filename in Beam payload."
 
 msgid "Corrupted or empty Beam payload."
 msgstr "Corrupted or empty Beam payload."
+
+msgid "Could not connect to %s:%d: %s"
+msgstr "Could not connect to %s:%d: %s"
+
+msgid "Could not connect to WebDAV server (HTTP %s)."
+msgstr "Could not connect to WebDAV server (HTTP %s)."
+
+msgid "Could not create Google Drive folder '%s' (HTTP %s): %s"
+msgstr "Could not create Google Drive folder '%s' (HTTP %s): %s"
 
 msgid "Could not read file: %s"
 msgstr "Could not read file: %s"
@@ -146,11 +215,29 @@ msgstr "Delete"
 msgid "Delete backup '%s'?\nThis action cannot be undone."
 msgstr "Delete backup '%s'?\nThis action cannot be undone."
 
+msgid "Delete failed: %s"
+msgstr "Delete failed: %s"
+
+msgid "Delete from Cloud"
+msgstr "Delete from Cloud"
+
+msgid "Delete remote backup '%s' from %s?\nThis action cannot be undone."
+msgstr "Delete remote backup '%s' from %s?\nThis action cannot be undone."
+
+msgid "Deleting remote backup..."
+msgstr "Deleting remote backup..."
+
 msgid "Device Backup & Restore"
 msgstr "Device Backup & Restore"
 
 msgid "Dictionaries & OCR Data"
 msgstr "Dictionaries & OCR Data"
+
+msgid "Disconnect / Log Out"
+msgstr "Disconnect / Log Out"
+
+msgid "Disconnected from Google Drive."
+msgstr "Disconnected from Google Drive."
 
 msgid "Disk full or write error writing header: %s"
 msgstr "Disk full or write error writing header: %s"
@@ -167,17 +254,47 @@ msgstr "Download failed (HTTP %s): %s"
 msgid "Download failed (Network error): %s"
 msgstr "Download failed (Network error): %s"
 
+msgid "Download failed:\n%s"
+msgstr "Download failed:\n%s"
+
+msgid "Download failed: %s"
+msgstr "Download failed: %s"
+
+msgid "Download from %s"
+msgstr "Download from %s"
+
 msgid "Download incomplete (%s received out of %s). Network connection may have dropped."
 msgstr "Download incomplete (%s received out of %s). Network connection may have dropped."
 
+msgid "Download to Device"
+msgstr "Download to Device"
+
+msgid "Download transfer interrupted."
+msgstr "Download transfer interrupted."
+
+msgid "Downloaded %s successfully!"
+msgstr "Downloaded %s successfully!"
+
 msgid "Downloading backup archive (%s)..."
 msgstr "Downloading backup archive (%s)..."
+
+msgid "Downloading backup archive..."
+msgstr "Downloading backup archive..."
+
+msgid "Downloading backup from cloud..."
+msgstr "Downloading backup from cloud..."
+
+msgid "Downloading backup..."
+msgstr "Downloading backup..."
 
 msgid "Downloading: %s / %s (%d%%)"
 msgstr "Downloading: %s / %s (%d%%)"
 
 msgid "Downloading: %s..."
 msgstr "Downloading: %s..."
+
+msgid "Dropbox"
+msgstr "Dropbox"
 
 msgid "Encrypting backup archive..."
 msgstr "Encrypting backup archive..."
@@ -194,17 +311,56 @@ msgstr "Enter the 6-digit Beam code from the sending device:"
 msgid "Extraction failed: %s"
 msgstr "Extraction failed: %s"
 
+msgid "FTP / FTPS"
+msgstr "FTP / FTPS"
+
+msgid "FTP Server Settings"
+msgstr "FTP Server Settings"
+
+msgid "FTP authentication failed: %s"
+msgstr "FTP authentication failed: %s"
+
+msgid "FTP host is required."
+msgstr "FTP host is required."
+
+msgid "FTP settings saved."
+msgstr "FTP settings saved."
+
+msgid "FTP user rejected: %s"
+msgstr "FTP user rejected: %s"
+
 msgid "Failed to create backup:\n%s"
 msgstr "Failed to create backup:\n%s"
 
 msgid "Failed to create folder."
 msgstr "Failed to create folder."
 
+msgid "Failed to delete remote backup (HTTP %s)"
+msgstr "Failed to delete remote backup (HTTP %s)"
+
+msgid "Failed to fetch cloud backups:\n%s"
+msgstr "Failed to fetch cloud backups:\n%s"
+
 msgid "Failed to inspect archive:\n%s"
 msgstr "Failed to inspect archive:\n%s"
 
+msgid "Failed to list remote backups (HTTP %s)"
+msgstr "Failed to list remote backups (HTTP %s)"
+
 msgid "Failed to prepare encrypted stream"
 msgstr "Failed to prepare encrypted stream"
+
+msgid "Failed to refresh authorization: %s. Please reconnect in Settings."
+msgstr "Failed to refresh authorization: %s. Please reconnect in Settings."
+
+msgid "Failed to start Google Drive authorization:\n%s"
+msgstr "Failed to start Google Drive authorization:\n%s"
+
+msgid "Fetching backups from %s..."
+msgstr "Fetching backups from %s..."
+
+msgid "Finalizing upload..."
+msgstr "Finalizing upload..."
 
 msgid "Folder"
 msgstr "Folder"
@@ -215,8 +371,35 @@ msgstr "Fonts"
 msgid "Format: .%s"
 msgstr "Format: .%s"
 
+msgid "Google Drive"
+msgstr "Google Drive"
+
+msgid "Google Drive Account"
+msgstr "Google Drive Account"
+
+msgid "Google Drive authorization was denied."
+msgstr "Google Drive authorization was denied."
+
+msgid "Google Drive download failed (HTTP %s)"
+msgstr "Google Drive download failed (HTTP %s)"
+
+msgid "Google Drive listing failed (HTTP %s)"
+msgstr "Google Drive listing failed (HTTP %s)"
+
+msgid "Google Drive upload failed (HTTP %s): %s"
+msgstr "Google Drive upload failed (HTTP %s): %s"
+
+msgid "Google Drive upload initiation failed (HTTP %s): %s"
+msgstr "Google Drive upload initiation failed (HTTP %s): %s"
+
 msgid "HTTPS address of the ephemeral Beam relay:"
 msgstr "HTTPS address of the ephemeral Beam relay:"
+
+msgid "Host (e.g. ftp.example.com)"
+msgstr "Host (e.g. ftp.example.com)"
+
+msgid "Host (e.g. sftp.example.com)"
+msgstr "Host (e.g. sftp.example.com)"
 
 msgid "Icons"
 msgstr "Icons"
@@ -236,17 +419,32 @@ msgstr "Invalid filename in Beam payload."
 msgid "Invalid filename in backup path."
 msgstr "Invalid filename in backup path."
 
+msgid "Manage %s Backups"
+msgstr "Manage %s Backups"
+
 msgid "Manage Backups"
 msgstr "Manage Backups"
 
-msgid "Name: %s"
-msgstr "Name: %s"
+msgid "Microsoft OneDrive"
+msgstr "Microsoft OneDrive"
+
+msgid "Name of folder on remote storage:"
+msgstr "Name of folder on remote storage:"
+
+msgid "Network transfer interrupted."
+msgstr "Network transfer interrupted."
 
 msgid "New Folder"
 msgstr "New Folder"
 
 msgid "No backup files found in:\n%s"
 msgstr "No backup files found in:\n%s"
+
+msgid "No backup files found on %s."
+msgstr "No backup files found on %s."
+
+msgid "No cloud provider is currently selected."
+msgstr "No cloud provider is currently selected."
 
 msgid "No items found."
 msgstr "No items found."
@@ -257,8 +455,20 @@ msgstr "No rollback snapshot available to undo."
 msgid "No subfolders in this directory.\nTap 'Select Folder' below to use it, or '+ New' to create a subfolder."
 msgstr "No subfolders in this directory.\nTap 'Select Folder' below to use it, or '+ New' to create a subfolder."
 
+msgid "None"
+msgstr "None"
+
+msgid "None (Disabled)"
+msgstr "None (Disabled)"
+
+msgid "Not authenticated. Please connect your account in Settings."
+msgstr "Not authenticated. Please connect your account in Settings."
+
 msgid "Number of rolling backups to keep (0 = unlimited):"
 msgstr "Number of rolling backups to keep (0 = unlimited):"
+
+msgid "OAuth Client ID is not configured for this provider."
+msgstr "OAuth Client ID is not configured for this provider."
 
 msgid "OK"
 msgstr "OK"
@@ -266,8 +476,20 @@ msgstr "OK"
 msgid "On the receiving device, open\n'Receive via Beam Code' and enter:"
 msgstr "On the receiving device, open\n'Receive via Beam Code' and enter:"
 
+msgid "On your phone or computer, open:"
+msgstr "On your phone or computer, open:"
+
 msgid "Page %d of %d"
 msgstr "Page %d of %d"
+
+msgid "Password"
+msgstr "Password"
+
+msgid "Password or App Token"
+msgstr "Password or App Token"
+
+msgid "Password or Key Path (e.g. /path/id_rsa)"
+msgstr "Password or Key Path (e.g. /path/id_rsa)"
 
 msgid "Patches"
 msgstr "Patches"
@@ -275,11 +497,20 @@ msgstr "Patches"
 msgid "Please enter a 6-digit Beam code."
 msgstr "Please enter a 6-digit Beam code."
 
+msgid "Port (default 21)"
+msgstr "Port (default 21)"
+
+msgid "Port (default 22)"
+msgstr "Port (default 22)"
+
 msgid "Pre-flight check failed: %s"
 msgstr "Pre-flight check failed: %s"
 
 msgid "Preparing backup payload..."
 msgstr "Preparing backup payload..."
+
+msgid "Preparing upload..."
+msgstr "Preparing upload..."
 
 msgid "Proceed"
 msgstr "Proceed"
@@ -301,6 +532,12 @@ msgstr "Recommended"
 
 msgid "Registering code with Beam relay..."
 msgstr "Registering code with Beam relay..."
+
+msgid "Remote Backup Folder"
+msgstr "Remote Backup Folder"
+
+msgid "Remote Folder: %s"
+msgstr "Remote Folder: %s"
 
 msgid "Reset Default"
 msgstr "Reset Default"
@@ -338,6 +575,33 @@ msgstr "Revert to the pre-restore rollback snapshot?\n\nThis will undo the last 
 msgid "Reverting to rollback snapshot..."
 msgstr "Reverting to rollback snapshot..."
 
+msgid "SFTP (SSH)"
+msgstr "SFTP (SSH)"
+
+msgid "SFTP Server Settings"
+msgstr "SFTP Server Settings"
+
+msgid "SFTP client ('sftp' binary) is not installed on this system."
+msgstr "SFTP client ('sftp' binary) is not installed on this system."
+
+msgid "SFTP connection failed: %s"
+msgstr "SFTP connection failed: %s"
+
+msgid "SFTP download failed: %s"
+msgstr "SFTP download failed: %s"
+
+msgid "SFTP host is required."
+msgstr "SFTP host is required."
+
+msgid "SFTP is not available on this device.\nPlease use WebDAV, FTP, or Google Drive instead."
+msgstr "SFTP is not available on this device.\nPlease use WebDAV, FTP, or Google Drive instead."
+
+msgid "SFTP settings saved."
+msgstr "SFTP settings saved."
+
+msgid "SFTP upload failed: %s"
+msgstr "SFTP upload failed: %s"
+
 msgid "Sanitize Hardware Settings"
 msgstr "Sanitize Hardware Settings"
 
@@ -356,8 +620,26 @@ msgstr "Select Backup Folder"
 msgid "Select Books Folder"
 msgstr "Select Books Folder"
 
+msgid "Select Cloud Storage Provider"
+msgstr "Select Cloud Storage Provider"
+
 msgid "Select Folder"
 msgstr "Select Folder"
+
+msgid "Selected provider driver is not available."
+msgstr "Selected provider driver is not available."
+
+msgid "Server URL (e.g. https://cloud.example.com/remote.php/dav/files/user)"
+msgstr "Server URL (e.g. https://cloud.example.com/remote.php/dav/files/user)"
+
+msgid "Server URL is required."
+msgstr "Server URL is required."
+
+msgid "Server greeting failed: %s"
+msgstr "Server greeting failed: %s"
+
+msgid "Session expired. Please reconnect your account in Settings."
+msgstr "Session expired. Please reconnect your account in Settings."
 
 msgid "Settings & UI Gestures"
 msgstr "Settings & UI Gestures"
@@ -370,6 +652,30 @@ msgstr "Style Tweaks"
 
 msgid "Successfully reverted to rollback snapshot."
 msgstr "Successfully reverted to rollback snapshot."
+
+msgid "Test"
+msgstr "Test"
+
+msgid "Test Cloud Connection"
+msgstr "Test Cloud Connection"
+
+msgid "Test Connection"
+msgstr "Test Connection"
+
+msgid "Testing FTP connection..."
+msgstr "Testing FTP connection..."
+
+msgid "Testing Google Drive connection..."
+msgstr "Testing Google Drive connection..."
+
+msgid "Testing SFTP connection..."
+msgstr "Testing SFTP connection..."
+
+msgid "Testing WebDAV connection..."
+msgstr "Testing WebDAV connection..."
+
+msgid "Testing cloud connection..."
+msgstr "Testing cloud connection..."
 
 msgid "This backup is %s, which exceeds the 100MB Beam transfer limit.\n\nBeam is designed for fast wireless transfer of settings and plugins. For full backups with reading statistics, dictionaries, or fonts, please transfer via USB or create a lighter backup."
 msgstr "This backup is %s, which exceeds the 100MB Beam transfer limit.\n\nBeam is designed for fast wireless transfer of settings and plugins. For full backups with reading statistics, dictionaries, or fonts, please transfer via USB or create a lighter backup."
@@ -392,12 +698,45 @@ msgstr "Upload failed (Network error): %s"
 msgid "Upload incomplete: relay received only %s of %s. The wireless connection was cut off."
 msgstr "Upload incomplete: relay received only %s of %s. The wireless connection was cut off."
 
+msgid "Upload to %s"
+msgstr "Upload to %s"
+
+msgid "Upload to Cloud"
+msgstr "Upload to Cloud"
+
 msgid "Uploading backup archive..."
 msgstr "Uploading backup archive..."
+
+msgid "Uploading backup to cloud..."
+msgstr "Uploading backup to cloud..."
 
 msgid "Uploading: %s / %s (%d%%)"
 msgstr "Uploading: %s / %s (%d%%)"
 
 msgid "User Plugins"
 msgstr "User Plugins"
+
+msgid "Username"
+msgstr "Username"
+
+msgid "Username (or 'anonymous')"
+msgstr "Username (or 'anonymous')"
+
+msgid "Waiting for authorization..."
+msgstr "Waiting for authorization..."
+
+msgid "WebDAV (Nextcloud / NAS)"
+msgstr "WebDAV (Nextcloud / NAS)"
+
+msgid "WebDAV Server Settings"
+msgstr "WebDAV Server Settings"
+
+msgid "WebDAV download failed (HTTP %s)"
+msgstr "WebDAV download failed (HTTP %s)"
+
+msgid "WebDAV settings saved."
+msgstr "WebDAV settings saved."
+
+msgid "WebDAV upload failed (HTTP %s): %s"
+msgstr "WebDAV upload failed (HTTP %s): %s"
 

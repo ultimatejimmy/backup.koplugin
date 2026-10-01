@@ -13,6 +13,14 @@ msgstr "\n\nSe sanitizaron %d claves de hardware para compatibilidad con el disp
 msgid "%d backups found in this folder"
 msgstr "Se encontraron %d copias de seguridad en esta carpeta"
 
+# en-hash: 9e8d0752d74b8980a095ecc6686a139a
+msgid "%s is not configured."
+msgstr "%s no está configurado."
+
+# en-hash: 015b489f212b32ce0657fa32ac66f01e
+msgid "%s is not configured. Please configure it in Settings."
+msgstr "%s no está configurado. Por favor, configúralo en Ajustes."
+
 # en-hash: 4bc56877a98a3b5f59735f579cf735a6
 msgid "+ New"
 msgstr "+ Nuevo"
@@ -20,6 +28,10 @@ msgstr "+ Nuevo"
 # en-hash: d28fdd75f93893891fb2d7e3b40683de
 msgid ".. (Parent Folder)"
 msgstr ".. (Carpeta superior)"
+
+# en-hash: 336f879eec1bf390db4fa65586734c78
+msgid "And enter this code:"
+msgstr "Y introduce este código:"
 
 # en-hash: fcbaff9ec755238920363a1fff9402a5
 msgid "Archive: %s"
@@ -32,6 +44,18 @@ msgstr "Archivando (%d/%d - %s):\n%s"
 # en-hash: 6eee210465fd5fe3081cbdc035faf4ea
 msgid "Are you sure you want to restore this backup?\n\nAn automatic safety rollback snapshot will be created before any files are updated."
 msgstr "¿Seguro que desea restaurar esta copia?\n\nSe creará una copia de seguridad automática antes de actualizar cualquier archivo."
+
+# en-hash: a971b642f34e745c598847929834ea01
+msgid "Authentication failed. Please verify your username and password."
+msgstr "Autenticación fallida. Por favor, verifica tu nombre de usuario y contraseña."
+
+# en-hash: 2ea05e21970520450768ac56d8f3216f
+msgid "Authorization code expired. Please try again."
+msgstr "Código de autorización expirado. Por favor, inténtalo de nuevo."
+
+# en-hash: 0557fa923dcee4d0f86b1409f5c2167f
+msgid "Back"
+msgstr "Atrás"
 
 # en-hash: bc0e2e2755cb8ab261980312b1cdd604
 msgid "Backup & Restore Settings"
@@ -53,6 +77,10 @@ msgstr "¡Copia creada con éxito!\n\nArchivo: %s\nTamaño: %s\nArchivos guardad
 msgid "Backup creation canceled."
 msgstr "Creación de copia de seguridad cancelada."
 
+# en-hash: fb044a20637bde2a9a102d3d088a88af
+msgid "Backup deleted from cloud."
+msgstr "Copia de seguridad eliminada de la nube."
+
 # en-hash: 8c9b5c30039246df4e284265e575ce06
 msgid "Backup received successfully!\n\nFile: %s"
 msgstr "¡Copia recibida con éxito!\n\nArchivo: %s"
@@ -60,6 +88,10 @@ msgstr "¡Copia recibida con éxito!\n\nArchivo: %s"
 # en-hash: f0699014af9b966071d5d9021dd1a9f2
 msgid "Backup restored successfully!"
 msgstr "¡Copia restaurada con éxito!"
+
+# en-hash: be013ad020ef73a484e27a60aa1717c6
+msgid "Backup uploaded to %s successfully!\n\nFile: %s"
+msgstr "¡Copia de seguridad subida a %s con éxito!\n\nArchivo: %s"
 
 # en-hash: de8e8367246b437c6b06b7b257933d07
 msgid "Beam Relay Server"
@@ -117,6 +149,22 @@ msgstr "Deseleccionar todo"
 msgid "Close"
 msgstr "Cerrar"
 
+# en-hash: 8fe91beff26c16918bfbd6a269890286
+msgid "Cloud Backups (%s)"
+msgstr "Copias de seguridad en la nube (%s)"
+
+# en-hash: 00dcb4d55c41dd1c45477d7f94ce7639
+msgid "Cloud Backups (%s) ▸"
+msgstr "Copias de seguridad en la nube (%s) ▸"
+
+# en-hash: eecd606aaa9f5ce6977efc64386f750d
+msgid "Cloud Storage: %s"
+msgstr "Almacenamiento en la nube: %s"
+
+# en-hash: db7384445b95e43849b498648d94cd9d
+msgid "Cloud upload failed:\n%s"
+msgstr "Error al subir a la nube:\n%s"
+
 # en-hash: e04433a9dbc7f8a04dfa1bad54d8e186
 msgid "Code expires in 15 minutes\nSingle-use end-to-end encrypted"
 msgstr "El código caduca en 15 minutos\nCifrado de extremo a extremo de un solo uso"
@@ -129,6 +177,22 @@ msgstr "Componentes a restaurar: %s ▸"
 msgid "Components: %s ▸"
 msgstr "Componentes: %s ▸"
 
+# en-hash: 9632519f95db5a4d4b26d97fe5f69dbf
+msgid "Configure %s"
+msgstr "Configurar %s"
+
+# en-hash: cf5b62c18873c73c95c10a30c8881775
+msgid "Connect Google Drive"
+msgstr "Conectar Google Drive"
+
+# en-hash: 664792348a8cab8a8d9c9f4177e7faea
+msgid "Connected to Google Drive successfully!"
+msgstr "¡Conectado a Google Drive exitosamente!"
+
+# en-hash: d504259ae483f0155508e59a58e0c16c
+msgid "Connected to server, but could not create folder: %s"
+msgstr "Conectado al servidor, pero no se pudo crear la carpeta: %s"
+
 # en-hash: 1bef0388877dbf64dcd100acd4a793db
 msgid "Connecting and downloading backup archive..."
 msgstr "Conectando y descargando archivo de copia..."
@@ -137,6 +201,22 @@ msgstr "Conectando y descargando archivo de copia..."
 msgid "Connecting to Beam relay..."
 msgstr "Conectando al servidor Beam..."
 
+# en-hash: 8f15b432c7c45a04097e759983c1a1b2
+msgid "Connecting to cloud..."
+msgstr "Conectando a la nube..."
+
+# en-hash: 1be415f041c0d8f2e10093a7b4236694
+msgid "Connection failed"
+msgstr "Fallo de conexión"
+
+# en-hash: b988ae810021000e2f084f9c6bd4732e
+msgid "Connection successful!"
+msgstr "¡Conexión exitosa!"
+
+# en-hash: a4a34e8a8c72855afbba9574a9385a2b
+msgid "Contacting Google Drive..."
+msgstr "Contactando a Google Drive..."
+
 # en-hash: 4046ca4eac71fd660ff5daa4372066e7
 msgid "Corrupted filename in Beam payload."
 msgstr "Nombre de archivo corrupto en la carga útil de Beam."
@@ -144,6 +224,18 @@ msgstr "Nombre de archivo corrupto en la carga útil de Beam."
 # en-hash: a71b94dc9954c63441159856938be723
 msgid "Corrupted or empty Beam payload."
 msgstr "Carga de Beam dañada o vacía."
+
+# en-hash: 0db66570c53d9269ae9638b0a57c6dc2
+msgid "Could not connect to %s:%d: %s"
+msgstr "No se pudo conectar a %s:%d: %s"
+
+# en-hash: 1be92af1318daefb4a1978cdc861f377
+msgid "Could not connect to WebDAV server (HTTP %s)."
+msgstr "No se pudo conectar al servidor WebDAV (HTTP %s)."
+
+# en-hash: ca1d08b2cacead2c94c25bc389f8f936
+msgid "Could not create Google Drive folder '%s' (HTTP %s): %s"
+msgstr "No se pudo crear la carpeta de Google Drive '%s' (HTTP %s): %s"
 
 # en-hash: c17e50618f4af14444fec4b88f4df96d
 msgid "Could not read file: %s"
@@ -193,6 +285,22 @@ msgstr "Eliminar"
 msgid "Delete backup '%s'?\nThis action cannot be undone."
 msgstr "¿Eliminar la copia '%s'?\nEsta acción no se puede deshacer."
 
+# en-hash: 27bba4f72dad4114966ba89c6aec01df
+msgid "Delete failed: %s"
+msgstr "Error al eliminar: %s"
+
+# en-hash: 39f8bfbc450dad78e48627bbeab8db01
+msgid "Delete from Cloud"
+msgstr "Eliminar de la nube"
+
+# en-hash: 02a7c9456ba90dff6f8b10eb03960145
+msgid "Delete remote backup '%s' from %s?\nThis action cannot be undone."
+msgstr "¿Eliminar la copia de seguridad remota '%s' de %s?\nEsta acción no se puede deshacer."
+
+# en-hash: 58f99216d32122408867dd4a3d098341
+msgid "Deleting remote backup..."
+msgstr "Eliminando copia de seguridad remota..."
+
 # en-hash: 3eba76dec995960162d99251c4685a72
 msgid "Device Backup & Restore"
 msgstr "Copia de seguridad y restauración"
@@ -200,6 +308,14 @@ msgstr "Copia de seguridad y restauración"
 # en-hash: 8584b34b65ac94e8c9c012d769803e17
 msgid "Dictionaries & OCR Data"
 msgstr "Diccionarios y datos OCR"
+
+# en-hash: 905c13278062aa09c6af3c74d4e596b9
+msgid "Disconnect / Log Out"
+msgstr "Desconectar / Cerrar sesión"
+
+# en-hash: 448d353fa19629918ce0a62f5a0a7d3f
+msgid "Disconnected from Google Drive."
+msgstr "Desconectado de Google Drive."
 
 # en-hash: f24351e020bd2306cdc4fc7dc6ad2bd2
 msgid "Disk full or write error writing header: %s"
@@ -221,13 +337,49 @@ msgstr "Error de descarga (HTTP %s): %s"
 msgid "Download failed (Network error): %s"
 msgstr "Descarga fallida (Error de red): %s"
 
+# en-hash: c51ce88a3ce7c5dd7ebcc8c4f57003bf
+msgid "Download failed:\n%s"
+msgstr "Error al descargar:\n%s"
+
+# en-hash: 2ae89fbb5548c5c979cdca7a76cc9f1b
+msgid "Download failed: %s"
+msgstr "Error al descargar: %s"
+
+# en-hash: 743f577a610acec9de44d6cfcbe0ef9e
+msgid "Download from %s"
+msgstr "Descargar de %s"
+
 # en-hash: cd415c49f3c3dcc9db530e8335de52de
 msgid "Download incomplete (%s received out of %s). Network connection may have dropped."
 msgstr "Descarga incompleta (%s recibido de %s). La conexión de red puede haberse interrumpido."
 
+# en-hash: 7bb1531e9c38316baa4eb61316a8d78f
+msgid "Download to Device"
+msgstr "Descargar a dispositivo"
+
+# en-hash: 3e2a96bc96f5ce87681235efea88f27f
+msgid "Download transfer interrupted."
+msgstr "Transferencia de descarga interrumpida."
+
+# en-hash: 6de7f7d7206af4dea103df21db1fc5fe
+msgid "Downloaded %s successfully!"
+msgstr "¡Se descargó %s exitosamente!"
+
 # en-hash: 64089d52e6d17e3b80ba6bd80b8bf06c
 msgid "Downloading backup archive (%s)..."
 msgstr "Descargando archivo de respaldo (%s)..."
+
+# en-hash: 1270acf3847e19c0542e5d9d4ed46cb7
+msgid "Downloading backup archive..."
+msgstr "Descargando archivo de copia de seguridad..."
+
+# en-hash: 315c0455b434a7612f52013fbb432f46
+msgid "Downloading backup from cloud..."
+msgstr "Descargando copia de seguridad de la nube..."
+
+# en-hash: ad71758b5cb347965a2834182508e592
+msgid "Downloading backup..."
+msgstr "Descargando copia de seguridad..."
 
 # en-hash: 2648f64cd622baf1e8533966877521b7
 msgid "Downloading: %s / %s (%d%%)"
@@ -236,6 +388,10 @@ msgstr "Descargando: %s / %s (%d%%)"
 # en-hash: 289ff661d41024c25647aeb299f0ea76
 msgid "Downloading: %s..."
 msgstr "Descargando: %s..."
+
+# en-hash: f92aa92725095d5531f54b4589d99264
+msgid "Dropbox"
+msgstr "Dropbox"
 
 # en-hash: f7a124dce93e38381ea3023a4f0aa14e
 msgid "Encrypting backup archive..."
@@ -257,6 +413,30 @@ msgstr "Introduzca el código Beam de 6 dígitos del dispositivo emisor:"
 msgid "Extraction failed: %s"
 msgstr "Error de extracción: %s"
 
+# en-hash: 0ad2426e3b166029ce69905535b27b98
+msgid "FTP / FTPS"
+msgstr "FTP / FTPS"
+
+# en-hash: 2fba4f70c8201fef6ec0398997717d20
+msgid "FTP Server Settings"
+msgstr "Configuración del servidor FTP"
+
+# en-hash: 14c218fa6809c1b281059672c219b719
+msgid "FTP authentication failed: %s"
+msgstr "Fallo de autenticación FTP: %s"
+
+# en-hash: 3372d3c40e8dfe55c3e1146741b8751c
+msgid "FTP host is required."
+msgstr "Se requiere un host FTP."
+
+# en-hash: 98d57742278d66908ae53b2ef63aedb0
+msgid "FTP settings saved."
+msgstr "Configuración FTP guardada."
+
+# en-hash: 1f3bde3b224b7ebb44c692b82d4c6af1
+msgid "FTP user rejected: %s"
+msgstr "Usuario FTP rechazado: %s"
+
 # en-hash: 03218619387d6343c9b47de134287947
 msgid "Failed to create backup:\n%s"
 msgstr "Error al crear la copia:\n%s"
@@ -265,13 +445,41 @@ msgstr "Error al crear la copia:\n%s"
 msgid "Failed to create folder."
 msgstr "Error al crear la carpeta."
 
+# en-hash: 41f1c27716259076ec04668ffa176fc3
+msgid "Failed to delete remote backup (HTTP %s)"
+msgstr "Fallo al eliminar copia de seguridad remota (HTTP %s)"
+
+# en-hash: 4d6609033ac9a0d6a86fa7320b35a2d2
+msgid "Failed to fetch cloud backups:\n%s"
+msgstr "Fallo al obtener copias de seguridad de la nube:\n%s"
+
 # en-hash: 689450633204759bf63bdef8d58160bf
 msgid "Failed to inspect archive:\n%s"
 msgstr "Error al inspeccionar el archivo:\n%s"
 
+# en-hash: 066742c788be9104eacf23d72ecb80b4
+msgid "Failed to list remote backups (HTTP %s)"
+msgstr "Fallo al listar copias de seguridad remotas (HTTP %s)"
+
 # en-hash: e16cdc3620dbf0875c75e6d305896412
 msgid "Failed to prepare encrypted stream"
 msgstr "Error al preparar el flujo cifrado"
+
+# en-hash: e3ee46c8503d4829e70d476cfa34c7b5
+msgid "Failed to refresh authorization: %s. Please reconnect in Settings."
+msgstr "Fallo al renovar autorización: %s. Por favor, reconéctese en Configuración."
+
+# en-hash: 2fed14024e72136188bdb3bdc61680fe
+msgid "Failed to start Google Drive authorization:\n%s"
+msgstr "Fallo al iniciar la autorización de Google Drive:\n%s"
+
+# en-hash: 57941c50ba09c716619c005463b2b2c4
+msgid "Fetching backups from %s..."
+msgstr "Obteniendo copias de seguridad de %s..."
+
+# en-hash: 332d057c38d882caaa299cbe6667aaed
+msgid "Finalizing upload..."
+msgstr "Finalizando subida..."
 
 # en-hash: b0f2b97dc5d2b76b26e040408bb1d8af
 msgid "Folder"
@@ -285,9 +493,45 @@ msgstr "Fuentes"
 msgid "Format: .%s"
 msgstr "Formato: .%s"
 
+# en-hash: e0daf39823ec1a1a7878c9718f063d5f
+msgid "Google Drive"
+msgstr "Google Drive"
+
+# en-hash: ec8ef49010075664d482096b7d3c400b
+msgid "Google Drive Account"
+msgstr "Cuenta de Google Drive"
+
+# en-hash: b65c7a6c10e78958a2c8516071ca16d4
+msgid "Google Drive authorization was denied."
+msgstr "Se denegó la autorización de Google Drive."
+
+# en-hash: 35c0e105a88d9b3a41c08e628830c494
+msgid "Google Drive download failed (HTTP %s)"
+msgstr "Descarga de Google Drive fallida (HTTP %s)"
+
+# en-hash: ff533e14bc07e273be5f4406679932c0
+msgid "Google Drive listing failed (HTTP %s)"
+msgstr "Listado de Google Drive fallido (HTTP %s)"
+
+# en-hash: 8eaa14983edcffebdb8e2215ef6eef47
+msgid "Google Drive upload failed (HTTP %s): %s"
+msgstr "Subida de Google Drive fallida (HTTP %s): %s"
+
+# en-hash: ca5841cdf8b228bc02debbb14010191a
+msgid "Google Drive upload initiation failed (HTTP %s): %s"
+msgstr "Inicio de subida de Google Drive fallido (HTTP %s): %s"
+
 # en-hash: a2b02708ccda68b79f863991a35b186c
 msgid "HTTPS address of the ephemeral Beam relay:"
 msgstr "Dirección HTTPS del servidor efímero Beam:"
+
+# en-hash: e2e28a58abba3f22f34eda693ea318e6
+msgid "Host (e.g. ftp.example.com)"
+msgstr "Servidor (ej. ftp.ejemplo.com)"
+
+# en-hash: 5d19aad8c06b72d912149903009e682b
+msgid "Host (e.g. sftp.example.com)"
+msgstr "Servidor (ej. sftp.ejemplo.com)"
 
 # en-hash: 8f67973007158337346584551b093be8
 msgid "Icons"
@@ -313,13 +557,25 @@ msgstr "Nombre de archivo no válido en carga Beam."
 msgid "Invalid filename in backup path."
 msgstr "Nombre de archivo no válido en la ruta de copia de seguridad."
 
+# en-hash: 79429c7a4f1314ebbe4b2a8455a09ba8
+msgid "Manage %s Backups"
+msgstr "Gestionar copias de seguridad de %s"
+
 # en-hash: e79ab781ed465b50b2570988208270b9
 msgid "Manage Backups"
 msgstr "Gestionar copias"
 
-# en-hash: 13bf411eeaa84dca3afaa4730dbe6d8a
-msgid "Name: %s"
-msgstr "Nombre: %s"
+# en-hash: 6c73f3c18d099f906e1bebe11e3e9ff9
+msgid "Microsoft OneDrive"
+msgstr "Microsoft OneDrive"
+
+# en-hash: 57df334530fbba0549520ad80fc4dd2f
+msgid "Name of folder on remote storage:"
+msgstr "Nombre de la carpeta en el almacenamiento remoto:"
+
+# en-hash: d178b09cacd82f290b2077ecb350ef81
+msgid "Network transfer interrupted."
+msgstr "Transferencia de red interrumpida."
 
 # en-hash: 5148905edb46ca87df979cbb369c403d
 msgid "New Folder"
@@ -328,6 +584,14 @@ msgstr "Nueva carpeta"
 # en-hash: ff40c126b8b46780477108211fcf70a6
 msgid "No backup files found in:\n%s"
 msgstr "No se encontraron copias en:\n%s"
+
+# en-hash: 3d771b2fff0a50c739161c1e401edabf
+msgid "No backup files found on %s."
+msgstr "No se encontraron archivos de copia de seguridad en %s."
+
+# en-hash: 381a1ea5a9c983d4f0c886bf76a79ee4
+msgid "No cloud provider is currently selected."
+msgstr "Ningún proveedor de nube seleccionado actualmente."
 
 # en-hash: bc4c1050aeeb3ff4240c4894b98f32a9
 msgid "No items found."
@@ -341,9 +605,25 @@ msgstr "No hay copia de seguridad anterior para deshacer."
 msgid "No subfolders in this directory.\nTap 'Select Folder' below to use it, or '+ New' to create a subfolder."
 msgstr "No hay subcarpetas en este directorio.\nToca 'Seleccionar carpeta' abajo para usarla, o '+ Nueva' para crear una subcarpeta."
 
+# en-hash: 6adf97f83acf6453d4a6a4b1070f3754
+msgid "None"
+msgstr "Ninguno"
+
+# en-hash: 0740514c074de339733cec136cc7d0af
+msgid "None (Disabled)"
+msgstr "Ninguno (Desactivado)"
+
+# en-hash: da57e6e1ccfcb5fdae910862ad388cc7
+msgid "Not authenticated. Please connect your account in Settings."
+msgstr "No autenticado. Por favor, conecta tu cuenta en Ajustes."
+
 # en-hash: 6344e7b1aeee585a87bad4d8613c0075
 msgid "Number of rolling backups to keep (0 = unlimited):"
 msgstr "Número de copias rotativas a conservar (0 = sin límite):"
+
+# en-hash: a2c8dc51d2cf5565468dc298ce0c5d1d
+msgid "OAuth Client ID is not configured for this provider."
+msgstr "El ID de cliente OAuth no está configurado para este proveedor."
 
 # en-hash: e0aa021e21dddbd6d8cecec71e9cf564
 msgid "OK"
@@ -353,9 +633,25 @@ msgstr "Aceptar"
 msgid "On the receiving device, open\n'Receive via Beam Code' and enter:"
 msgstr "En el dispositivo receptor, abra\n'Recibir mediante código Beam' e introduzca:"
 
+# en-hash: 8e3ff64e87266cd4eab00bfd008794bc
+msgid "On your phone or computer, open:"
+msgstr "En tu teléfono o ordenador, abre:"
+
 # en-hash: b8065ad2628f1f82f3167af0947b3e43
 msgid "Page %d of %d"
 msgstr "Página %d de %d"
+
+# en-hash: dc647eb65e6711e155375218212b3964
+msgid "Password"
+msgstr "Contraseña"
+
+# en-hash: 5ba75bed6252ebe2fc1cd59ee5cf6558
+msgid "Password or App Token"
+msgstr "Contraseña o Token de App"
+
+# en-hash: 76ad18d2f7c1a4f774b58775d62f2008
+msgid "Password or Key Path (e.g. /path/id_rsa)"
+msgstr "Contraseña o Ruta de clave (ej. /ruta/id_rsa)"
 
 # en-hash: c4d283323af70979073f5cb6145f3a4b
 msgid "Patches"
@@ -365,6 +661,14 @@ msgstr "Parches"
 msgid "Please enter a 6-digit Beam code."
 msgstr "Por favor, introduzca un código Beam de 6 dígitos."
 
+# en-hash: ca2313d2b27cec32ef66a1f7cfea3a5b
+msgid "Port (default 21)"
+msgstr "Puerto (por defecto 21)"
+
+# en-hash: 2c6aff751a4dcf83f04104391aaddfe3
+msgid "Port (default 22)"
+msgstr "Puerto (por defecto 22)"
+
 # en-hash: 0463c331120b4965a80dfbe694d5b55b
 msgid "Pre-flight check failed: %s"
 msgstr "Comprobación previa fallida: %s"
@@ -372,6 +676,10 @@ msgstr "Comprobación previa fallida: %s"
 # en-hash: 3491fb9f8ed4c3dc8ce721c205bc428c
 msgid "Preparing backup payload..."
 msgstr "Preparando datos de copia de seguridad..."
+
+# en-hash: bfed40473d5d0d7334fd0a5394e82b52
+msgid "Preparing upload..."
+msgstr "Preparando subida..."
 
 # en-hash: f262fae0a2f17e8c1eb4e9eddb0160e4
 msgid "Proceed"
@@ -400,6 +708,14 @@ msgstr "Recomendado"
 # en-hash: 1cd49e2c32c4da2646f94fd0ebc17307
 msgid "Registering code with Beam relay..."
 msgstr "Registrando código en servidor Beam..."
+
+# en-hash: 2d5e099b29563da5e67db51a71438c04
+msgid "Remote Backup Folder"
+msgstr "Carpeta de copia de seguridad remota"
+
+# en-hash: c4accc921135624317bc1711be1a2576
+msgid "Remote Folder: %s"
+msgstr "Carpeta remota: %s"
 
 # en-hash: d6ed253ff449bbd9606eff83124f1f2e
 msgid "Reset Default"
@@ -449,6 +765,42 @@ msgstr "¿Revertir a la instantánea previa a la restauración?\n\nEsto deshará
 msgid "Reverting to rollback snapshot..."
 msgstr "Revirtiendo a instantánea previa..."
 
+# en-hash: 5b68b56be9950bc946d6cfb82f19de5b
+msgid "SFTP (SSH)"
+msgstr "SFTP (SSH)"
+
+# en-hash: 988b41e565ddb92d43a2145bf2386bcd
+msgid "SFTP Server Settings"
+msgstr "Ajustes del servidor SFTP"
+
+# en-hash: 7807b386a0c10f98692b213179b479b5
+msgid "SFTP client ('sftp' binary) is not installed on this system."
+msgstr "El cliente SFTP (binario 'sftp') no está instalado en este sistema."
+
+# en-hash: 55bd3b0489406091d70e2aec7ad50ef9
+msgid "SFTP connection failed: %s"
+msgstr "Conexión SFTP fallida: %s"
+
+# en-hash: b1a363b323d242adeaa8dae6ef72a044
+msgid "SFTP download failed: %s"
+msgstr "Descarga SFTP fallida: %s"
+
+# en-hash: be6983afed33bc1d99de77988128eb01
+msgid "SFTP host is required."
+msgstr "Se requiere el servidor SFTP."
+
+# en-hash: cd803df66da6fd2e76818abe54f6edbd
+msgid "SFTP is not available on this device.\nPlease use WebDAV, FTP, or Google Drive instead."
+msgstr "SFTP no está disponible en este dispositivo.\nUsa WebDAV, FTP o Google Drive en su lugar."
+
+# en-hash: a19f2e2d0f23a888a33e79f4fc19d871
+msgid "SFTP settings saved."
+msgstr "Ajustes SFTP guardados."
+
+# en-hash: ee8bde78dc3132bbaf0667bdc6022456
+msgid "SFTP upload failed: %s"
+msgstr "Subida SFTP fallida: %s"
+
 # en-hash: 3a5690f3a280a4a323983b5a294a17b7
 msgid "Sanitize Hardware Settings"
 msgstr "Sanitizar ajustes de hardware"
@@ -473,9 +825,33 @@ msgstr "Seleccionar carpeta de copias"
 msgid "Select Books Folder"
 msgstr "Seleccionar carpeta de libros"
 
+# en-hash: 80539964a77dc923af2f7d693bddfbee
+msgid "Select Cloud Storage Provider"
+msgstr "Selecciona Proveedor de Almacenamiento en la Nube"
+
 # en-hash: deffb03a57b0deaf912f04da4575848f
 msgid "Select Folder"
 msgstr "Seleccionar carpeta"
+
+# en-hash: da21632e4b6dade5cf6d55bd5e7302cd
+msgid "Selected provider driver is not available."
+msgstr "Controlador de proveedor seleccionado no disponible."
+
+# en-hash: 722232f671d45e7ebf09259686ebc0e6
+msgid "Server URL (e.g. https://cloud.example.com/remote.php/dav/files/user)"
+msgstr "URL del servidor (ej. https://cloud.example.com/remote.php/dav/files/user)"
+
+# en-hash: a42f23891ca34db0a17c71a7ee2f515b
+msgid "Server URL is required."
+msgstr "La URL del servidor es obligatoria."
+
+# en-hash: 449a20e53be283f72dc450dbdb10fe6f
+msgid "Server greeting failed: %s"
+msgstr "Fallo al saludar al servidor: %s"
+
+# en-hash: 643b9b06521327e57a03362555f9cb02
+msgid "Session expired. Please reconnect your account in Settings."
+msgstr "Sesión expirada. Vuelve a conectar tu cuenta en Ajustes."
 
 # en-hash: dcc9b974ef5d851dac22de0e12385955
 msgid "Settings & UI Gestures"
@@ -492,6 +868,38 @@ msgstr "Ajustes de estilo"
 # en-hash: ee93a26a833941b352c88605dad981d6
 msgid "Successfully reverted to rollback snapshot."
 msgstr "Reversión a instantánea completada con éxito."
+
+# en-hash: 0cbc6611f5540bd0809a388dc95a615b
+msgid "Test"
+msgstr "Probar"
+
+# en-hash: 8537e08014e28b87205a7cd2f8e9bde2
+msgid "Test Cloud Connection"
+msgstr "Probar Conexión Nube"
+
+# en-hash: 49ab5aaeb16e40d2787f6cc6532c99a3
+msgid "Test Connection"
+msgstr "Probar Conexión"
+
+# en-hash: 1fcfa381840b7f72dc35b91b84578009
+msgid "Testing FTP connection..."
+msgstr "Probando conexión FTP..."
+
+# en-hash: 597842216fe3224f9d6590c756d3eb3f
+msgid "Testing Google Drive connection..."
+msgstr "Probando conexión Google Drive..."
+
+# en-hash: 118431876fb3d109db7ab2f2e72db7cf
+msgid "Testing SFTP connection..."
+msgstr "Probando conexión SFTP..."
+
+# en-hash: 5c716e457ef53b443ff45e4ee00ff757
+msgid "Testing WebDAV connection..."
+msgstr "Probando conexión WebDAV..."
+
+# en-hash: 7087abe92c13bbc4e9be44c29abbd193
+msgid "Testing cloud connection..."
+msgstr "Probando conexión nube..."
 
 # en-hash: a4553656986f259dd20e32fc7b204b71
 msgid "This backup is %s, which exceeds the 100MB Beam transfer limit.\n\nBeam is designed for fast wireless transfer of settings and plugins. For full backups with reading statistics, dictionaries, or fonts, please transfer via USB or create a lighter backup."
@@ -521,9 +929,21 @@ msgstr "Carga fallida (Error de red): %s"
 msgid "Upload incomplete: relay received only %s of %s. The wireless connection was cut off."
 msgstr "Carga incompleta: el relé recibió solo %s de %s. Se cortó la conexión inalámbrica."
 
+# en-hash: 665d94ec8377d7613699ea5c857c4fb1
+msgid "Upload to %s"
+msgstr "Subir a %s"
+
+# en-hash: ab9d8de2743aacb5969419a2e189b84b
+msgid "Upload to Cloud"
+msgstr "Subir a la Nube"
+
 # en-hash: 55c11e4b0000b4cf083ae1ff648d5946
 msgid "Uploading backup archive..."
 msgstr "Subiendo archivo de copia..."
+
+# en-hash: ee15f5f203da0f048cb0222c62b08cfc
+msgid "Uploading backup to cloud..."
+msgstr "Subiendo copia de seguridad a la nube..."
 
 # en-hash: ea6476a63b0c316c17f39f6ff17267c8
 msgid "Uploading: %s / %s (%d%%)"
@@ -532,4 +952,36 @@ msgstr "Subiendo: %s / %s (%d%%)"
 # en-hash: 86650eb950d0e08a5dd35fbcd4303482
 msgid "User Plugins"
 msgstr "Complementos de usuario"
+
+# en-hash: f6039d44b29456b20f8f373155ae4973
+msgid "Username"
+msgstr "Nombre de usuario"
+
+# en-hash: bb95a9ec0ed61e525a82023357a24e7e
+msgid "Username (or 'anonymous')"
+msgstr "Nombre de usuario (o 'anonymous')"
+
+# en-hash: 4d65b3bed183b9aa051f4042e1036206
+msgid "Waiting for authorization..."
+msgstr "Esperando autorización..."
+
+# en-hash: 730fc449f76265956a291010c0f7ba8c
+msgid "WebDAV (Nextcloud / NAS)"
+msgstr "WebDAV (Nextcloud / NAS)"
+
+# en-hash: 6f7329f5681a6dcb49b13c6b20c087c4
+msgid "WebDAV Server Settings"
+msgstr "Ajustes Servidor WebDAV"
+
+# en-hash: 969da9ae59c9eb1141cacaf75ba8c019
+msgid "WebDAV download failed (HTTP %s)"
+msgstr "Fallo al descargar WebDAV (HTTP %s)"
+
+# en-hash: f685981e27a29fd49219c05ee1cde8f4
+msgid "WebDAV settings saved."
+msgstr "Ajustes WebDAV guardados."
+
+# en-hash: 81f8b6f454d5bba8d33f66cfb199e373
+msgid "WebDAV upload failed (HTTP %s): %s"
+msgstr "Fallo al subir WebDAV (HTTP %s): %s"
 
