@@ -14,8 +14,9 @@ local ok, lfs = pcall(require, "libs/libkoreader-lfs")
 if not ok or type(lfs) ~= "table" then
     ok, lfs = pcall(require, "lfs")
 end
-if not ok then
+if not ok or type(lfs) ~= "table" then
     logger.warn("Localization: lfs module not found!")
+    lfs = nil
 end
 
 local plugin_path = ((...) or ""):match("(.-)[^%.]+$") or ""

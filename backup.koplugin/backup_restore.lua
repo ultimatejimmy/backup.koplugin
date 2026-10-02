@@ -14,6 +14,9 @@ local ok_lfs, lfs = pcall(require, "libs/libkoreader-lfs")
 if not ok_lfs or not lfs then
     ok_lfs, lfs = pcall(require, "lfs")
 end
+if not ok_lfs or type(lfs) ~= "table" then
+    lfs = nil
+end
 
 local ok_ds, DataStorage = pcall(require, "datastorage")
 local ok_util, util = pcall(require, "util")

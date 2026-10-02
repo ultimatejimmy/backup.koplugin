@@ -20,18 +20,26 @@ if not AppDir or not io.open(AppDir .. "/luajit", "r") then
 end
 AppDir = AppDir or "/usr/lib/koreader"
 
--- Configure package.path
+-- Configure package.path and package.cpath
 package.path = package.path .. ";" .. AppDir .. "/?.lua"
 package.path = package.path .. ";" .. AppDir .. "/common/?.lua"
 package.path = package.path .. ";" .. AppDir .. "/libs/?.lua"
 package.path = package.path .. ";" .. AppDir .. "/frontend/?.lua"
 package.path = package.path .. ";backup.koplugin/?.lua;backup.koplugin/backup.koplugin/?.lua;./backup.koplugin/?.lua;../backup.koplugin/?.lua;?.lua;tests/?.lua"
 
-local ok_real_lfs, real_lfs = pcall(require, "lfs")
-if ok_real_lfs and real_lfs then
+package.cpath = package.cpath .. ";" .. AppDir .. "/libs/?.so"
+package.cpath = package.cpath .. ";" .. AppDir .. "/libs/libkoreader-?.so"
+package.cpath = package.cpath .. ";" .. AppDir .. "/?.so"
+
+local ok_real_lfs, real_lfs = pcall(require, "libs/libkoreader-lfs")
+if not (ok_real_lfs and type(real_lfs) == "table") then
+    ok_real_lfs, real_lfs = pcall(require, "lfs")
+end
+if ok_real_lfs and type(real_lfs) == "table" then
     package.preload["libs/libkoreader-lfs"] = function() return real_lfs end
     package.loaded["libs/libkoreader-lfs"] = real_lfs
     package.loaded["lfs"] = real_lfs
+    _G.lfs = real_lfs
 end
 
 local stats = { passed = 0, failed = 0, errors = {} }
