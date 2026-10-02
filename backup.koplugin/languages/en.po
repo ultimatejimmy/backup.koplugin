@@ -161,6 +161,9 @@ msgstr "Connection failed"
 msgid "Connection successful!"
 msgstr "Connection successful!"
 
+msgid "Connection timed out"
+msgstr "Connection timed out"
+
 msgid "Contacting Google Drive..."
 msgstr "Contacting Google Drive..."
 
@@ -376,6 +379,12 @@ msgstr "Google Drive"
 
 msgid "Google Drive Account"
 msgstr "Google Drive Account"
+
+msgid "Google Drive authentication error: %s"
+msgstr "Google Drive authentication error: %s"
+
+msgid "Google Drive authorization failed: %s"
+msgstr "Google Drive authorization failed: %s"
 
 msgid "Google Drive authorization was denied."
 msgstr "Google Drive authorization was denied."

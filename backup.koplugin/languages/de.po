@@ -213,6 +213,10 @@ msgstr "Verbindung fehlgeschlagen"
 msgid "Connection successful!"
 msgstr "Verbindung erfolgreich!"
 
+# en-hash: 0743b27e61f40845e36144152bed8fa1
+msgid "Connection timed out"
+msgstr "Zeitüberschreitung der Verbindung"
+
 # en-hash: a4a34e8a8c72855afbba9574a9385a2b
 msgid "Contacting Google Drive..."
 msgstr "Kontaktiere Google Drive..."
@@ -500,6 +504,14 @@ msgstr "Google Drive"
 # en-hash: ec8ef49010075664d482096b7d3c400b
 msgid "Google Drive Account"
 msgstr "Google Drive-Konto"
+
+# en-hash: 82fb77dd3982da6e93421de0721621b6
+msgid "Google Drive authentication error: %s"
+msgstr "Google Drive-Authentifizierungsfehler: %s"
+
+# en-hash: 0a70c365a3fd9db5f29d1e7e4910d8a7
+msgid "Google Drive authorization failed: %s"
+msgstr "Google Drive-Autorisierung fehlgeschlagen: %s"
 
 # en-hash: b65c7a6c10e78958a2c8516071ca16d4
 msgid "Google Drive authorization was denied."
@@ -871,7 +883,7 @@ msgstr "Erfolgreich zum Rollback-Schnappschuss zurückgekehrt."
 
 # en-hash: 0cbc6611f5540bd0809a388dc95a615b
 msgid "Test"
-msgstr "Test"
+msgstr "Testen"
 
 # en-hash: 8537e08014e28b87205a7cd2f8e9bde2
 msgid "Test Cloud Connection"

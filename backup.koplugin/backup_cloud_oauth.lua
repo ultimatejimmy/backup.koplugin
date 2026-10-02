@@ -68,6 +68,10 @@ local function doHttpRequest(req)
     local source = nil
     local headers = req.headers or {}
 
+    if not headers["User-Agent"] then
+        headers["User-Agent"] = "KOReader-Backup/1.0"
+    end
+
     if req.body then
         source = ltn12.source.string(req.body)
         if not headers["Content-Length"] then
@@ -122,6 +126,8 @@ OAuth.PROVIDERS = {
         revoke_url = "https://oauth2.googleapis.com/revoke",
         default_scope = "https://www.googleapis.com/auth/drive.file",
         client_id = Constants.OAUTH_GDRIVE_CLIENT_ID,
+        client_secret = Constants.OAUTH_GDRIVE_CLIENT_SECRET,
+        relay_url = Constants.OAUTH_DEFAULT_RELAY_URL,
     },
     -- Extensible for Phase 2:
     -- [Constants.CLOUD_PROVIDERS.ONEDRIVE] = { ... },
@@ -186,7 +192,7 @@ end
 --- Polls the token endpoint once for authorization status.
 -- @param provider string
 -- @param device_code string
--- @param opts table optional overrides { client_id }
+-- @param opts table optional overrides { client_id, relay_url, direct_google, client_secret }
 -- @param callback function(ok, data_or_status, raw_resp)
 -- Returns ok=true with token data when granted, or ok=false with status string:
 -- "authorization_pending", "slow_down", "expired_token", "access_denied", or error message.
@@ -198,12 +204,65 @@ function OAuth.pollToken(provider, device_code, opts, callback)
         return
     end
 
+    local relay_url = opts.relay_url or pdef.relay_url
+    local client_secret = opts.client_secret or pdef.client_secret
+
+    -- If a relay worker URL is configured and we don't have a direct client_secret, proxy through the worker
+    if relay_url and relay_url ~= "" and not client_secret and not opts.direct_google then
+        local poll_url = relay_url:gsub("/+$", "") .. "/api/oauth/gdrive/poll"
+        local req_payload = (json and json.encode and json.encode({ device_code = device_code }))
+            or string.format('{"device_code":%q}', device_code)
+
+        local r, code, headers, status, resp_body = doHttpRequest{
+            url = poll_url,
+            method = "POST",
+            headers = {
+                ["Content-Type"] = "application/json",
+            },
+            body = req_payload,
+        }
+
+        local data = nil
+        if json and json.decode and resp_body and resp_body ~= "" then
+            pcall(function() data = json.decode(resp_body) end)
+        end
+
+        if (code == 200 or code == 201) and data and data.access_token then
+            local token_info = {
+                access_token = data.access_token,
+                refresh_token = data.refresh_token,
+                expires_in = tonumber(data.expires_in) or 3600,
+                token_type = data.token_type or "Bearer",
+                scope = data.scope,
+                created_at = os.time(),
+                expires_at = os.time() + (tonumber(data.expires_in) or 3600),
+            }
+            if callback then callback(true, token_info) end
+            return
+        end
+
+        if data and data.error then
+            local err_name = tostring(data.error)
+            if callback then callback(false, err_name, data) end
+            return
+        end
+
+        local err_msg = "Token polling relay failed (HTTP " .. tostring(code) .. "): " .. tostring(resp_body)
+        if callback then callback(false, err_msg) end
+        return
+    end
+
+    -- Direct Google polling (passes client_secret if configured)
     local client_id = opts.client_id or pdef.client_id
-    local body = OAuth.makeFormData({
+    local form_fields = {
         client_id = client_id,
         device_code = device_code,
         grant_type = "urn:ietf:params:oauth:grant-type:device_code",
-    })
+    }
+    if client_secret and client_secret ~= "" then
+        form_fields.client_secret = client_secret
+    end
+    local body = OAuth.makeFormData(form_fields)
 
     local r, code, headers, status, resp_body = doHttpRequest{
         url = pdef.token_url,
@@ -247,7 +306,7 @@ end
 --- Refreshes an expired access token using the stored refresh_token.
 -- @param provider string
 -- @param refresh_token string
--- @param opts table optional overrides { client_id }
+-- @param opts table optional overrides { client_id, relay_url, direct_google, client_secret }
 -- @param callback function(ok, token_info_or_err)
 function OAuth.refreshToken(provider, refresh_token, opts, callback)
     opts = opts or {}
@@ -257,12 +316,59 @@ function OAuth.refreshToken(provider, refresh_token, opts, callback)
         return
     end
 
+    local relay_url = opts.relay_url or pdef.relay_url
+    local client_secret = opts.client_secret or pdef.client_secret
+
+    -- If a relay worker URL is configured and we don't have a direct client_secret, proxy through the worker
+    if relay_url and relay_url ~= "" and not client_secret and not opts.direct_google then
+        local refresh_url = relay_url:gsub("/+$", "") .. "/api/oauth/gdrive/refresh"
+        local req_payload = (json and json.encode and json.encode({ refresh_token = refresh_token }))
+            or string.format('{"refresh_token":%q}', refresh_token)
+
+        local r, code, headers, status, resp_body = doHttpRequest{
+            url = refresh_url,
+            method = "POST",
+            headers = {
+                ["Content-Type"] = "application/json",
+            },
+            body = req_payload,
+        }
+
+        local data = nil
+        if json and json.decode and resp_body and resp_body ~= "" then
+            pcall(function() data = json.decode(resp_body) end)
+        end
+
+        if (code == 200 or code == 201) and data and data.access_token then
+            local token_info = {
+                access_token = data.access_token,
+                refresh_token = data.refresh_token or refresh_token,
+                expires_in = tonumber(data.expires_in) or 3600,
+                token_type = data.token_type or "Bearer",
+                scope = data.scope,
+                created_at = os.time(),
+                expires_at = os.time() + (tonumber(data.expires_in) or 3600),
+            }
+            if callback then callback(true, token_info) end
+            return
+        end
+
+        local err_msg = "Token refresh relay failed (HTTP " .. tostring(code) .. "): " .. tostring(resp_body)
+        if callback then callback(false, err_msg) end
+        return
+    end
+
+    -- Direct Google refresh
     local client_id = opts.client_id or pdef.client_id
-    local body = OAuth.makeFormData({
+    local form_fields = {
         client_id = client_id,
         refresh_token = refresh_token,
         grant_type = "refresh_token",
-    })
+    }
+    if client_secret and client_secret ~= "" then
+        form_fields.client_secret = client_secret
+    end
+    local body = OAuth.makeFormData(form_fields)
 
     local r, code, headers, status, resp_body = doHttpRequest{
         url = pdef.token_url,
@@ -289,7 +395,6 @@ function OAuth.refreshToken(provider, refresh_token, opts, callback)
             expires_at = os.time() + (tonumber(data.expires_in) or 3600),
         }
         if callback then callback(true, token_info) end
-        return
     end
 
     local err_msg = "Token refresh failed (HTTP " .. tostring(code) .. "): " .. tostring(resp_body)

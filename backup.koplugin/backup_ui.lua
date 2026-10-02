@@ -162,7 +162,7 @@ local function getAssetPath(filename)
         (data_dir ~= "") and (data_dir .. "/plugins/backup.koplugin/assets/" .. filename) or nil,
         "plugins/backup.koplugin/assets/" .. filename,
     }
-    for _, p in ipairs(candidates) do
+    for idx, p in ipairs(candidates) do
         if p and lfs and lfs.attributes and lfs.attributes(p, "mode") == "file" then
             _asset_path_cache[filename] = p
             return p
@@ -635,7 +635,7 @@ local function showComponentsSelectionDialog(opts)
 
     local function getSelectedCount(avail, sel)
         local count = 0
-        for _, name in ipairs(avail) do
+        for idx, name in ipairs(avail) do
             if sel[name] == true then count = count + 1 end
         end
         return count
@@ -1222,7 +1222,7 @@ function BackupUI.showRestoreDialog()
     end
 
     local buttons = {}
-    for _, b in ipairs(backups) do
+    for idx, b in ipairs(backups) do
         local label = string.format("%s (%s)\n%s", b.filename, b.size_str, b.mtime_str)
         if b.is_rollback then
             label = "[Rollback] " .. label
@@ -1649,7 +1649,7 @@ function BackupUI.showManageBackupsDialog()
         end
 
         local buttons = {}
-        for _, b in ipairs(backups) do
+        for idx, b in ipairs(backups) do
             local label = string.format("%s (%s) • %s", b.filename, b.size_str, b.mtime_str)
             if b.is_rollback then
                 label = "[Rollback] " .. label
@@ -2011,7 +2011,7 @@ function BackupUI.showSettingsDialog()
 
         -- Filter out nil rows
         local clean_buttons = {}
-        for _, row in ipairs(buttons) do
+        for idx, row in ipairs(buttons) do
             if row ~= nil then
                 table.insert(clean_buttons, row)
             end
@@ -2075,7 +2075,7 @@ function BackupUI.showBeamSelectBackupDialog(on_back_cb)
     end
 
     local buttons = {}
-    for _, b in ipairs(backups) do
+    for idx, b in ipairs(backups) do
         local label = string.format("%s (%s)\n%s", b.filename, b.size_str, b.mtime_str)
         if b.is_rollback then
             label = "[Rollback] " .. label
@@ -2575,7 +2575,7 @@ function BackupUI.showCloudProviderPicker(on_finish_cb)
     }
 
     local buttons = {}
-    for _, p in ipairs(providers) do
+    for idx, p in ipairs(providers) do
         local pid = p.id
         local is_active = (s.cloud_provider == pid)
         table.insert(buttons, {
@@ -2778,6 +2778,9 @@ function BackupUI.showCloudConfigDialog(provider, on_finish_cb)
 
                 -- Polling loop
                 local poll_interval = math.max(3, info.interval or 5)
+                local consecutive_errors = 0
+                local MAX_CONSECUTIVE_ERRORS = 5
+
                 local function pollStep()
                     if not flow_active then return end
 
@@ -2796,10 +2799,12 @@ function BackupUI.showCloudConfigDialog(provider, on_finish_cb)
                         end
 
                         if token_data == "authorization_pending" then
+                            consecutive_errors = 0
                             if UIManager and UIManager.scheduleIn then
                                 UIManager:scheduleIn(poll_interval, pollStep)
                             end
                         elseif token_data == "slow_down" then
+                            consecutive_errors = 0
                             poll_interval = poll_interval + 5
                             if UIManager and UIManager.scheduleIn then
                                 UIManager:scheduleIn(poll_interval, pollStep)
@@ -2812,10 +2817,28 @@ function BackupUI.showCloudConfigDialog(provider, on_finish_cb)
                             closeAuth()
                             UIManager:show(InfoMessage:new{ text = _("Authorization code expired. Please try again."), timeout = 4 })
                             if on_finish_cb then UIManager:nextTick(on_finish_cb) end
+                        elseif token_data == "invalid_request" or token_data == "invalid_client"
+                            or token_data == "unauthorized_client" or token_data == "server_error"
+                            or token_data == "relay_error" then
+                            -- Fatal configuration or server error: do not loop infinitely
+                            closeAuth()
+                            local detail = (raw_res and (raw_res.error_description or raw_res.error)) or token_data
+                            local err_msg = string.format(_("Google Drive authentication error: %s"), tostring(detail))
+                            UIManager:show(InfoMessage:new{ text = err_msg, timeout = 6 })
+                            if on_finish_cb then UIManager:nextTick(on_finish_cb) end
                         else
-                            -- Transient error; continue polling
-                            if UIManager and UIManager.scheduleIn then
-                                UIManager:scheduleIn(poll_interval, pollStep)
+                            -- Network or transient error with retry limit
+                            consecutive_errors = consecutive_errors + 1
+                            if consecutive_errors >= MAX_CONSECUTIVE_ERRORS then
+                                closeAuth()
+                                local detail = (raw_res and (raw_res.error_description or raw_res.error)) or token_data or _("Connection timed out")
+                                local err_msg = string.format(_("Google Drive authorization failed: %s"), tostring(detail))
+                                UIManager:show(InfoMessage:new{ text = err_msg, timeout = 6 })
+                                if on_finish_cb then UIManager:nextTick(on_finish_cb) end
+                            else
+                                if UIManager and UIManager.scheduleIn then
+                                    UIManager:scheduleIn(poll_interval, pollStep)
+                                end
                             end
                         end
                     end)
@@ -3224,7 +3247,7 @@ function BackupUI.showCloudDownloadDialog(on_finish_cb)
             end
 
             local buttons = {}
-            for _, b in ipairs(list) do
+            for idx, b in ipairs(list) do
                 local label = string.format("%s (%s)\n%s", b.filename, b.size_str, b.mtime_str)
                 table.insert(buttons, {
                     {
@@ -3369,7 +3392,7 @@ function BackupUI.showManageCloudBackupsDialog(on_finish_cb)
             end
 
             local buttons = {}
-            for _, b in ipairs(list) do
+            for idx, b in ipairs(list) do
                 local label = string.format("%s (%s) • %s", b.filename, b.size_str, b.mtime_str)
                 table.insert(buttons, {
                     {

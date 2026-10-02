@@ -35,12 +35,133 @@ export default {
       return new Response(JSON.stringify({
         status: 'ok',
         service: 'koreader-beam-relay',
-        version: '2.3',
+        version: '2.4',
         kv_bound: !!env.BEAM_KV,
+        oauth_configured: !!env.GDRIVE_CLIENT_SECRET,
         mode: 'native_expiration_single_write',
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
+    }
+
+    // -------------------------------------------------------------------------
+    // OAuth2 Relay for Google Drive Device Authorization Grant (RFC 8628)
+    // Securely exchanges device codes & refreshes tokens without exposing
+    // client_secret to client apps or git repositories.
+    // -------------------------------------------------------------------------
+
+    // Poll Token endpoint: POST /api/oauth/gdrive/poll
+    if (path === '/api/oauth/gdrive/poll' && request.method === 'POST') {
+      if (!env.GDRIVE_CLIENT_SECRET) {
+        return new Response(JSON.stringify({
+          error: 'server_error',
+          error_description: 'GDRIVE_CLIENT_SECRET is not configured in worker environment',
+        }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      let payload = {};
+      try {
+        payload = await request.json();
+      } catch (_) {}
+
+      const deviceCode = payload.device_code || url.searchParams.get('device_code');
+      if (!deviceCode) {
+        return new Response(JSON.stringify({
+          error: 'invalid_request',
+          error_description: 'Missing device_code parameter',
+        }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const clientId = env.GDRIVE_CLIENT_ID || '444320595925-2mlkslggov1f25qv45th2tq3dl466f9u.apps.googleusercontent.com';
+      const form = new URLSearchParams();
+      form.set('client_id', clientId);
+      form.set('client_secret', env.GDRIVE_CLIENT_SECRET);
+      form.set('device_code', deviceCode);
+      form.set('grant_type', 'urn:ietf:params:oauth:grant-type:device_code');
+
+      try {
+        const gResp = await fetch('https://oauth2.googleapis.com/token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: form.toString(),
+        });
+        const gData = await gResp.text();
+        return new Response(gData, {
+          status: gResp.status,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({
+          error: 'relay_error',
+          error_description: 'Failed to contact Google OAuth: ' + (err.message || String(err)),
+        }), {
+          status: 502,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+    }
+
+    // Refresh Token endpoint: POST /api/oauth/gdrive/refresh
+    if (path === '/api/oauth/gdrive/refresh' && request.method === 'POST') {
+      if (!env.GDRIVE_CLIENT_SECRET) {
+        return new Response(JSON.stringify({
+          error: 'server_error',
+          error_description: 'GDRIVE_CLIENT_SECRET is not configured in worker environment',
+        }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      let payload = {};
+      try {
+        payload = await request.json();
+      } catch (_) {}
+
+      const refreshToken = payload.refresh_token || url.searchParams.get('refresh_token');
+      if (!refreshToken) {
+        return new Response(JSON.stringify({
+          error: 'invalid_request',
+          error_description: 'Missing refresh_token parameter',
+        }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const clientId = env.GDRIVE_CLIENT_ID || '444320595925-2mlkslggov1f25qv45th2tq3dl466f9u.apps.googleusercontent.com';
+      const form = new URLSearchParams();
+      form.set('client_id', clientId);
+      form.set('client_secret', env.GDRIVE_CLIENT_SECRET);
+      form.set('refresh_token', refreshToken);
+      form.set('grant_type', 'refresh_token');
+
+      try {
+        const gResp = await fetch('https://oauth2.googleapis.com/token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: form.toString(),
+        });
+        const gData = await gResp.text();
+        return new Response(gData, {
+          status: gResp.status,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({
+          error: 'relay_error',
+          error_description: 'Failed to contact Google OAuth: ' + (err.message || String(err)),
+        }), {
+          status: 502,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
     }
 
     // Helper to resolve beam token

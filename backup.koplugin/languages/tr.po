@@ -15,11 +15,11 @@ msgstr "Bu klasörde %d yedek bulundu"
 
 # en-hash: 9e8d0752d74b8980a095ecc6686a139a
 msgid "%s is not configured."
-msgstr ""
+msgstr "%s yapılandırılmamış."
 
 # en-hash: 015b489f212b32ce0657fa32ac66f01e
 msgid "%s is not configured. Please configure it in Settings."
-msgstr ""
+msgstr "%s yapılandırılmamış. Lütfen Ayarlar'dan yapılandırın."
 
 # en-hash: 4bc56877a98a3b5f59735f579cf735a6
 msgid "+ New"
@@ -31,7 +31,7 @@ msgstr ".. (Üst Klasör)"
 
 # en-hash: 336f879eec1bf390db4fa65586734c78
 msgid "And enter this code:"
-msgstr ""
+msgstr "Ve şu kodu girin:"
 
 # en-hash: fcbaff9ec755238920363a1fff9402a5
 msgid "Archive: %s"
@@ -47,15 +47,15 @@ msgstr "Bu yedeği geri yüklemek istediğinizden emin misiniz?\n\nDosyalar gün
 
 # en-hash: a971b642f34e745c598847929834ea01
 msgid "Authentication failed. Please verify your username and password."
-msgstr ""
+msgstr "Kimlik doğrulama başarısız. Lütfen kullanıcı adınızı ve şifrenizi kontrol edin."
 
 # en-hash: 2ea05e21970520450768ac56d8f3216f
 msgid "Authorization code expired. Please try again."
-msgstr ""
+msgstr "Yetkilendirme kodu süresi doldu. Lütfen tekrar deneyin."
 
 # en-hash: 0557fa923dcee4d0f86b1409f5c2167f
 msgid "Back"
-msgstr ""
+msgstr "Geri"
 
 # en-hash: bc0e2e2755cb8ab261980312b1cdd604
 msgid "Backup & Restore Settings"
@@ -79,7 +79,7 @@ msgstr "Yedekleme oluşturma iptal edildi."
 
 # en-hash: fb044a20637bde2a9a102d3d088a88af
 msgid "Backup deleted from cloud."
-msgstr ""
+msgstr "Yedek buluttan silindi."
 
 # en-hash: 8c9b5c30039246df4e284265e575ce06
 msgid "Backup received successfully!\n\nFile: %s"
@@ -91,7 +91,7 @@ msgstr "Yedek başarıyla geri yüklendi!"
 
 # en-hash: be013ad020ef73a484e27a60aa1717c6
 msgid "Backup uploaded to %s successfully!\n\nFile: %s"
-msgstr ""
+msgstr "Yedekleme %s adresine başarıyla yüklendi!\n\nDosya: %s"
 
 # en-hash: de8e8367246b437c6b06b7b257933d07
 msgid "Beam Relay Server"
@@ -151,19 +151,19 @@ msgstr "Kapat"
 
 # en-hash: 8fe91beff26c16918bfbd6a269890286
 msgid "Cloud Backups (%s)"
-msgstr ""
+msgstr "Bulut Yedekleri (%s)"
 
 # en-hash: 00dcb4d55c41dd1c45477d7f94ce7639
 msgid "Cloud Backups (%s) ▸"
-msgstr ""
+msgstr "Bulut Yedekleri (%s) ▸"
 
 # en-hash: eecd606aaa9f5ce6977efc64386f750d
 msgid "Cloud Storage: %s"
-msgstr ""
+msgstr "Bulut Depolama: %s"
 
 # en-hash: db7384445b95e43849b498648d94cd9d
 msgid "Cloud upload failed:\n%s"
-msgstr ""
+msgstr "Buluta yükleme başarısız:\n%s"
 
 # en-hash: e04433a9dbc7f8a04dfa1bad54d8e186
 msgid "Code expires in 15 minutes\nSingle-use end-to-end encrypted"
@@ -179,19 +179,19 @@ msgstr "Bileşenler: %s ▸"
 
 # en-hash: 9632519f95db5a4d4b26d97fe5f69dbf
 msgid "Configure %s"
-msgstr ""
+msgstr "%s Yapılandır"
 
 # en-hash: cf5b62c18873c73c95c10a30c8881775
 msgid "Connect Google Drive"
-msgstr ""
+msgstr "Google Drive'ı Bağla"
 
 # en-hash: 664792348a8cab8a8d9c9f4177e7faea
 msgid "Connected to Google Drive successfully!"
-msgstr ""
+msgstr "Google Drive'a başarıyla bağlanıldı!"
 
 # en-hash: d504259ae483f0155508e59a58e0c16c
 msgid "Connected to server, but could not create folder: %s"
-msgstr ""
+msgstr "Sunucuya bağlanıldı, ancak klasör oluşturulamadı: %s"
 
 # en-hash: 1bef0388877dbf64dcd100acd4a793db
 msgid "Connecting and downloading backup archive..."
@@ -203,19 +203,23 @@ msgstr "Beam sunucusuna bağlanılıyor..."
 
 # en-hash: 8f15b432c7c45a04097e759983c1a1b2
 msgid "Connecting to cloud..."
-msgstr ""
+msgstr "Buluta bağlanılıyor..."
 
 # en-hash: 1be415f041c0d8f2e10093a7b4236694
 msgid "Connection failed"
-msgstr ""
+msgstr "Bağlantı başarısız"
 
 # en-hash: b988ae810021000e2f084f9c6bd4732e
 msgid "Connection successful!"
-msgstr ""
+msgstr "Bağlantı başarılı!"
+
+# en-hash: 0743b27e61f40845e36144152bed8fa1
+msgid "Connection timed out"
+msgstr "Bağlantı zaman aşımına uğradı"
 
 # en-hash: a4a34e8a8c72855afbba9574a9385a2b
 msgid "Contacting Google Drive..."
-msgstr ""
+msgstr "Google Drive ile iletişim kuruluyor..."
 
 # en-hash: 4046ca4eac71fd660ff5daa4372066e7
 msgid "Corrupted filename in Beam payload."
@@ -227,15 +231,15 @@ msgstr "Bozuk veya boş Beam verisi."
 
 # en-hash: 0db66570c53d9269ae9638b0a57c6dc2
 msgid "Could not connect to %s:%d: %s"
-msgstr ""
+msgstr "%s:%d adresine bağlanılamadı: %s"
 
 # en-hash: 1be92af1318daefb4a1978cdc861f377
 msgid "Could not connect to WebDAV server (HTTP %s)."
-msgstr ""
+msgstr "WebDAV sunucusuna bağlanılamadı (HTTP %s)."
 
 # en-hash: ca1d08b2cacead2c94c25bc389f8f936
 msgid "Could not create Google Drive folder '%s' (HTTP %s): %s"
-msgstr ""
+msgstr "Google Drive klasörü '%s' oluşturulamadı (HTTP %s): %s"
 
 # en-hash: c17e50618f4af14444fec4b88f4df96d
 msgid "Could not read file: %s"
@@ -287,19 +291,19 @@ msgstr "'%s' yedeği silinsin mi?\nBu işlem geri alınamaz."
 
 # en-hash: 27bba4f72dad4114966ba89c6aec01df
 msgid "Delete failed: %s"
-msgstr ""
+msgstr "Silme başarısız: %s"
 
 # en-hash: 39f8bfbc450dad78e48627bbeab8db01
 msgid "Delete from Cloud"
-msgstr ""
+msgstr "Buluttan Sil"
 
 # en-hash: 02a7c9456ba90dff6f8b10eb03960145
 msgid "Delete remote backup '%s' from %s?\nThis action cannot be undone."
-msgstr ""
+msgstr "%s konumundaki '%s' uzak yedeği silinsin mi?\nBu işlem geri alınamaz."
 
 # en-hash: 58f99216d32122408867dd4a3d098341
 msgid "Deleting remote backup..."
-msgstr ""
+msgstr "Uzak yedeği siliniyor..."
 
 # en-hash: 3eba76dec995960162d99251c4685a72
 msgid "Device Backup & Restore"
@@ -311,11 +315,11 @@ msgstr "Sözlükler ve OCR Verileri"
 
 # en-hash: 905c13278062aa09c6af3c74d4e596b9
 msgid "Disconnect / Log Out"
-msgstr ""
+msgstr "Bağlantıyı Kes / Oturumu Kapat"
 
 # en-hash: 448d353fa19629918ce0a62f5a0a7d3f
 msgid "Disconnected from Google Drive."
-msgstr ""
+msgstr "Google Drive bağlantısı kesildi."
 
 # en-hash: f24351e020bd2306cdc4fc7dc6ad2bd2
 msgid "Disk full or write error writing header: %s"
@@ -339,15 +343,15 @@ msgstr "İndirme başarısız (Ağ hatası): %s"
 
 # en-hash: c51ce88a3ce7c5dd7ebcc8c4f57003bf
 msgid "Download failed:\n%s"
-msgstr ""
+msgstr "İndirme başarısız:\n%s"
 
 # en-hash: 2ae89fbb5548c5c979cdca7a76cc9f1b
 msgid "Download failed: %s"
-msgstr ""
+msgstr "İndirme başarısız: %s"
 
 # en-hash: 743f577a610acec9de44d6cfcbe0ef9e
 msgid "Download from %s"
-msgstr ""
+msgstr "%s adresinden indir"
 
 # en-hash: cd415c49f3c3dcc9db530e8335de52de
 msgid "Download incomplete (%s received out of %s). Network connection may have dropped."
@@ -355,15 +359,15 @@ msgstr "İndirme tamamlanamadı (%s alındı, %s bekleniyordu). Ağ bağlantıs�
 
 # en-hash: 7bb1531e9c38316baa4eb61316a8d78f
 msgid "Download to Device"
-msgstr ""
+msgstr "Cihaza İndir"
 
 # en-hash: 3e2a96bc96f5ce87681235efea88f27f
 msgid "Download transfer interrupted."
-msgstr ""
+msgstr "İndirme aktarımı kesildi."
 
 # en-hash: 6de7f7d7206af4dea103df21db1fc5fe
 msgid "Downloaded %s successfully!"
-msgstr ""
+msgstr "%s başarıyla indirildi!"
 
 # en-hash: 64089d52e6d17e3b80ba6bd80b8bf06c
 msgid "Downloading backup archive (%s)..."
@@ -371,15 +375,15 @@ msgstr "Yedekleme arşivini indiriyor (%s)..."
 
 # en-hash: 1270acf3847e19c0542e5d9d4ed46cb7
 msgid "Downloading backup archive..."
-msgstr ""
+msgstr "Yedekleme arşivi indiriliyor..."
 
 # en-hash: 315c0455b434a7612f52013fbb432f46
 msgid "Downloading backup from cloud..."
-msgstr ""
+msgstr "Bulutdan yedekleme indiriliyor..."
 
 # en-hash: ad71758b5cb347965a2834182508e592
 msgid "Downloading backup..."
-msgstr ""
+msgstr "Yedekleme indiriliyor..."
 
 # en-hash: 2648f64cd622baf1e8533966877521b7
 msgid "Downloading: %s / %s (%d%%)"
@@ -391,7 +395,7 @@ msgstr "İndiriliyor: %s..."
 
 # en-hash: f92aa92725095d5531f54b4589d99264
 msgid "Dropbox"
-msgstr ""
+msgstr "Dropbox"
 
 # en-hash: f7a124dce93e38381ea3023a4f0aa14e
 msgid "Encrypting backup archive..."
@@ -415,27 +419,27 @@ msgstr "Çıkarma başarısız: %s"
 
 # en-hash: 0ad2426e3b166029ce69905535b27b98
 msgid "FTP / FTPS"
-msgstr ""
+msgstr "FTP / FTPS"
 
 # en-hash: 2fba4f70c8201fef6ec0398997717d20
 msgid "FTP Server Settings"
-msgstr ""
+msgstr "FTP Sunucu Ayarları"
 
 # en-hash: 14c218fa6809c1b281059672c219b719
 msgid "FTP authentication failed: %s"
-msgstr ""
+msgstr "FTP kimlik doğrulama başarısız: %s"
 
 # en-hash: 3372d3c40e8dfe55c3e1146741b8751c
 msgid "FTP host is required."
-msgstr ""
+msgstr "FTP ana bilgisayarı gerekli."
 
 # en-hash: 98d57742278d66908ae53b2ef63aedb0
 msgid "FTP settings saved."
-msgstr ""
+msgstr "FTP ayarları kaydedildi."
 
 # en-hash: 1f3bde3b224b7ebb44c692b82d4c6af1
 msgid "FTP user rejected: %s"
-msgstr ""
+msgstr "FTP kullanıcı reddedildi: %s"
 
 # en-hash: 03218619387d6343c9b47de134287947
 msgid "Failed to create backup:\n%s"
@@ -447,11 +451,11 @@ msgstr "Klasör oluşturulamadı."
 
 # en-hash: 41f1c27716259076ec04668ffa176fc3
 msgid "Failed to delete remote backup (HTTP %s)"
-msgstr ""
+msgstr "Uzak yedekleme silinemedi (HTTP %s)"
 
 # en-hash: 4d6609033ac9a0d6a86fa7320b35a2d2
 msgid "Failed to fetch cloud backups:\n%s"
-msgstr ""
+msgstr "Bulut yedeklemeleri alınamadı:\n%s"
 
 # en-hash: 689450633204759bf63bdef8d58160bf
 msgid "Failed to inspect archive:\n%s"
@@ -459,7 +463,7 @@ msgstr "Arşiv denetlenemedi:\n%s"
 
 # en-hash: 066742c788be9104eacf23d72ecb80b4
 msgid "Failed to list remote backups (HTTP %s)"
-msgstr ""
+msgstr "Uzak yedeklemeler listelenemedi (HTTP %s)"
 
 # en-hash: e16cdc3620dbf0875c75e6d305896412
 msgid "Failed to prepare encrypted stream"
@@ -467,19 +471,19 @@ msgstr "Şifreli akış hazırlanırken hata oluştu"
 
 # en-hash: e3ee46c8503d4829e70d476cfa34c7b5
 msgid "Failed to refresh authorization: %s. Please reconnect in Settings."
-msgstr ""
+msgstr "Yetkilendirme yenilenemedi: %s. Lütfen Ayarlar'da tekrar bağlanın."
 
 # en-hash: 2fed14024e72136188bdb3bdc61680fe
 msgid "Failed to start Google Drive authorization:\n%s"
-msgstr ""
+msgstr "Google Drive yetkilendirmesi başlatılamadı:\n%s"
 
 # en-hash: 57941c50ba09c716619c005463b2b2c4
 msgid "Fetching backups from %s..."
-msgstr ""
+msgstr "%s adresinden yedeklemeler alınıyor..."
 
 # en-hash: 332d057c38d882caaa299cbe6667aaed
 msgid "Finalizing upload..."
-msgstr ""
+msgstr "Yükleme tamamlanıyor..."
 
 # en-hash: b0f2b97dc5d2b76b26e040408bb1d8af
 msgid "Folder"
@@ -495,31 +499,39 @@ msgstr "Biçim: .%s"
 
 # en-hash: e0daf39823ec1a1a7878c9718f063d5f
 msgid "Google Drive"
-msgstr ""
+msgstr "Google Drive"
 
 # en-hash: ec8ef49010075664d482096b7d3c400b
 msgid "Google Drive Account"
-msgstr ""
+msgstr "Google Drive Hesabı"
+
+# en-hash: 82fb77dd3982da6e93421de0721621b6
+msgid "Google Drive authentication error: %s"
+msgstr "Google Drive kimlik doğrulama hatası: %s"
+
+# en-hash: 0a70c365a3fd9db5f29d1e7e4910d8a7
+msgid "Google Drive authorization failed: %s"
+msgstr "Google Drive yetkilendirmesi başarısız oldu: %s"
 
 # en-hash: b65c7a6c10e78958a2c8516071ca16d4
 msgid "Google Drive authorization was denied."
-msgstr ""
+msgstr "Google Drive yetkilendirmesi reddedildi."
 
 # en-hash: 35c0e105a88d9b3a41c08e628830c494
 msgid "Google Drive download failed (HTTP %s)"
-msgstr ""
+msgstr "Google Drive indirme başarısız (HTTP %s)"
 
 # en-hash: ff533e14bc07e273be5f4406679932c0
 msgid "Google Drive listing failed (HTTP %s)"
-msgstr ""
+msgstr "Google Drive listeleme başarısız (HTTP %s)"
 
 # en-hash: 8eaa14983edcffebdb8e2215ef6eef47
 msgid "Google Drive upload failed (HTTP %s): %s"
-msgstr ""
+msgstr "Google Drive yükleme başarısız (HTTP %s): %s"
 
 # en-hash: ca5841cdf8b228bc02debbb14010191a
 msgid "Google Drive upload initiation failed (HTTP %s): %s"
-msgstr ""
+msgstr "Google Drive yükleme başlatma başarısız (HTTP %s): %s"
 
 # en-hash: a2b02708ccda68b79f863991a35b186c
 msgid "HTTPS address of the ephemeral Beam relay:"
@@ -527,11 +539,11 @@ msgstr "Geçici Beam aktarım sunucusunun HTTPS adresi:"
 
 # en-hash: e2e28a58abba3f22f34eda693ea318e6
 msgid "Host (e.g. ftp.example.com)"
-msgstr ""
+msgstr "Ana Bilgisayar (örn. ftp.example.com)"
 
 # en-hash: 5d19aad8c06b72d912149903009e682b
 msgid "Host (e.g. sftp.example.com)"
-msgstr ""
+msgstr "Ana Bilgisayar (örn. sftp.example.com)"
 
 # en-hash: 8f67973007158337346584551b093be8
 msgid "Icons"
@@ -559,7 +571,7 @@ msgstr "Yedekleme yolunda geçersiz dosya adı."
 
 # en-hash: 79429c7a4f1314ebbe4b2a8455a09ba8
 msgid "Manage %s Backups"
-msgstr ""
+msgstr "%s Yedeklemelerini Yönet"
 
 # en-hash: e79ab781ed465b50b2570988208270b9
 msgid "Manage Backups"
@@ -567,15 +579,15 @@ msgstr "Yedekleri Yönet"
 
 # en-hash: 6c73f3c18d099f906e1bebe11e3e9ff9
 msgid "Microsoft OneDrive"
-msgstr ""
+msgstr "Microsoft OneDrive"
 
 # en-hash: 57df334530fbba0549520ad80fc4dd2f
 msgid "Name of folder on remote storage:"
-msgstr ""
+msgstr "Uzak depolamadaki klasör adı:"
 
 # en-hash: d178b09cacd82f290b2077ecb350ef81
 msgid "Network transfer interrupted."
-msgstr ""
+msgstr "Ağ aktarımı kesildi."
 
 # en-hash: 5148905edb46ca87df979cbb369c403d
 msgid "New Folder"
@@ -587,11 +599,11 @@ msgstr "Şurada yedek dosyası bulunamadı:\n%s"
 
 # en-hash: 3d771b2fff0a50c739161c1e401edabf
 msgid "No backup files found on %s."
-msgstr ""
+msgstr "%s üzerinde yedek dosyası bulunamadı."
 
 # en-hash: 381a1ea5a9c983d4f0c886bf76a79ee4
 msgid "No cloud provider is currently selected."
-msgstr ""
+msgstr "Şu anda hiçbir bulut sağlayıcısı seçili değil."
 
 # en-hash: bc4c1050aeeb3ff4240c4894b98f32a9
 msgid "No items found."
@@ -607,15 +619,15 @@ msgstr "Bu dizinde alt klasör yok.\nKullanmak için aşağıdaki 'Klasör Seç'
 
 # en-hash: 6adf97f83acf6453d4a6a4b1070f3754
 msgid "None"
-msgstr ""
+msgstr "Yok"
 
 # en-hash: 0740514c074de339733cec136cc7d0af
 msgid "None (Disabled)"
-msgstr ""
+msgstr "Yok (Devre Dışı)"
 
 # en-hash: da57e6e1ccfcb5fdae910862ad388cc7
 msgid "Not authenticated. Please connect your account in Settings."
-msgstr ""
+msgstr "Kimlik doğrulanmadı. Lütfen Ayarlar'dan hesabınızı bağlayın."
 
 # en-hash: 6344e7b1aeee585a87bad4d8613c0075
 msgid "Number of rolling backups to keep (0 = unlimited):"
@@ -623,7 +635,7 @@ msgstr "Tutulacak döngüsel yedek sayısı (0 = sınırsız):"
 
 # en-hash: a2c8dc51d2cf5565468dc298ce0c5d1d
 msgid "OAuth Client ID is not configured for this provider."
-msgstr ""
+msgstr "Bu sağlayıcı için OAuth İstemci Kimliği yapılandırılmamış."
 
 # en-hash: e0aa021e21dddbd6d8cecec71e9cf564
 msgid "OK"
@@ -635,7 +647,7 @@ msgstr "Alıcı cihazda 'Beam Kodu ile Al'\nseçeneğini açın ve girin:"
 
 # en-hash: 8e3ff64e87266cd4eab00bfd008794bc
 msgid "On your phone or computer, open:"
-msgstr ""
+msgstr "Telefonunuzda veya bilgisayarınızda şunu açın:"
 
 # en-hash: b8065ad2628f1f82f3167af0947b3e43
 msgid "Page %d of %d"
@@ -643,15 +655,15 @@ msgstr "Sayfa %d / %d"
 
 # en-hash: dc647eb65e6711e155375218212b3964
 msgid "Password"
-msgstr ""
+msgstr "Parola"
 
 # en-hash: 5ba75bed6252ebe2fc1cd59ee5cf6558
 msgid "Password or App Token"
-msgstr ""
+msgstr "Parola veya Uygulama Belirteci"
 
 # en-hash: 76ad18d2f7c1a4f774b58775d62f2008
 msgid "Password or Key Path (e.g. /path/id_rsa)"
-msgstr ""
+msgstr "Parola veya Anahtar Yolu (örn. /path/id_rsa)"
 
 # en-hash: c4d283323af70979073f5cb6145f3a4b
 msgid "Patches"
@@ -663,11 +675,11 @@ msgstr "Lütfen 6 haneli bir Beam kodu girin."
 
 # en-hash: ca2313d2b27cec32ef66a1f7cfea3a5b
 msgid "Port (default 21)"
-msgstr ""
+msgstr "Port (varsayılan 21)"
 
 # en-hash: 2c6aff751a4dcf83f04104391aaddfe3
 msgid "Port (default 22)"
-msgstr ""
+msgstr "Port (varsayılan 22)"
 
 # en-hash: 0463c331120b4965a80dfbe694d5b55b
 msgid "Pre-flight check failed: %s"
@@ -679,7 +691,7 @@ msgstr "Yedekleme verileri hazırlanıyor..."
 
 # en-hash: bfed40473d5d0d7334fd0a5394e82b52
 msgid "Preparing upload..."
-msgstr ""
+msgstr "Yükleme hazırlanıyor..."
 
 # en-hash: f262fae0a2f17e8c1eb4e9eddb0160e4
 msgid "Proceed"
@@ -711,11 +723,11 @@ msgstr "Kod Beam sunucusuna kaydediliyor..."
 
 # en-hash: 2d5e099b29563da5e67db51a71438c04
 msgid "Remote Backup Folder"
-msgstr ""
+msgstr "Uzak Yedekleme Klasörü"
 
 # en-hash: c4accc921135624317bc1711be1a2576
 msgid "Remote Folder: %s"
-msgstr ""
+msgstr "Uzak Klasör: %s"
 
 # en-hash: d6ed253ff449bbd9606eff83124f1f2e
 msgid "Reset Default"
@@ -767,11 +779,11 @@ msgstr "Kurtarma noktasına geri dönülüyor..."
 
 # en-hash: 5b68b56be9950bc946d6cfb82f19de5b
 msgid "SFTP (SSH)"
-msgstr ""
+msgstr "SFTP (SSH)"
 
 # en-hash: 988b41e565ddb92d43a2145bf2386bcd
 msgid "SFTP Server Settings"
-msgstr ""
+msgstr "SFTP Sunucu Ayarları"
 
 # en-hash: 7807b386a0c10f98692b213179b479b5
 msgid "SFTP client ('sftp' binary) is not installed on this system."

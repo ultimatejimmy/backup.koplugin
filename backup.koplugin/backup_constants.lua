@@ -177,6 +177,7 @@ Constants.CLOUD_DEFAULT_REMOTE_DIR = "koreader_backups"
 Constants.OAUTH_GDRIVE_CLIENT_ID = "444320595925-2mlkslggov1f25qv45th2tq3dl466f9u.apps.googleusercontent.com"
 Constants.OAUTH_ONEDRIVE_CLIENT_ID = nil -- Phase 2
 Constants.OAUTH_DROPBOX_CLIENT_ID = nil  -- Phase 2
+Constants.OAUTH_DEFAULT_RELAY_URL = "https://nameless-grass-2b44.ultimatejimmy.workers.dev"
 
 -- Beam cross-device transfer constants
 Constants.BEAM_DEFAULT_RELAY_URL = "https://nameless-grass-2b44.ultimatejimmy.workers.dev"

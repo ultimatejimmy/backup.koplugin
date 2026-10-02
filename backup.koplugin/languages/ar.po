@@ -213,6 +213,10 @@ msgstr "فشل الاتصال"
 msgid "Connection successful!"
 msgstr "تم الاتصال بنجاح!"
 
+# en-hash: 0743b27e61f40845e36144152bed8fa1
+msgid "Connection timed out"
+msgstr "انان انتهت مهلة الاتصال"
+
 # en-hash: a4a34e8a8c72855afbba9574a9385a2b
 msgid "Contacting Google Drive..."
 msgstr "جارٍ الاتصال بـ Google Drive..."
@@ -500,6 +504,14 @@ msgstr "Google Drive"
 # en-hash: ec8ef49010075664d482096b7d3c400b
 msgid "Google Drive Account"
 msgstr "حساب Google Drive"
+
+# en-hash: 82fb77dd3982da6e93421de0721621b6
+msgid "Google Drive authentication error: %s"
+msgstr "خطأ في مصادقة Google Drive: %s"
+
+# en-hash: 0a70c365a3fd9db5f29d1e7e4910d8a7
+msgid "Google Drive authorization failed: %s"
+msgstr "فشل تفويض Google Drive: %s"
 
 # en-hash: b65c7a6c10e78958a2c8516071ca16d4
 msgid "Google Drive authorization was denied."

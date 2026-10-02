@@ -8,6 +8,7 @@ import urllib.error
 import time
 import hashlib
 import argparse
+import ast
 
 # Reconfigure stdout/stderr for UTF-8
 if sys.version_info >= (3, 7):
@@ -257,11 +258,69 @@ def validate_translations(lang_code, requested, translated):
 def get_gemini_key():
     return os.environ.get("GEMINI_API_KEY")
 
+def parse_json_response(text):
+    if not text:
+        return None
+    text_stripped = text.strip()
+    first_brace = text_stripped.find('{')
+    last_brace = text_stripped.rfind('}')
+    if first_brace != -1 and last_brace != -1:
+        json_str = text_stripped[first_brace:last_brace+1]
+    else:
+        json_str = text_stripped
+
+    # 1. Direct json.loads
+    try:
+        return json.loads(json_str, strict=False)
+    except Exception:
+        pass
+
+    # 2. ast.literal_eval for Python-style dicts / single quotes
+    try:
+        val = ast.literal_eval(json_str)
+        if isinstance(val, dict):
+            return val
+    except Exception:
+        pass
+
+    # 3. Fix unescaped backslashes
+    cleaned = re.sub(r'\\(?!([\"\\/bfnrt]|u[0-9a-fA-F]{4}))', r'\\\\', json_str)
+    try:
+        return json.loads(cleaned, strict=False)
+    except Exception:
+        pass
+
+    # 4. Fix unescaped newlines
+    cleaned2 = re.sub(r'(?<!\\)\n', r'\\n', cleaned)
+    try:
+        return json.loads(cleaned2, strict=False)
+    except Exception:
+        pass
+
+    # 5. Remove JavaScript-style comments and trailing commas
+    cleaned3 = re.sub(r'//[^\n]*', '', json_str)
+    cleaned3 = re.sub(r'/\*.*?\*/', '', cleaned3, flags=re.DOTALL)
+    cleaned3 = re.sub(r',\s*([\]}])', r'\1', cleaned3)
+    try:
+        return json.loads(cleaned3, strict=False)
+    except Exception:
+        pass
+
+    # 6. Replace single quotes around keys/values with double quotes
+    try:
+        converted = re.sub(r"(?<!\\)'", '"', json_str)
+        return json.loads(converted, strict=False)
+    except Exception:
+        pass
+
+    return None
+
 def call_gemini(prompt):
     key = get_gemini_key()
     if not key: return None
 
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key={key}"
+    model = os.environ.get("GEMINI_MODEL", "gemini-3.5-flash-lite")
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={key}"
     headers = {"Content-Type": "application/json"}
     data = {
         "contents": [{"parts": [{"text": prompt}]}],
@@ -275,27 +334,27 @@ def call_gemini(prompt):
         try:
             with urllib.request.urlopen(req, timeout=90) as response:
                 res_data = json.loads(response.read().decode('utf-8'))
-                text = res_data['candidates'][0]['content']['parts'][0]['text']
-                text_stripped = text.strip()
-                first_brace = text_stripped.find('{')
-                last_brace = text_stripped.rfind('}')
-                if first_brace != -1 and last_brace != -1:
-                    json_str = text_stripped[first_brace:last_brace+1]
-                else:
-                    json_str = text_stripped
+                parts = res_data.get('candidates', [{}])[0].get('content', {}).get('parts', [])
+                if not parts:
+                    if attempt < max_retries - 1:
+                        time.sleep(3 * (attempt + 1))
+                        continue
+                    return None
+                text = parts[0].get('text', '')
+                parsed = parse_json_response(text)
+                if parsed:
+                    return parsed
 
-                try:
-                    return json.loads(json_str, strict=False)
-                except Exception:
-                    cleaned = re.sub(r'\\(?!([\"\\/bfnrt]|u[0-9a-fA-F]{4}))', r'\\\\', json_str)
-                    try:
-                        return json.loads(cleaned, strict=False)
-                    except Exception:
-                        cleaned2 = re.sub(r'(?<!\\)\n', r'\\n', cleaned)
-                        return json.loads(cleaned2, strict=False)
+                if attempt < max_retries - 1:
+                    print(f"  - Invalid JSON in response (attempt {attempt + 1}/{max_retries - 1}). Retrying...")
+                    time.sleep(3 * (attempt + 1))
+                    continue
+                else:
+                    print(f"API Error: Failed to parse JSON response after {max_retries} attempts.")
+                    return None
         except urllib.error.HTTPError as e:
             if e.code in (429, 500, 502, 503, 504) and attempt < max_retries - 1:
-                sleep_time = 10 * (attempt + 1)
+                sleep_time = 20 * (attempt + 1)
                 print(f"  - HTTP {e.code}, waiting {sleep_time}s before retry {attempt + 1}/{max_retries - 1}...")
                 time.sleep(sleep_time)
             else:
@@ -308,8 +367,13 @@ def call_gemini(prompt):
             else:
                 return None
         except Exception as e:
-            print(f"API Error: {e}")
-            return None
+            if attempt < max_retries - 1:
+                print(f"  - Request/parse warning: {e}. Retrying ({attempt + 1}/{max_retries - 1})...")
+                time.sleep(3 * (attempt + 1))
+                continue
+            else:
+                print(f"API Error: {e}")
+                return None
     return None
 
 def translate_all_gemini(all_untranslated, lang_names, max_pairs=40):
@@ -352,7 +416,8 @@ CRITICAL rules:
 2. Retain all format specifiers such as %s, %d, %1$s, %2$d, etc. exactly in the translated output.
 3. Retain all literal escaped newlines (\\n) and tabs (\\t) exactly.
 4. Keep translations concise, natural, and suited for a mobile e-reader display.
-5. Return ONLY a valid JSON object matching this exact schema:
+5. All keys and values must be enclosed in standard double quotes ("). Never use single quotes ('). Do not include trailing commas or comments.
+6. Return ONLY a valid JSON object matching this exact schema:
 {{
   "translations": {{
     "<language_code>": {{

@@ -213,6 +213,10 @@ msgstr "Connessione fallita"
 msgid "Connection successful!"
 msgstr "Connessione riuscita!"
 
+# en-hash: 0743b27e61f40845e36144152bed8fa1
+msgid "Connection timed out"
+msgstr "Connessione scaduta"
+
 # en-hash: a4a34e8a8c72855afbba9574a9385a2b
 msgid "Contacting Google Drive..."
 msgstr "Contatto Google Drive..."
@@ -500,6 +504,14 @@ msgstr "Google Drive"
 # en-hash: ec8ef49010075664d482096b7d3c400b
 msgid "Google Drive Account"
 msgstr "Account Google Drive"
+
+# en-hash: 82fb77dd3982da6e93421de0721621b6
+msgid "Google Drive authentication error: %s"
+msgstr "Errore di autenticazione Google Drive: %s"
+
+# en-hash: 0a70c365a3fd9db5f29d1e7e4910d8a7
+msgid "Google Drive authorization failed: %s"
+msgstr "Autorizzazione Google Drive non riuscita: %s"
 
 # en-hash: b65c7a6c10e78958a2c8516071ca16d4
 msgid "Google Drive authorization was denied."
@@ -979,9 +991,9 @@ msgstr "Download WebDAV fallito (HTTP %s)"
 
 # en-hash: f685981e27a29fd49219c05ee1cde8f4
 msgid "WebDAV settings saved."
-msgstr ""
+msgstr "Impostazioni WebDAV salvate."
 
 # en-hash: 81f8b6f454d5bba8d33f66cfb199e373
 msgid "WebDAV upload failed (HTTP %s): %s"
-msgstr ""
+msgstr "Caricamento WebDAV fallito (HTTP %s): %s"
 

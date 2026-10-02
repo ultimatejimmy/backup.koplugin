@@ -15,11 +15,11 @@ msgstr "このフォルダ内で %d 個のバックアップが見つかりま�
 
 # en-hash: 9e8d0752d74b8980a095ecc6686a139a
 msgid "%s is not configured."
-msgstr ""
+msgstr "%s は設定されていません。"
 
 # en-hash: 015b489f212b32ce0657fa32ac66f01e
 msgid "%s is not configured. Please configure it in Settings."
-msgstr ""
+msgstr "%s は設定されていません。設定で構成してください。"
 
 # en-hash: 4bc56877a98a3b5f59735f579cf735a6
 msgid "+ New"
@@ -31,7 +31,7 @@ msgstr ".. (親フォルダ)"
 
 # en-hash: 336f879eec1bf390db4fa65586734c78
 msgid "And enter this code:"
-msgstr ""
+msgstr "そして、このコードを入力してください:"
 
 # en-hash: fcbaff9ec755238920363a1fff9402a5
 msgid "Archive: %s"
@@ -47,15 +47,15 @@ msgstr "このバックアップを復元してもよろしいですか？\n\n�
 
 # en-hash: a971b642f34e745c598847929834ea01
 msgid "Authentication failed. Please verify your username and password."
-msgstr ""
+msgstr "認証に失敗しました。ユーザー名とパスワードを確認してください。"
 
 # en-hash: 2ea05e21970520450768ac56d8f3216f
 msgid "Authorization code expired. Please try again."
-msgstr ""
+msgstr "認証コードの有効期限が切れました。もう一度お試しください。"
 
 # en-hash: 0557fa923dcee4d0f86b1409f5c2167f
 msgid "Back"
-msgstr ""
+msgstr "戻る"
 
 # en-hash: bc0e2e2755cb8ab261980312b1cdd604
 msgid "Backup & Restore Settings"
@@ -79,7 +79,7 @@ msgstr "バックアップ作成はキャンセルされました。"
 
 # en-hash: fb044a20637bde2a9a102d3d088a88af
 msgid "Backup deleted from cloud."
-msgstr ""
+msgstr "バックアップがクラウドから削除されました。"
 
 # en-hash: 8c9b5c30039246df4e284265e575ce06
 msgid "Backup received successfully!\n\nFile: %s"
@@ -91,7 +91,7 @@ msgstr "バックアップを正常に復元しました！"
 
 # en-hash: be013ad020ef73a484e27a60aa1717c6
 msgid "Backup uploaded to %s successfully!\n\nFile: %s"
-msgstr ""
+msgstr "バックアップが %s に正常にアップロードされました！\n\nファイル: %s"
 
 # en-hash: de8e8367246b437c6b06b7b257933d07
 msgid "Beam Relay Server"
@@ -151,19 +151,19 @@ msgstr "閉じる"
 
 # en-hash: 8fe91beff26c16918bfbd6a269890286
 msgid "Cloud Backups (%s)"
-msgstr ""
+msgstr "クラウドバックアップ (%s)"
 
 # en-hash: 00dcb4d55c41dd1c45477d7f94ce7639
 msgid "Cloud Backups (%s) ▸"
-msgstr ""
+msgstr "クラウドバックアップ (%s) ▸"
 
 # en-hash: eecd606aaa9f5ce6977efc64386f750d
 msgid "Cloud Storage: %s"
-msgstr ""
+msgstr "クラウドストレージ: %s"
 
 # en-hash: db7384445b95e43849b498648d94cd9d
 msgid "Cloud upload failed:\n%s"
-msgstr ""
+msgstr "クラウドへのアップロードに失敗しました:\n%s"
 
 # en-hash: e04433a9dbc7f8a04dfa1bad54d8e186
 msgid "Code expires in 15 minutes\nSingle-use end-to-end encrypted"
@@ -179,19 +179,19 @@ msgstr "コンポーネント: %s ▸"
 
 # en-hash: 9632519f95db5a4d4b26d97fe5f69dbf
 msgid "Configure %s"
-msgstr ""
+msgstr "%s を設定"
 
 # en-hash: cf5b62c18873c73c95c10a30c8881775
 msgid "Connect Google Drive"
-msgstr ""
+msgstr "Google Drive に接続"
 
 # en-hash: 664792348a8cab8a8d9c9f4177e7faea
 msgid "Connected to Google Drive successfully!"
-msgstr ""
+msgstr "Google Drive に正常に接続しました！"
 
 # en-hash: d504259ae483f0155508e59a58e0c16c
 msgid "Connected to server, but could not create folder: %s"
-msgstr ""
+msgstr "サーバーに接続しましたが、フォルダを作成できませんでした: %s"
 
 # en-hash: 1bef0388877dbf64dcd100acd4a793db
 msgid "Connecting and downloading backup archive..."
@@ -203,19 +203,23 @@ msgstr "Beam 中継サーバーへ接続中..."
 
 # en-hash: 8f15b432c7c45a04097e759983c1a1b2
 msgid "Connecting to cloud..."
-msgstr ""
+msgstr "クラウドに接続中..."
 
 # en-hash: 1be415f041c0d8f2e10093a7b4236694
 msgid "Connection failed"
-msgstr ""
+msgstr "接続に失敗しました"
 
 # en-hash: b988ae810021000e2f084f9c6bd4732e
 msgid "Connection successful!"
-msgstr ""
+msgstr "接続に成功しました！"
+
+# en-hash: 0743b27e61f40845e36144152bed8fa1
+msgid "Connection timed out"
+msgstr "接続がタイムアウトしました"
 
 # en-hash: a4a34e8a8c72855afbba9574a9385a2b
 msgid "Contacting Google Drive..."
-msgstr ""
+msgstr "Google Drive と連絡中..."
 
 # en-hash: 4046ca4eac71fd660ff5daa4372066e7
 msgid "Corrupted filename in Beam payload."
@@ -227,15 +231,15 @@ msgstr "Beam データが破損しているか空です。"
 
 # en-hash: 0db66570c53d9269ae9638b0a57c6dc2
 msgid "Could not connect to %s:%d: %s"
-msgstr ""
+msgstr "%s:%d に接続できませんでした: %s"
 
 # en-hash: 1be92af1318daefb4a1978cdc861f377
 msgid "Could not connect to WebDAV server (HTTP %s)."
-msgstr ""
+msgstr "WebDAVサーバーに接続できませんでした (HTTP %s)。"
 
 # en-hash: ca1d08b2cacead2c94c25bc389f8f936
 msgid "Could not create Google Drive folder '%s' (HTTP %s): %s"
-msgstr ""
+msgstr "Google Drive フォルダ '%s' を作成できませんでした (HTTP %s): %s"
 
 # en-hash: c17e50618f4af14444fec4b88f4df96d
 msgid "Could not read file: %s"
@@ -287,19 +291,19 @@ msgstr "バックアップ '%s' を削除しますか？\nこの操作は取り�
 
 # en-hash: 27bba4f72dad4114966ba89c6aec01df
 msgid "Delete failed: %s"
-msgstr ""
+msgstr "削除に失敗しました: %s"
 
 # en-hash: 39f8bfbc450dad78e48627bbeab8db01
 msgid "Delete from Cloud"
-msgstr ""
+msgstr "クラウドから削除"
 
 # en-hash: 02a7c9456ba90dff6f8b10eb03960145
 msgid "Delete remote backup '%s' from %s?\nThis action cannot be undone."
-msgstr ""
+msgstr "リモートバックアップ '%s' を %s から削除しますか？\nこの操作は元に戻せません。"
 
 # en-hash: 58f99216d32122408867dd4a3d098341
 msgid "Deleting remote backup..."
-msgstr ""
+msgstr "リモートバックアップを削除中..."
 
 # en-hash: 3eba76dec995960162d99251c4685a72
 msgid "Device Backup & Restore"
@@ -311,11 +315,11 @@ msgstr "辞書と OCR データ"
 
 # en-hash: 905c13278062aa09c6af3c74d4e596b9
 msgid "Disconnect / Log Out"
-msgstr ""
+msgstr "切断 / ログアウト"
 
 # en-hash: 448d353fa19629918ce0a62f5a0a7d3f
 msgid "Disconnected from Google Drive."
-msgstr ""
+msgstr "Googleドライブから切断しました。"
 
 # en-hash: f24351e020bd2306cdc4fc7dc6ad2bd2
 msgid "Disk full or write error writing header: %s"
@@ -339,15 +343,15 @@ msgstr "ダウンロードに失敗しました (ネットワークエラー): %
 
 # en-hash: c51ce88a3ce7c5dd7ebcc8c4f57003bf
 msgid "Download failed:\n%s"
-msgstr ""
+msgstr "ダウンロードに失敗しました:\n%s"
 
 # en-hash: 2ae89fbb5548c5c979cdca7a76cc9f1b
 msgid "Download failed: %s"
-msgstr ""
+msgstr "ダウンロードに失敗しました: %s"
 
 # en-hash: 743f577a610acec9de44d6cfcbe0ef9e
 msgid "Download from %s"
-msgstr ""
+msgstr "%s からダウンロード"
 
 # en-hash: cd415c49f3c3dcc9db530e8335de52de
 msgid "Download incomplete (%s received out of %s). Network connection may have dropped."
@@ -355,15 +359,15 @@ msgstr "ダウンロードが不完全です（%s受信 / %s）。ネットワ�
 
 # en-hash: 7bb1531e9c38316baa4eb61316a8d78f
 msgid "Download to Device"
-msgstr ""
+msgstr "デバイスにダウンロード"
 
 # en-hash: 3e2a96bc96f5ce87681235efea88f27f
 msgid "Download transfer interrupted."
-msgstr ""
+msgstr "ダウンロード転送が中断されました。"
 
 # en-hash: 6de7f7d7206af4dea103df21db1fc5fe
 msgid "Downloaded %s successfully!"
-msgstr ""
+msgstr "%s を正常にダウンロードしました！"
 
 # en-hash: 64089d52e6d17e3b80ba6bd80b8bf06c
 msgid "Downloading backup archive (%s)..."
@@ -371,15 +375,15 @@ msgstr "バックアップアーカイブをダウンロード中 (%s)..."
 
 # en-hash: 1270acf3847e19c0542e5d9d4ed46cb7
 msgid "Downloading backup archive..."
-msgstr ""
+msgstr "バックアップアーカイブをダウンロード中..."
 
 # en-hash: 315c0455b434a7612f52013fbb432f46
 msgid "Downloading backup from cloud..."
-msgstr ""
+msgstr "クラウドからバックアップをダウンロード中..."
 
 # en-hash: ad71758b5cb347965a2834182508e592
 msgid "Downloading backup..."
-msgstr ""
+msgstr "バックアップをダウンロード中..."
 
 # en-hash: 2648f64cd622baf1e8533966877521b7
 msgid "Downloading: %s / %s (%d%%)"
@@ -500,6 +504,14 @@ msgstr "Google Drive"
 # en-hash: ec8ef49010075664d482096b7d3c400b
 msgid "Google Drive Account"
 msgstr "Google Driveアカウント"
+
+# en-hash: 82fb77dd3982da6e93421de0721621b6
+msgid "Google Drive authentication error: %s"
+msgstr "Google Drive 認証エラー: %s"
+
+# en-hash: 0a70c365a3fd9db5f29d1e7e4910d8a7
+msgid "Google Drive authorization failed: %s"
+msgstr "Google Drive 認可に失敗しました: %s"
 
 # en-hash: b65c7a6c10e78958a2c8516071ca16d4
 msgid "Google Drive authorization was denied."
@@ -711,11 +723,11 @@ msgstr "Beam 中継サーバーにコードを登録中..."
 
 # en-hash: 2d5e099b29563da5e67db51a71438c04
 msgid "Remote Backup Folder"
-msgstr ""
+msgstr "リモートバックアップフォルダ"
 
 # en-hash: c4accc921135624317bc1711be1a2576
 msgid "Remote Folder: %s"
-msgstr ""
+msgstr "リモートフォルダ: %s"
 
 # en-hash: d6ed253ff449bbd9606eff83124f1f2e
 msgid "Reset Default"
@@ -767,39 +779,39 @@ msgstr "スナップショットへロールバック中..."
 
 # en-hash: 5b68b56be9950bc946d6cfb82f19de5b
 msgid "SFTP (SSH)"
-msgstr ""
+msgstr "SFTP (SSH)"
 
 # en-hash: 988b41e565ddb92d43a2145bf2386bcd
 msgid "SFTP Server Settings"
-msgstr ""
+msgstr "SFTPサーバー設定"
 
 # en-hash: 7807b386a0c10f98692b213179b479b5
 msgid "SFTP client ('sftp' binary) is not installed on this system."
-msgstr ""
+msgstr "SFTPクライアント（'sftp'バイナリ）はこのシステムにインストールされていません。"
 
 # en-hash: 55bd3b0489406091d70e2aec7ad50ef9
 msgid "SFTP connection failed: %s"
-msgstr ""
+msgstr "SFTP接続に失敗しました: %s"
 
 # en-hash: b1a363b323d242adeaa8dae6ef72a044
 msgid "SFTP download failed: %s"
-msgstr ""
+msgstr "SFTPダウンロードに失敗しました: %s"
 
 # en-hash: be6983afed33bc1d99de77988128eb01
 msgid "SFTP host is required."
-msgstr ""
+msgstr "SFTPホストが必要です。"
 
 # en-hash: cd803df66da6fd2e76818abe54f6edbd
 msgid "SFTP is not available on this device.\nPlease use WebDAV, FTP, or Google Drive instead."
-msgstr ""
+msgstr "SFTPはこのデバイスで利用できません。\n代わりにWebDAV、FTP、またはGoogleドライブを使用してください。"
 
 # en-hash: a19f2e2d0f23a888a33e79f4fc19d871
 msgid "SFTP settings saved."
-msgstr ""
+msgstr "SFTP設定を保存しました。"
 
 # en-hash: ee8bde78dc3132bbaf0667bdc6022456
 msgid "SFTP upload failed: %s"
-msgstr ""
+msgstr "SFTPアップロードに失敗しました: %s"
 
 # en-hash: 3a5690f3a280a4a323983b5a294a17b7
 msgid "Sanitize Hardware Settings"
@@ -827,7 +839,7 @@ msgstr "書籍フォルダを選択"
 
 # en-hash: 80539964a77dc923af2f7d693bddfbee
 msgid "Select Cloud Storage Provider"
-msgstr ""
+msgstr "クラウドストレージプロバイダーを選択"
 
 # en-hash: deffb03a57b0deaf912f04da4575848f
 msgid "Select Folder"
@@ -835,23 +847,23 @@ msgstr "フォルダを選択"
 
 # en-hash: da21632e4b6dade5cf6d55bd5e7302cd
 msgid "Selected provider driver is not available."
-msgstr ""
+msgstr "選択されたプロバイダーのドライバーは利用できません。"
 
 # en-hash: 722232f671d45e7ebf09259686ebc0e6
 msgid "Server URL (e.g. https://cloud.example.com/remote.php/dav/files/user)"
-msgstr ""
+msgstr "サーバーURL（例：https://cloud.example.com/remote.php/dav/files/user）"
 
 # en-hash: a42f23891ca34db0a17c71a7ee2f515b
 msgid "Server URL is required."
-msgstr ""
+msgstr "サーバーURLが必要です。"
 
 # en-hash: 449a20e53be283f72dc450dbdb10fe6f
 msgid "Server greeting failed: %s"
-msgstr ""
+msgstr "サーバーへの挨拶に失敗しました: %s"
 
 # en-hash: 643b9b06521327e57a03362555f9cb02
 msgid "Session expired. Please reconnect your account in Settings."
-msgstr ""
+msgstr "セッションが期限切れになりました。設定でアカウントを再接続してください。"
 
 # en-hash: dcc9b974ef5d851dac22de0e12385955
 msgid "Settings & UI Gestures"
@@ -871,35 +883,35 @@ msgstr "スナップショットへのロールバックが完了しました。
 
 # en-hash: 0cbc6611f5540bd0809a388dc95a615b
 msgid "Test"
-msgstr ""
+msgstr "テスト"
 
 # en-hash: 8537e08014e28b87205a7cd2f8e9bde2
 msgid "Test Cloud Connection"
-msgstr ""
+msgstr "クラウド接続テスト"
 
 # en-hash: 49ab5aaeb16e40d2787f6cc6532c99a3
 msgid "Test Connection"
-msgstr ""
+msgstr "接続テスト"
 
 # en-hash: 1fcfa381840b7f72dc35b91b84578009
 msgid "Testing FTP connection..."
-msgstr ""
+msgstr "FTP接続をテスト中..."
 
 # en-hash: 597842216fe3224f9d6590c756d3eb3f
 msgid "Testing Google Drive connection..."
-msgstr ""
+msgstr "Googleドライブ接続をテスト中..."
 
 # en-hash: 118431876fb3d109db7ab2f2e72db7cf
 msgid "Testing SFTP connection..."
-msgstr ""
+msgstr "SFTP接続をテスト中..."
 
 # en-hash: 5c716e457ef53b443ff45e4ee00ff757
 msgid "Testing WebDAV connection..."
-msgstr ""
+msgstr "WebDAV接続をテスト中..."
 
 # en-hash: 7087abe92c13bbc4e9be44c29abbd193
 msgid "Testing cloud connection..."
-msgstr ""
+msgstr "クラウド接続をテスト中..."
 
 # en-hash: a4553656986f259dd20e32fc7b204b71
 msgid "This backup is %s, which exceeds the 100MB Beam transfer limit.\n\nBeam is designed for fast wireless transfer of settings and plugins. For full backups with reading statistics, dictionaries, or fonts, please transfer via USB or create a lighter backup."
@@ -931,11 +943,11 @@ msgstr "アップロード不完全：リレーは %s / %s しか受信しませ
 
 # en-hash: 665d94ec8377d7613699ea5c857c4fb1
 msgid "Upload to %s"
-msgstr ""
+msgstr "%sにアップロード"
 
 # en-hash: ab9d8de2743aacb5969419a2e189b84b
 msgid "Upload to Cloud"
-msgstr ""
+msgstr "クラウドにアップロード"
 
 # en-hash: 55c11e4b0000b4cf083ae1ff648d5946
 msgid "Uploading backup archive..."
@@ -943,7 +955,7 @@ msgstr "アーカイブをアップロード中..."
 
 # en-hash: ee15f5f203da0f048cb0222c62b08cfc
 msgid "Uploading backup to cloud..."
-msgstr ""
+msgstr "クラウドにバックアップをアップロード中..."
 
 # en-hash: ea6476a63b0c316c17f39f6ff17267c8
 msgid "Uploading: %s / %s (%d%%)"
@@ -955,33 +967,33 @@ msgstr "ユーザープラグイン"
 
 # en-hash: f6039d44b29456b20f8f373155ae4973
 msgid "Username"
-msgstr ""
+msgstr "ユーザー名"
 
 # en-hash: bb95a9ec0ed61e525a82023357a24e7e
 msgid "Username (or 'anonymous')"
-msgstr ""
+msgstr "ユーザー名（または'anonymous'）"
 
 # en-hash: 4d65b3bed183b9aa051f4042e1036206
 msgid "Waiting for authorization..."
-msgstr ""
+msgstr "承認を待っています..."
 
 # en-hash: 730fc449f76265956a291010c0f7ba8c
 msgid "WebDAV (Nextcloud / NAS)"
-msgstr ""
+msgstr "WebDAV (Nextcloud / NAS)"
 
 # en-hash: 6f7329f5681a6dcb49b13c6b20c087c4
 msgid "WebDAV Server Settings"
-msgstr ""
+msgstr "WebDAVサーバー設定"
 
 # en-hash: 969da9ae59c9eb1141cacaf75ba8c019
 msgid "WebDAV download failed (HTTP %s)"
-msgstr ""
+msgstr "WebDAVダウンロード失敗 (HTTP %s)"
 
 # en-hash: f685981e27a29fd49219c05ee1cde8f4
 msgid "WebDAV settings saved."
-msgstr ""
+msgstr "WebDAV設定を保存しました。"
 
 # en-hash: 81f8b6f454d5bba8d33f66cfb199e373
 msgid "WebDAV upload failed (HTTP %s): %s"
-msgstr ""
+msgstr "WebDAVアップロード失敗 (HTTP %s): %s"
 
