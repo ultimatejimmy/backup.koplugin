@@ -11,6 +11,7 @@ package.path = package.path .. ";../?.lua"
 local koreader_bases = {
     "/usr/lib/koreader",
     "/home/jimmy/squashfs-root/usr/lib/koreader",
+    "/home/" .. (os.getenv("USER") or "user") .. "/squashfs-root/usr/lib/koreader",
     "/mnt/c/Users/jpautz/squashfs-root/usr/lib/koreader",
     "c:/Users/jpautz/squashfs-root/usr/lib/koreader",
 }
@@ -25,6 +26,9 @@ for _, base in ipairs(koreader_bases) do
         package.path = package.path .. ";" .. base .. "/libs/?.lua"
         package.path = package.path .. ";" .. base .. "/frontend/?.lua"
         package.path = package.path .. ";" .. base .. "/ffi/?.lua"
+        package.cpath = package.cpath .. ";" .. base .. "/libs/?.so"
+        package.cpath = package.cpath .. ";" .. base .. "/libs/libkoreader-?.so"
+        package.cpath = package.cpath .. ";" .. base .. "/?.so"
     end
 end
 
@@ -131,11 +135,15 @@ _G.G_reader_settings = {
 }
 
 -- Mock lfs
-local ok_real_lfs, real_lfs = pcall(require, "lfs")
-if ok_real_lfs and real_lfs then
+local ok_real_lfs, real_lfs = pcall(require, "libs/libkoreader-lfs")
+if not (ok_real_lfs and type(real_lfs) == "table") then
+    ok_real_lfs, real_lfs = pcall(require, "lfs")
+end
+if ok_real_lfs and type(real_lfs) == "table" then
     package.preload["libs/libkoreader-lfs"] = function() return real_lfs end
     package.loaded["libs/libkoreader-lfs"] = real_lfs
     package.loaded["lfs"] = real_lfs
+    _G.lfs = real_lfs
 end
 
 -- Mock UI and Blitbuffer
