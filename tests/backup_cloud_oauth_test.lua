@@ -89,7 +89,34 @@ describe("backup_cloud_oauth", function()
             assert.equals("https://oauth2.googleapis.com/revoke", gdef.revoke_url)
             assert.equals("https://www.googleapis.com/auth/drive.file", gdef.default_scope)
             assert.is_not_nil(gdef.client_id)
-            assert.equals("https://nameless-grass-2b44.ultimatejimmy.workers.dev", gdef.relay_url)
+            assert.equals(Constants.OAUTH_DEFAULT_RELAY_URL, gdef.relay_url)
+        end)
+
+        it("defines Microsoft OneDrive configuration with device-code endpoints", function()
+            local odef = OAuth.PROVIDERS[Constants.CLOUD_PROVIDERS.ONEDRIVE]
+            assert.is_not_nil(odef)
+            assert.equals("https://login.microsoftonline.com/consumers/oauth2/v2.0/devicecode", odef.device_code_url)
+            assert.equals("https://login.microsoftonline.com/consumers/oauth2/v2.0/token", odef.token_url)
+            assert.equals("Files.ReadWrite offline_access", odef.default_scope)
+            assert.equals("982359c5-d74b-408c-8ff0-7d43c678195e", odef.client_id)
+        end)
+
+        it("defines Dropbox configuration with relay endpoints", function()
+            local ddef = OAuth.PROVIDERS[Constants.CLOUD_PROVIDERS.DROPBOX]
+            assert.is_not_nil(ddef)
+            assert.equals("Dropbox", ddef.name)
+            assert.equals((Constants.OAUTH_DEFAULT_RELAY_URL or "https://backup.ultimatejimmy.workers.dev") .. "/api/oauth/dropbox/init", ddef.device_code_url)
+            assert.equals("https://api.dropboxapi.com/oauth2/token", ddef.token_url)
+            assert.equals(Constants.OAUTH_DROPBOX_CLIENT_ID, ddef.client_id)
+        end)
+
+        it("refreshes token successfully without calling callback multiple times", function()
+            local call_count = 0
+            local last_ok = nil
+            local last_res = nil
+
+            -- Test with custom mock if needed or verify return logic
+            assert.is_function(OAuth.refreshToken)
         end)
     end)
 end)

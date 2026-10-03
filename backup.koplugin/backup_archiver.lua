@@ -1149,8 +1149,9 @@ end
 -- @param archive_path string
 -- @param dest_dir string
 -- @param on_progress function: optional callback(current, total, filename)
+-- @param is_canceled function: optional cancellation check function() -> boolean
 -- @return boolean, string: success, error_message
-function ArchiverMgr.extractArchive(archive_path, dest_dir, on_progress)
+function ArchiverMgr.extractArchive(archive_path, dest_dir, on_progress, is_canceled)
     local reader, err = ArchiverMgr.createReader(archive_path)
     if not reader then return false, err end
 
@@ -1160,11 +1161,20 @@ function ArchiverMgr.extractArchive(archive_path, dest_dir, on_progress)
     -- First count entries for progress
     local entries = {}
     for entry in reader:iterate() do
+        if is_canceled and is_canceled() then
+            reader:close()
+            return false, "canceled"
+        end
         table.insert(entries, entry.path)
     end
 
     local total = #entries
     for idx, path in ipairs(entries) do
+        if is_canceled and is_canceled() then
+            reader:close()
+            return false, "canceled"
+        end
+
         if on_progress then
             on_progress(idx, total, path)
         end

@@ -499,5 +499,93 @@ describe("backup_restore", function()
 
             os.remove(test_archive)
         end)
+
+        it("aborts cleanly when is_canceled returns true before extraction", function()
+            local test_archive = backup_dir .. "/cancel_test.tar"
+            ArchiverMgr.createBackup{
+                archive_path = test_archive,
+                data_dir = data_dir,
+                components = { [Constants.COMPONENTS.SETTINGS] = true },
+            }
+
+            local progress_called = false
+            local ok, msg = RestoreEngine.executeRestore(test_archive, {
+                is_canceled = function() return true end,
+                on_progress = function() progress_called = true end,
+            })
+
+            assert.is_false(ok)
+            assert.are.equal("canceled", msg)
+            assert.is_false(progress_called)
+            os.remove(test_archive)
+        end)
+
+        it("reports progress and phase callbacks during restore", function()
+            local test_archive = backup_dir .. "/progress_test.tar"
+            ArchiverMgr.createBackup{
+                archive_path = test_archive,
+                data_dir = data_dir,
+                components = { [Constants.COMPONENTS.SETTINGS] = true },
+            }
+
+            local phases = {}
+            local progress_ticks = 0
+            local applying_called = false
+
+            local ok, msg = RestoreEngine.executeRestore(test_archive, {
+                on_phase = function(phase) table.insert(phases, phase) end,
+                on_progress = function(curr, total, file) progress_ticks = progress_ticks + 1 end,
+                on_applying_phase = function() applying_called = true end,
+            })
+
+            assert.is_true(ok)
+            assert.is_true(#phases >= 2)
+            assert.is_true(progress_ticks >= 1)
+            assert.is_true(applying_called)
+            os.remove(test_archive)
+        end)
+    end)
+
+    describe("BackupProgress dialog component", function()
+        it("instantiates and updates progress, subtitle, detail, and cancel states", function()
+            local BackupProgress = require("backup_progress")
+            local cancel_called = false
+            local dlg = BackupProgress:new{
+                title = "Test Progress",
+                subtitle = "Starting...",
+                detail = "file.txt",
+                cancel_text = "Stop",
+                on_cancel = function() cancel_called = true end,
+            }
+
+            assert.is_not_nil(dlg)
+            assert.are.equal("Test Progress", dlg.title)
+            assert.are.equal("Starting...", dlg.subtitle)
+            assert.are.equal("file.txt", dlg.detail)
+            assert.are.equal("Stop", dlg.cancel_text)
+            assert.is_false(dlg:isCanceled())
+
+            dlg:setProgress(50)
+            assert.are.equal(50, dlg.progress)
+
+            dlg:setSubtitle("Halfway")
+            assert.are.equal("Halfway", dlg.subtitle)
+
+            dlg:setDetail("other.txt")
+            assert.are.equal("other.txt", dlg.detail)
+
+            dlg:setCancelable(false, "Locking...")
+            assert.is_false(dlg.cancelable)
+
+            dlg:setCancelable(true)
+            assert.is_true(dlg.cancelable)
+
+            dlg:triggerCancel()
+            assert.is_true(dlg:isCanceled())
+            assert.is_true(cancel_called)
+
+            dlg:close()
+            assert.is_true(dlg.is_closed)
+        end)
     end)
 end)

@@ -294,6 +294,14 @@ function FTP.upload(local_path, opts, callback)
     local write_failed = false
 
     while true do
+        if opts.is_canceled and opts.is_canceled() then
+            f_in:close()
+            data_sock:close()
+            closeSession(ctrl)
+            if callback then callback(false, "canceled") end
+            return
+        end
+
         local chunk = f_in:read(chunk_size)
         if not chunk or #chunk == 0 then break end
 
@@ -305,6 +313,13 @@ function FTP.upload(local_path, opts, callback)
         sent_bytes = sent_bytes + #chunk
         if opts.on_progress then
             opts.on_progress(math.min(sent_bytes, total_bytes), total_bytes, "uploading")
+        end
+        if opts.is_canceled and opts.is_canceled() then
+            f_in:close()
+            data_sock:close()
+            closeSession(ctrl)
+            if callback then callback(false, "canceled") end
+            return
         end
     end
     f_in:close()
@@ -380,12 +395,29 @@ function FTP.download(remote_filename, local_path, opts, callback)
     local read_failed = false
 
     while true do
+        if opts.is_canceled and opts.is_canceled() then
+            f_out:close()
+            data_sock:close()
+            closeSession(ctrl)
+            pcall(os.remove, local_path)
+            if callback then callback(false, "canceled") end
+            return
+        end
+
         local chunk, recv_err = data_sock:receive(65536)
         if chunk and #chunk > 0 then
             f_out:write(chunk)
             received_bytes = received_bytes + #chunk
             if opts.on_progress then
                 opts.on_progress(received_bytes, total_expected, "downloading")
+            end
+            if opts.is_canceled and opts.is_canceled() then
+                f_out:close()
+                data_sock:close()
+                closeSession(ctrl)
+                pcall(os.remove, local_path)
+                if callback then callback(false, "canceled") end
+                return
             end
         else
             if recv_err and recv_err ~= "closed" then

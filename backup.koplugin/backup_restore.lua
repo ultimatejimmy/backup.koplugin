@@ -247,6 +247,11 @@ function RestoreEngine.executeRestore(archive_path, options)
     local staging_dir = getStagingDir()
 
     -- 1. Pre-flight check
+    if options.is_canceled and options.is_canceled() then
+        return false, "canceled"
+    end
+    if options.on_phase then options.on_phase(_("Inspecting backup archive...")) end
+
     local inspect, err = RestoreEngine.inspectArchive(archive_path)
     if not inspect then
         return false, string.format(_("Pre-flight check failed: %s"), tostring(err))
@@ -263,6 +268,10 @@ function RestoreEngine.executeRestore(archive_path, options)
 
     -- 2. Create safety rollback snapshot (skip during undo to avoid overwriting rollback with current state)
     if not options.is_undo then
+        if options.is_canceled and options.is_canceled() then
+            return false, "canceled"
+        end
+        if options.on_phase then options.on_phase(_("Creating safety rollback snapshot...")) end
         local ok_roll, roll_err = RestoreEngine.createRollbackSnapshot()
         if not ok_roll then
             -- Non-fatal warning, but log it
@@ -271,12 +280,31 @@ function RestoreEngine.executeRestore(archive_path, options)
     end
 
     -- 3. Extract archive to staging directory
+    if options.is_canceled and options.is_canceled() then
+        return false, "canceled"
+    end
+    if options.on_phase then options.on_phase(_("Extracting backup files to staging...")) end
+
     RestoreEngine.removeDir(staging_dir)
-    local ok_ext, ext_err = ArchiverMgr.extractArchive(archive_path, staging_dir, options.on_progress)
+    local ok_ext, ext_err = ArchiverMgr.extractArchive(archive_path, staging_dir, options.on_progress, options.is_canceled)
     if not ok_ext then
         RestoreEngine.removeDir(staging_dir)
+        if ext_err == "canceled" or (options.is_canceled and options.is_canceled()) then
+            return false, "canceled"
+        end
         return false, string.format(_("Extraction failed: %s"), tostring(ext_err))
     end
+
+    if options.is_canceled and options.is_canceled() then
+        RestoreEngine.removeDir(staging_dir)
+        return false, "canceled"
+    end
+
+    -- From here onward, files are being applied to system/live locations: disable cancellation
+    if options.on_applying_phase then
+        options.on_applying_phase()
+    end
+    if options.on_phase then options.on_phase(_("Applying settings and components...")) end
 
     local stripped_keys = {}
     local reset_paths = {}

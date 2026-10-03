@@ -164,6 +164,279 @@ export default {
       }
     }
 
+    // -------------------------------------------------------------------------
+    // OAuth2 Relay for Dropbox (Bridge for headless devices)
+    // Converts Dropbox authorization code flow into a device-friendly PIN flow.
+    // -------------------------------------------------------------------------
+
+    // 1. Init: POST /api/oauth/dropbox/init
+    if (path === '/api/oauth/dropbox/init' && (request.method === 'POST' || request.method === 'GET')) {
+      if (!env.BEAM_KV) {
+        return new Response(JSON.stringify({
+          error: 'server_error',
+          error_description: 'BEAM_KV is not configured in worker environment',
+        }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const clientId = env.DROPBOX_CLIENT_ID || 'khboin1ohr74q7y';
+      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+      let session = '';
+      for (let i = 0; i < 8; i++) {
+        session += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+
+      await env.BEAM_KV.put('oauth:dropbox:session:' + session, JSON.stringify({
+        status: 'pending',
+        created_at: Date.now(),
+      }), { expirationTtl: 600 }); // 10 minutes
+
+      const authUrl = `${url.origin}/link`;
+      return new Response(JSON.stringify({
+        device_code: session,
+        user_code: session,
+        verification_url: authUrl,
+        expires_in: 600,
+        interval: 5,
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // 2. Short verification page: GET /link or GET /dropbox
+    if ((path === '/link' || path === '/dropbox') && request.method === 'GET') {
+      const session = url.searchParams.get('session') || url.searchParams.get('code');
+      if (session) {
+        const clientId = env.DROPBOX_CLIENT_ID || 'khboin1ohr74q7y';
+        const callbackUrl = `${url.origin}/api/oauth/dropbox/callback`;
+        const scopes = 'account_info.read files.content.write files.content.read files.metadata.read files.metadata.write';
+        const dbxAuthUrl = `https://www.dropbox.com/oauth2/authorize?client_id=${clientId}&response_type=code&token_access_type=offline&redirect_uri=${encodeURIComponent(callbackUrl)}&state=${encodeURIComponent(session.trim().toUpperCase())}&scope=${encodeURIComponent(scopes)}`;
+        return Response.redirect(dbxAuthUrl, 302);
+      }
+
+      return new Response(`<!DOCTYPE html><html>
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Connect Dropbox to KOReader</title>
+        <style>
+          body { font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif; background: #f5f5f7; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
+          .card { background: #fff; padding: 36px 28px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); max-width: 380px; width: 100%; text-align: center; }
+          h2 { margin: 0 0 10px; font-size: 22px; color: #1d1d1f; }
+          p { color: #6e6e73; font-size: 14px; margin: 0 0 24px; line-height: 1.4; }
+          input { width: 100%; box-sizing: border-box; font-size: 24px; font-weight: bold; letter-spacing: 3px; text-transform: uppercase; text-align: center; padding: 14px; border: 2px solid #d2d2d7; border-radius: 10px; outline: none; margin-bottom: 18px; }
+          input:focus { border-color: #0061fe; }
+          button { width: 100%; padding: 14px; font-size: 16px; font-weight: 600; color: #fff; background: #0061fe; border: none; border-radius: 10px; cursor: pointer; }
+          button:hover { background: #0050d4; }
+        </style>
+      </head>
+      <body>
+        <div class="card">
+          <h2>Connect Dropbox</h2>
+          <p>Enter the 8-character code shown on your e-reader screen:</p>
+          <form action="/link" method="GET">
+            <input type="text" name="session" placeholder="XXXXXXXX" maxlength="12" autofocus required />
+            <button type="submit">Authorize with Dropbox</button>
+          </form>
+        </div>
+      </body>
+      </html>`, {
+        headers: { 'Content-Type': 'text/html; charset=utf-8' },
+      });
+    }
+
+    // 2b. Direct Auth redirect: GET /api/oauth/dropbox/auth
+    if (path === '/api/oauth/dropbox/auth' && request.method === 'GET') {
+      const session = url.searchParams.get('session');
+      if (!session) {
+        return new Response('Missing session parameter', { status: 400 });
+      }
+
+      const clientId = env.DROPBOX_CLIENT_ID || 'khboin1ohr74q7y';
+      const callbackUrl = `${url.origin}/api/oauth/dropbox/callback`;
+      const scopes = 'account_info.read files.content.write files.content.read files.metadata.read files.metadata.write';
+      const dbxAuthUrl = `https://www.dropbox.com/oauth2/authorize?client_id=${clientId}&response_type=code&token_access_type=offline&redirect_uri=${encodeURIComponent(callbackUrl)}&state=${encodeURIComponent(session.trim().toUpperCase())}&scope=${encodeURIComponent(scopes)}`;
+
+      return Response.redirect(dbxAuthUrl, 302);
+    }
+
+    // 3. Callback from Dropbox: GET /api/oauth/dropbox/callback
+    if (path === '/api/oauth/dropbox/callback' && request.method === 'GET') {
+      const code = url.searchParams.get('code');
+      const state = url.searchParams.get('state'); // session ID
+      const error = url.searchParams.get('error');
+      const errorDesc = url.searchParams.get('error_description');
+
+      if (error) {
+        return new Response(`<!DOCTYPE html><html><body style="font-family:sans-serif;text-align:center;padding:50px;">
+          <h2>❌ Authorization Error</h2>
+          <p>${errorDesc || error}</p>
+          <p>Please return to KOReader and try again.</p>
+        </body></html>`, {
+          status: 400,
+          headers: { 'Content-Type': 'text/html; charset=utf-8' },
+        });
+      }
+
+      if (!code || !state || !env.BEAM_KV) {
+        return new Response('Missing code or state parameter', { status: 400 });
+      }
+
+      const sessionDataStr = await env.BEAM_KV.get('oauth:dropbox:session:' + state);
+      if (!sessionDataStr) {
+        return new Response(`<!DOCTYPE html><html><body style="font-family:sans-serif;text-align:center;padding:50px;">
+          <h2>❌ Session Expired</h2>
+          <p>The authorization session has expired. Please restart the connection on your e-reader.</p>
+        </body></html>`, {
+          status: 400,
+          headers: { 'Content-Type': 'text/html; charset=utf-8' },
+        });
+      }
+
+      const clientId = env.DROPBOX_CLIENT_ID || 'khboin1ohr74q7y';
+      const clientSecret = env.DROPBOX_CLIENT_SECRET;
+      const callbackUrl = `${url.origin}/api/oauth/dropbox/callback`;
+
+      const form = new URLSearchParams();
+      form.set('code', code);
+      form.set('grant_type', 'authorization_code');
+      form.set('client_id', clientId);
+      if (clientSecret) form.set('client_secret', clientSecret);
+      form.set('redirect_uri', callbackUrl);
+
+      try {
+        const tokenResp = await fetch('https://api.dropboxapi.com/oauth2/token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: form.toString(),
+        });
+        const tokenData = await tokenResp.json();
+
+        if (tokenData.access_token) {
+          await env.BEAM_KV.put('oauth:dropbox:session:' + state, JSON.stringify({
+            status: 'authorized',
+            tokens: tokenData,
+          }), { expirationTtl: 300 }); // 5 minutes to poll
+
+          return new Response(`<!DOCTYPE html><html><body style="font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;text-align:center;padding:60px 20px;background:#f9f9f9;">
+            <div style="max-width:420px;margin:0 auto;background:#fff;padding:40px;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,0.08);">
+              <div style="font-size:48px;margin-bottom:16px;">✅</div>
+              <h2 style="margin:0 0 12px;color:#1e1e1e;">KOReader Connected!</h2>
+              <p style="color:#555;font-size:16px;line-height:1.5;">Dropbox has been successfully authorized for KOReader Backup.</p>
+              <p style="color:#888;font-size:14px;margin-top:24px;">You can now close this tab and return to your e-reader.</p>
+            </div>
+          </body></html>`, {
+            headers: { 'Content-Type': 'text/html; charset=utf-8' },
+          });
+        } else {
+          return new Response(`<!DOCTYPE html><html><body style="font-family:sans-serif;text-align:center;padding:50px;">
+            <h2>❌ Token Exchange Failed</h2>
+            <p>${tokenData.error_description || tokenData.error || 'Unknown error'}</p>
+          </body></html>`, {
+            status: 400,
+            headers: { 'Content-Type': 'text/html; charset=utf-8' },
+          });
+        }
+      } catch (err) {
+        return new Response('Failed to contact Dropbox: ' + (err.message || String(err)), { status: 502 });
+      }
+    }
+
+    // 4. Poll: POST /api/oauth/dropbox/poll
+    if (path === '/api/oauth/dropbox/poll' && request.method === 'POST') {
+      if (!env.BEAM_KV) {
+        return new Response(JSON.stringify({ error: 'server_error', error_description: 'BEAM_KV not configured' }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      let payload = {};
+      try { payload = await request.json(); } catch (_) {}
+      const deviceCode = payload.device_code || url.searchParams.get('device_code');
+
+      if (!deviceCode) {
+        return new Response(JSON.stringify({ error: 'invalid_request', error_description: 'Missing device_code' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const sessionStr = await env.BEAM_KV.get('oauth:dropbox:session:' + deviceCode);
+      if (!sessionStr) {
+        return new Response(JSON.stringify({ error: 'expired_token', error_description: 'Session expired or not found' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const sessionData = JSON.parse(sessionStr);
+      if (sessionData.status === 'pending') {
+        return new Response(JSON.stringify({ error: 'authorization_pending' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      if (sessionData.status === 'authorized' && sessionData.tokens) {
+        await env.BEAM_KV.delete('oauth:dropbox:session:' + deviceCode);
+        return new Response(JSON.stringify(sessionData.tokens), {
+          status: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      return new Response(JSON.stringify({ error: 'invalid_grant' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // 5. Refresh: POST /api/oauth/dropbox/refresh
+    if (path === '/api/oauth/dropbox/refresh' && request.method === 'POST') {
+      let payload = {};
+      try { payload = await request.json(); } catch (_) {}
+      const refreshToken = payload.refresh_token || url.searchParams.get('refresh_token');
+
+      if (!refreshToken) {
+        return new Response(JSON.stringify({ error: 'invalid_request', error_description: 'Missing refresh_token' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const clientId = env.DROPBOX_CLIENT_ID || 'khboin1ohr74q7y';
+      const clientSecret = env.DROPBOX_CLIENT_SECRET;
+
+      const form = new URLSearchParams();
+      form.set('grant_type', 'refresh_token');
+      form.set('refresh_token', refreshToken);
+      form.set('client_id', clientId);
+      if (clientSecret) form.set('client_secret', clientSecret);
+
+      try {
+        const dbxResp = await fetch('https://api.dropboxapi.com/oauth2/token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: form.toString(),
+        });
+        const dbxData = await dbxResp.text();
+        return new Response(dbxData, {
+          status: dbxResp.status,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({
+          error: 'relay_error',
+          error_description: 'Failed to contact Dropbox OAuth: ' + (err.message || String(err)),
+        }), {
+          status: 502,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+    }
+
     // Helper to resolve beam token
     const extractToken = () => {
       const headerToken = request.headers.get('X-Beam-Token');

@@ -154,7 +154,7 @@ Constants.DEFAULT_SETTINGS = {
     retention_limit = 5, -- number of rolling backups to keep (0 = unlimited)
     clean_slate_restore = false, -- whether to delete unlisted user plugins on restore
     auto_sanitize_cross_device = true, -- auto-detect and sanitize on cross-device restore
-    beam_relay_url = "https://nameless-grass-2b44.ultimatejimmy.workers.dev", -- default edge relay URL
+    beam_relay_url = "https://backup.ultimatejimmy.workers.dev", -- default edge relay URL
     cloud_provider = "none", -- "none", "gdrive", "webdav", "ftp", "sftp"
     cloud_remote_dir = "koreader_backups",
     cloud_prune_remote = true,
@@ -175,12 +175,12 @@ Constants.CLOUD_DEFAULT_REMOTE_DIR = "koreader_backups"
 
 -- OAuth2 app registrations (installed-app / device-code flow — client_id is public by design)
 Constants.OAUTH_GDRIVE_CLIENT_ID = "444320595925-2mlkslggov1f25qv45th2tq3dl466f9u.apps.googleusercontent.com"
-Constants.OAUTH_ONEDRIVE_CLIENT_ID = nil -- Phase 2
-Constants.OAUTH_DROPBOX_CLIENT_ID = nil  -- Phase 2
-Constants.OAUTH_DEFAULT_RELAY_URL = "https://nameless-grass-2b44.ultimatejimmy.workers.dev"
+Constants.OAUTH_ONEDRIVE_CLIENT_ID = "982359c5-d74b-408c-8ff0-7d43c678195e"
+Constants.OAUTH_DROPBOX_CLIENT_ID = "khboin1ohr74q7y"
+Constants.OAUTH_DEFAULT_RELAY_URL = "https://backup.ultimatejimmy.workers.dev"
 
 -- Beam cross-device transfer constants
-Constants.BEAM_DEFAULT_RELAY_URL = "https://nameless-grass-2b44.ultimatejimmy.workers.dev"
+Constants.BEAM_DEFAULT_RELAY_URL = "https://backup.ultimatejimmy.workers.dev"
 Constants.BEAM_CODE_LENGTH = 6
 Constants.BEAM_TTL_SECONDS = 900 -- 15 minutes
 Constants.BEAM_MAGIC_HEADER = "KOBEAM01"

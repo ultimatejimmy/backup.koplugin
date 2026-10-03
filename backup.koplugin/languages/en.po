@@ -11,6 +11,18 @@ msgstr "\n\nSanitized %d hardware keys for device compatibility."
 msgid "%d backups found in this folder"
 msgstr "%d backups found in this folder"
 
+msgid "%s Account"
+msgstr "%s Account"
+
+msgid "%s authentication error: %s"
+msgstr "%s authentication error: %s"
+
+msgid "%s authorization failed: %s"
+msgstr "%s authorization failed: %s"
+
+msgid "%s authorization was denied."
+msgstr "%s authorization was denied."
+
 msgid "%s is not configured."
 msgstr "%s is not configured."
 
@@ -26,11 +38,17 @@ msgstr ".. (Parent Folder)"
 msgid "And enter this code:"
 msgstr "And enter this code:"
 
+msgid "Applying changes..."
+msgstr "Applying changes..."
+
+msgid "Applying settings and components..."
+msgstr "Applying settings and components..."
+
 msgid "Archive: %s"
 msgstr "Archive: %s"
 
-msgid "Archiving (%d/%d - %s):\n%s"
-msgstr "Archiving (%d/%d - %s):\n%s"
+msgid "Archiving (%d/%d - %s)"
+msgstr "Archiving (%d/%d - %s)"
 
 msgid "Are you sure you want to restore this backup?\n\nAn automatic safety rollback snapshot will be created before any files are updated."
 msgstr "Are you sure you want to restore this backup?\n\nAn automatic safety rollback snapshot will be created before any files are updated."
@@ -83,8 +101,14 @@ msgstr "Beam code must be exactly %d digits."
 msgid "Beam code ready!"
 msgstr "Beam code ready!"
 
+msgid "Beam download canceled."
+msgstr "Beam download canceled."
+
 msgid "Beam reception failed:\n%s"
 msgstr "Beam reception failed:\n%s"
+
+msgid "Beam send canceled."
+msgstr "Beam send canceled."
 
 msgid "Beam to Device"
 msgstr "Beam to Device"
@@ -104,8 +128,17 @@ msgstr "Browse Folder"
 msgid "Cancel"
 msgstr "Cancel"
 
+msgid "Canceling operation..."
+msgstr "Canceling operation..."
+
+msgid "Canceling..."
+msgstr "Canceling..."
+
 msgid "Clean Slate (Remove unlisted plugins)"
 msgstr "Clean Slate (Remove unlisted plugins)"
+
+msgid "Cleaning up temporary files..."
+msgstr "Cleaning up temporary files..."
 
 msgid "Clear All"
 msgstr "Clear All"
@@ -122,6 +155,12 @@ msgstr "Cloud Backups (%s) ▸"
 msgid "Cloud Storage: %s"
 msgstr "Cloud Storage: %s"
 
+msgid "Cloud download canceled."
+msgstr "Cloud download canceled."
+
+msgid "Cloud upload canceled."
+msgstr "Cloud upload canceled."
+
 msgid "Cloud upload failed:\n%s"
 msgstr "Cloud upload failed:\n%s"
 
@@ -137,11 +176,17 @@ msgstr "Components: %s ▸"
 msgid "Configure %s"
 msgstr "Configure %s"
 
-msgid "Connect Google Drive"
-msgstr "Connect Google Drive"
+msgid "Connect %s"
+msgstr "Connect %s"
+
+msgid "Connected to %s successfully!"
+msgstr "Connected to %s successfully!"
 
 msgid "Connected to Google Drive successfully!"
 msgstr "Connected to Google Drive successfully!"
+
+msgid "Connected to Microsoft OneDrive successfully!"
+msgstr "Connected to Microsoft OneDrive successfully!"
 
 msgid "Connected to server, but could not create folder: %s"
 msgstr "Connected to server, but could not create folder: %s"
@@ -164,8 +209,8 @@ msgstr "Connection successful!"
 msgid "Connection timed out"
 msgstr "Connection timed out"
 
-msgid "Contacting Google Drive..."
-msgstr "Contacting Google Drive..."
+msgid "Contacting %s..."
+msgstr "Contacting %s..."
 
 msgid "Corrupted filename in Beam payload."
 msgstr "Corrupted filename in Beam payload."
@@ -181,6 +226,9 @@ msgstr "Could not connect to WebDAV server (HTTP %s)."
 
 msgid "Could not create Google Drive folder '%s' (HTTP %s): %s"
 msgstr "Could not create Google Drive folder '%s' (HTTP %s): %s"
+
+msgid "Could not create OneDrive folder '%s' (HTTP %s): %s"
+msgstr "Could not create OneDrive folder '%s' (HTTP %s): %s"
 
 msgid "Could not read file: %s"
 msgstr "Could not read file: %s"
@@ -206,11 +254,11 @@ msgstr "Created '%s'"
 msgid "Creating Backup Archive"
 msgstr "Creating Backup Archive"
 
-msgid "Creating backup archive...\nPlease wait."
-msgstr "Creating backup archive...\nPlease wait."
+msgid "Creating safety rollback snapshot..."
+msgstr "Creating safety rollback snapshot..."
 
-msgid "Decrypting backup archive..."
-msgstr "Decrypting backup archive..."
+msgid "Decrypting files..."
+msgstr "Decrypting files..."
 
 msgid "Delete"
 msgstr "Delete"
@@ -239,8 +287,8 @@ msgstr "Dictionaries & OCR Data"
 msgid "Disconnect / Log Out"
 msgstr "Disconnect / Log Out"
 
-msgid "Disconnected from Google Drive."
-msgstr "Disconnected from Google Drive."
+msgid "Disconnected from %s."
+msgstr "Disconnected from %s."
 
 msgid "Disk full or write error writing header: %s"
 msgstr "Disk full or write error writing header: %s"
@@ -284,12 +332,6 @@ msgstr "Downloading backup archive (%s)..."
 msgid "Downloading backup archive..."
 msgstr "Downloading backup archive..."
 
-msgid "Downloading backup from cloud..."
-msgstr "Downloading backup from cloud..."
-
-msgid "Downloading backup..."
-msgstr "Downloading backup..."
-
 msgid "Downloading: %s / %s (%d%%)"
 msgstr "Downloading: %s / %s (%d%%)"
 
@@ -310,6 +352,9 @@ msgstr "Enter custom filename (without extension):"
 
 msgid "Enter the 6-digit Beam code from the sending device:"
 msgstr "Enter the 6-digit Beam code from the sending device:"
+
+msgid "Extracting backup files to staging..."
+msgstr "Extracting backup files to staging..."
 
 msgid "Extraction failed: %s"
 msgstr "Extraction failed: %s"
@@ -356,14 +401,17 @@ msgstr "Failed to prepare encrypted stream"
 msgid "Failed to refresh authorization: %s. Please reconnect in Settings."
 msgstr "Failed to refresh authorization: %s. Please reconnect in Settings."
 
-msgid "Failed to start Google Drive authorization:\n%s"
-msgstr "Failed to start Google Drive authorization:\n%s"
+msgid "Failed to start %s authorization:\n%s"
+msgstr "Failed to start %s authorization:\n%s"
 
 msgid "Fetching backups from %s..."
 msgstr "Fetching backups from %s..."
 
 msgid "Finalizing upload..."
 msgstr "Finalizing upload..."
+
+msgid "Finalizing..."
+msgstr "Finalizing..."
 
 msgid "Folder"
 msgstr "Folder"
@@ -376,18 +424,6 @@ msgstr "Format: .%s"
 
 msgid "Google Drive"
 msgstr "Google Drive"
-
-msgid "Google Drive Account"
-msgstr "Google Drive Account"
-
-msgid "Google Drive authentication error: %s"
-msgstr "Google Drive authentication error: %s"
-
-msgid "Google Drive authorization failed: %s"
-msgstr "Google Drive authorization failed: %s"
-
-msgid "Google Drive authorization was denied."
-msgstr "Google Drive authorization was denied."
 
 msgid "Google Drive download failed (HTTP %s)"
 msgstr "Google Drive download failed (HTTP %s)"
@@ -412,6 +448,9 @@ msgstr "Host (e.g. sftp.example.com)"
 
 msgid "Icons"
 msgstr "Icons"
+
+msgid "Inspecting backup archive..."
+msgstr "Inspecting backup archive..."
 
 msgid "Invalid Beam archive format."
 msgstr "Invalid Beam archive format."
@@ -488,6 +527,21 @@ msgstr "On the receiving device, open\n'Receive via Beam Code' and enter:"
 msgid "On your phone or computer, open:"
 msgstr "On your phone or computer, open:"
 
+msgid "OneDrive chunk upload failed at %d-%d (HTTP %s): %s"
+msgstr "OneDrive chunk upload failed at %d-%d (HTTP %s): %s"
+
+msgid "OneDrive download failed (HTTP %s)"
+msgstr "OneDrive download failed (HTTP %s)"
+
+msgid "OneDrive listing failed (HTTP %s)"
+msgstr "OneDrive listing failed (HTTP %s)"
+
+msgid "OneDrive upload session creation failed (HTTP %s): %s"
+msgstr "OneDrive upload session creation failed (HTTP %s): %s"
+
+msgid "Operation in Progress"
+msgstr "Operation in Progress"
+
 msgid "Page %d of %d"
 msgstr "Page %d of %d"
 
@@ -506,6 +560,9 @@ msgstr "Patches"
 msgid "Please enter a 6-digit Beam code."
 msgstr "Please enter a 6-digit Beam code."
 
+msgid "Please wait..."
+msgstr "Please wait..."
+
 msgid "Port (default 21)"
 msgstr "Port (default 21)"
 
@@ -517,6 +574,9 @@ msgstr "Pre-flight check failed: %s"
 
 msgid "Preparing backup payload..."
 msgstr "Preparing backup payload..."
+
+msgid "Preparing restore..."
+msgstr "Preparing restore..."
 
 msgid "Preparing upload..."
 msgstr "Preparing upload..."
@@ -560,14 +620,17 @@ msgstr "Restart KOReader now to apply all changes?"
 msgid "Restore Backup"
 msgstr "Restore Backup"
 
+msgid "Restore canceled. No system files were modified."
+msgstr "Restore canceled. No system files were modified."
+
 msgid "Restore completed."
 msgstr "Restore completed."
 
 msgid "Restore failed: %s"
 msgstr "Restore failed: %s"
 
-msgid "Restoring backup...\nPlease wait."
-msgstr "Restoring backup...\nPlease wait."
+msgid "Restoring Backup"
+msgstr "Restoring Backup"
 
 msgid "Retention Limit"
 msgstr "Retention Limit"
@@ -671,11 +734,11 @@ msgstr "Test Cloud Connection"
 msgid "Test Connection"
 msgstr "Test Connection"
 
+msgid "Testing %s connection..."
+msgstr "Testing %s connection..."
+
 msgid "Testing FTP connection..."
 msgstr "Testing FTP connection..."
-
-msgid "Testing Google Drive connection..."
-msgstr "Testing Google Drive connection..."
 
 msgid "Testing SFTP connection..."
 msgstr "Testing SFTP connection..."
@@ -716,9 +779,6 @@ msgstr "Upload to Cloud"
 msgid "Uploading backup archive..."
 msgstr "Uploading backup archive..."
 
-msgid "Uploading backup to cloud..."
-msgstr "Uploading backup to cloud..."
-
 msgid "Uploading: %s / %s (%d%%)"
 msgstr "Uploading: %s / %s (%d%%)"
 
@@ -730,6 +790,9 @@ msgstr "Username"
 
 msgid "Username (or 'anonymous')"
 msgstr "Username (or 'anonymous')"
+
+msgid "Verifying integrity..."
+msgstr "Verifying integrity..."
 
 msgid "Waiting for authorization..."
 msgstr "Waiting for authorization..."

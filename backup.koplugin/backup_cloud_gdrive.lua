@@ -28,11 +28,14 @@ local DRIVE_API_BASE = "https://www.googleapis.com/drive/v3"
 local DRIVE_UPLOAD_BASE = "https://www.googleapis.com/upload/drive/v3"
 
 --- Creates a chunked LTN12 source from an open file handle that reports progress.
-local function makeFileProgressSource(file_handle, total_expected, on_progress)
+local function makeFileProgressSource(file_handle, total_expected, on_progress, is_canceled)
     local sent = 0
     local finalized = false
     local chunk_size = 65536
     return function()
+        if is_canceled and is_canceled() then
+            return nil, "canceled"
+        end
         if sent >= total_expected then
             if on_progress and not finalized then
                 finalized = true
@@ -52,18 +55,27 @@ local function makeFileProgressSource(file_handle, total_expected, on_progress)
         if on_progress then
             on_progress(math.min(sent, total_expected), total_expected, "uploading")
         end
+        if is_canceled and is_canceled() then
+            return nil, "canceled"
+        end
         return chunk
     end
 end
 
 --- Creates a progress-tracking sink for file downloads.
-local function makeFileProgressSink(target_sink, on_progress, total_expected)
+local function makeFileProgressSink(target_sink, on_progress, total_expected, is_canceled)
     local received = 0
     return function(chunk, err)
+        if is_canceled and is_canceled() then
+            return nil, "canceled"
+        end
         if chunk then
             received = received + #chunk
             if on_progress then
                 on_progress(received, total_expected)
+            end
+            if is_canceled and is_canceled() then
+                return nil, "canceled"
             end
         end
         return target_sink(chunk, err)
@@ -94,8 +106,8 @@ local function doDriveRequest(req)
     end
 
     local sink = base_sink
-    if req.on_download_progress then
-        sink = makeFileProgressSink(base_sink, req.on_download_progress, req.total_expected)
+    if req.on_download_progress or req.is_canceled then
+        sink = makeFileProgressSink(base_sink, req.on_download_progress, req.total_expected, req.is_canceled)
     end
 
     local source = req.source
@@ -112,8 +124,8 @@ local function doDriveRequest(req)
             local total_bytes = req.total_bytes or (file_handle:seek("end") or 0)
             file_handle:seek("set", 0)
             headers["Content-Length"] = tostring(total_bytes)
-            if req.on_upload_progress then
-                source = makeFileProgressSource(file_handle, total_bytes, req.on_upload_progress)
+            if req.on_upload_progress or req.is_canceled then
+                source = makeFileProgressSource(file_handle, total_bytes, req.on_upload_progress, req.is_canceled)
             else
                 source = ltn12.source.file(file_handle)
             end
@@ -339,7 +351,13 @@ function GDrive.upload(local_path, opts, callback)
                 file_path = local_path,
                 total_bytes = file_size,
                 on_upload_progress = opts.on_progress,
+                is_canceled = opts.is_canceled,
             }
+
+            if (opts.is_canceled and opts.is_canceled()) or tostring(code_u):find("canceled") then
+                if callback then callback(false, "canceled") end
+                return
+            end
 
             if code_u == 200 or code_u == 201 then
                 local data = nil
@@ -394,7 +412,14 @@ function GDrive.download(file_id, local_path, opts, callback)
             sink_file_path = local_path,
             total_expected = total_size,
             on_download_progress = opts.on_progress,
+            is_canceled = opts.is_canceled,
         }
+
+        if (opts.is_canceled and opts.is_canceled()) or tostring(code_d):find("canceled") then
+            pcall(os.remove, local_path)
+            if callback then callback(false, "canceled") end
+            return
+        end
 
         if code_d == 200 then
             if callback then callback(true, local_path) end

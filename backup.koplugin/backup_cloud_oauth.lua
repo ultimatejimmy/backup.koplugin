@@ -129,9 +129,20 @@ OAuth.PROVIDERS = {
         client_secret = Constants.OAUTH_GDRIVE_CLIENT_SECRET,
         relay_url = Constants.OAUTH_DEFAULT_RELAY_URL,
     },
-    -- Extensible for Phase 2:
-    -- [Constants.CLOUD_PROVIDERS.ONEDRIVE] = { ... },
-    -- [Constants.CLOUD_PROVIDERS.DROPBOX] = { ... },
+    [Constants.CLOUD_PROVIDERS.ONEDRIVE] = {
+        name = "Microsoft OneDrive",
+        device_code_url = "https://login.microsoftonline.com/consumers/oauth2/v2.0/devicecode",
+        token_url = "https://login.microsoftonline.com/consumers/oauth2/v2.0/token",
+        default_scope = "Files.ReadWrite offline_access",
+        client_id = Constants.OAUTH_ONEDRIVE_CLIENT_ID,
+    },
+    [Constants.CLOUD_PROVIDERS.DROPBOX] = {
+        name = "Dropbox",
+        device_code_url = (Constants.OAUTH_DEFAULT_RELAY_URL or "https://backup.ultimatejimmy.workers.dev") .. "/api/oauth/dropbox/init",
+        token_url = "https://api.dropboxapi.com/oauth2/token",
+        client_id = Constants.OAUTH_DROPBOX_CLIENT_ID or "khboin1ohr74q7y",
+        relay_url = Constants.OAUTH_DEFAULT_RELAY_URL,
+    },
 }
 
 --- Requests a device code and verification URL from the OAuth2 provider.
@@ -177,6 +188,7 @@ function OAuth.requestDeviceCode(provider, opts, callback)
                 device_code = data.device_code,
                 user_code = data.user_code,
                 verification_url = data.verification_url or data.verification_uri or "https://www.google.com/device",
+                verification_uri_complete = data.verification_uri_complete or data.verification_url_complete,
                 expires_in = tonumber(data.expires_in) or 1800,
                 interval = tonumber(data.interval) or 5,
             }
@@ -209,7 +221,7 @@ function OAuth.pollToken(provider, device_code, opts, callback)
 
     -- If a relay worker URL is configured and we don't have a direct client_secret, proxy through the worker
     if relay_url and relay_url ~= "" and not client_secret and not opts.direct_google then
-        local poll_url = relay_url:gsub("/+$", "") .. "/api/oauth/gdrive/poll"
+        local poll_url = relay_url:gsub("/+$", "") .. "/api/oauth/" .. provider .. "/poll"
         local req_payload = (json and json.encode and json.encode({ device_code = device_code }))
             or string.format('{"device_code":%q}', device_code)
 
@@ -321,7 +333,7 @@ function OAuth.refreshToken(provider, refresh_token, opts, callback)
 
     -- If a relay worker URL is configured and we don't have a direct client_secret, proxy through the worker
     if relay_url and relay_url ~= "" and not client_secret and not opts.direct_google then
-        local refresh_url = relay_url:gsub("/+$", "") .. "/api/oauth/gdrive/refresh"
+        local refresh_url = relay_url:gsub("/+$", "") .. "/api/oauth/" .. provider .. "/refresh"
         local req_payload = (json and json.encode and json.encode({ refresh_token = refresh_token }))
             or string.format('{"refresh_token":%q}', refresh_token)
 
@@ -384,7 +396,8 @@ function OAuth.refreshToken(provider, refresh_token, opts, callback)
         pcall(function() data = json.decode(resp_body) end)
     end
 
-    if (code == 200 or code == 201) and data and data.access_token then
+    local num_code = tonumber(code) or code
+    if (num_code == 200 or num_code == 201) and data and data.access_token then
         local token_info = {
             access_token = data.access_token,
             refresh_token = data.refresh_token or refresh_token, -- keep old refresh token if new one not sent
@@ -395,6 +408,7 @@ function OAuth.refreshToken(provider, refresh_token, opts, callback)
             expires_at = os.time() + (tonumber(data.expires_in) or 3600),
         }
         if callback then callback(true, token_info) end
+        return
     end
 
     local err_msg = "Token refresh failed (HTTP " .. tostring(code) .. "): " .. tostring(resp_body)

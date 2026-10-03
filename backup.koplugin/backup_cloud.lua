@@ -21,6 +21,8 @@ local WebDAV = require("backup_cloud_webdav")
 local FTP = require("backup_cloud_ftp")
 local SFTP = require("backup_cloud_sftp")
 local GDrive = require("backup_cloud_gdrive")
+local OneDrive = require("backup_cloud_onedrive")
+local Dropbox = require("backup_cloud_dropbox")
 
 local Cloud = {}
 
@@ -110,6 +112,10 @@ end
 function Cloud.getDriver(provider)
     if provider == Constants.CLOUD_PROVIDERS.GDRIVE then
         return GDrive
+    elseif provider == Constants.CLOUD_PROVIDERS.ONEDRIVE then
+        return OneDrive
+    elseif provider == Constants.CLOUD_PROVIDERS.DROPBOX then
+        return Dropbox
     elseif provider == Constants.CLOUD_PROVIDERS.WEBDAV then
         return WebDAV
     elseif provider == Constants.CLOUD_PROVIDERS.FTP then
@@ -125,7 +131,7 @@ function Cloud.isConfigured(provider)
     if not provider or provider == Constants.CLOUD_PROVIDERS.NONE or provider == "none" then
         return false
     end
-    if provider == Constants.CLOUD_PROVIDERS.GDRIVE then
+    if provider == Constants.CLOUD_PROVIDERS.GDRIVE or provider == Constants.CLOUD_PROVIDERS.ONEDRIVE or provider == Constants.CLOUD_PROVIDERS.DROPBOX then
         local tok = OAuth.loadTokens(provider)
         return (tok and tok.access_token ~= nil and tok.access_token ~= "")
     elseif provider == Constants.CLOUD_PROVIDERS.WEBDAV then

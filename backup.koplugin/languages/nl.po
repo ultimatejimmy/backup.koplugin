@@ -13,6 +13,22 @@ msgstr "\n\n%d hardwaresleutels geschoond voor apparaatcompatibiliteit."
 msgid "%d backups found in this folder"
 msgstr "%d reservekopieën gevonden in deze map"
 
+# en-hash: eb15c8258912980aa6eebaf6c597a474
+msgid "%s Account"
+msgstr "%s-account"
+
+# en-hash: 7b38b9877bc86f04028c230ce2efd977
+msgid "%s authentication error: %s"
+msgstr "%s-authenticatiefout: %s"
+
+# en-hash: 9e3ae2e0c077bd9bf189846af064e5f7
+msgid "%s authorization failed: %s"
+msgstr "%s-autorisatie mislukt: %s"
+
+# en-hash: 603e471a4bbdaded67979a93938907f9
+msgid "%s authorization was denied."
+msgstr "%s-autorisatie is geweigerd."
+
 # en-hash: 9e8d0752d74b8980a095ecc6686a139a
 msgid "%s is not configured."
 msgstr "%s is niet geconfigureerd."
@@ -33,13 +49,21 @@ msgstr ".. (Bovenliggende map)"
 msgid "And enter this code:"
 msgstr "En voer deze code in:"
 
+# en-hash: 7dfc389b87be8aeefe153ee0073ae7e3
+msgid "Applying changes..."
+msgstr "Wijzigingen doorvoeren..."
+
+# en-hash: 278867324eb81091bad23a312322cee1
+msgid "Applying settings and components..."
+msgstr "Instellingen en componenten toepassen..."
+
 # en-hash: fcbaff9ec755238920363a1fff9402a5
 msgid "Archive: %s"
 msgstr "Archief: %s"
 
-# en-hash: f4f8e689039140fb860c618a6eacb8ee
-msgid "Archiving (%d/%d - %s):\n%s"
-msgstr "Archiveren (%d/%d - %s):\n%s"
+# en-hash: 88947145bdae3cf923f57d7411a798e9
+msgid "Archiving (%d/%d - %s)"
+msgstr "Archiveren (%d/%d - %s)"
 
 # en-hash: 6eee210465fd5fe3081cbdc035faf4ea
 msgid "Are you sure you want to restore this backup?\n\nAn automatic safety rollback snapshot will be created before any files are updated."
@@ -109,9 +133,17 @@ msgstr "Beam-code moet precies %d cijfers bevatten."
 msgid "Beam code ready!"
 msgstr "Beam-code gereed!"
 
+# en-hash: 56be1acb3453ac897010a3aff4eeffb3
+msgid "Beam download canceled."
+msgstr "Beam-download geannuleerd."
+
 # en-hash: d4f694ffc4d55b9a34dafcb0414eaccc
 msgid "Beam reception failed:\n%s"
 msgstr "Beam-ontvangst mislukt:\n%s"
+
+# en-hash: d255053e16dcc2a930e61c3193ae8004
+msgid "Beam send canceled."
+msgstr "Beam-verzending geannuleerd."
 
 # en-hash: a2dfd5b2b712024422f80f476f46e4fc
 msgid "Beam to Device"
@@ -137,9 +169,21 @@ msgstr "Map bladeren"
 msgid "Cancel"
 msgstr "Annuleren"
 
+# en-hash: a3a3b59ffa5b8e146a78268eb4a23427
+msgid "Canceling operation..."
+msgstr "Bewerking annuleren..."
+
+# en-hash: ba9adecf9a948664724f010fe9ffd733
+msgid "Canceling..."
+msgstr "Annuleren..."
+
 # en-hash: 34df780f0cf9e2d543d9fe64fbfdeee4
 msgid "Clean Slate (Remove unlisted plugins)"
 msgstr "Schone installatie (niet-vermelde plug-ins verwijderen)"
+
+# en-hash: f27f9b10f84ccf1a56c1530d2db1a410
+msgid "Cleaning up temporary files..."
+msgstr "Tijdelijke bestanden opruimen..."
 
 # en-hash: e77fef0167598bb39846637ac3915f4e
 msgid "Clear All"
@@ -161,6 +205,14 @@ msgstr "Cloud Back-ups (%s) ▸"
 msgid "Cloud Storage: %s"
 msgstr "Cloudopslag: %s"
 
+# en-hash: 4f1021ed4c7eca368a875ad306441315
+msgid "Cloud download canceled."
+msgstr "Cloud-download geannuleerd."
+
+# en-hash: 340178bde18e06cde46fbf21d6796158
+msgid "Cloud upload canceled."
+msgstr "Cloud-upload geannuleerd."
+
 # en-hash: db7384445b95e43849b498648d94cd9d
 msgid "Cloud upload failed:\n%s"
 msgstr "Cloud-upload mislukt:\n%s"
@@ -181,13 +233,21 @@ msgstr "Onderdelen: %s ▸"
 msgid "Configure %s"
 msgstr "Configureer %s"
 
-# en-hash: cf5b62c18873c73c95c10a30c8881775
-msgid "Connect Google Drive"
-msgstr "Verbind Google Drive"
+# en-hash: 211bafda79e78cb41c9603b58bef5a55
+msgid "Connect %s"
+msgstr "Verbind %s"
+
+# en-hash: a0d751dcebdc3dfa81b875be960fb184
+msgid "Connected to %s successfully!"
+msgstr "Succesvol verbonden met %s!"
 
 # en-hash: 664792348a8cab8a8d9c9f4177e7faea
 msgid "Connected to Google Drive successfully!"
 msgstr "Succesvol verbonden met Google Drive!"
+
+# en-hash: 48f970cc4a238e5460dd9ff4e38f410b
+msgid "Connected to Microsoft OneDrive successfully!"
+msgstr "Succesvol verbonden met Microsoft OneDrive!"
 
 # en-hash: d504259ae483f0155508e59a58e0c16c
 msgid "Connected to server, but could not create folder: %s"
@@ -217,9 +277,9 @@ msgstr "Verbinding succesvol!"
 msgid "Connection timed out"
 msgstr "Verbinding time-out"
 
-# en-hash: a4a34e8a8c72855afbba9574a9385a2b
-msgid "Contacting Google Drive..."
-msgstr "Google Drive contacteren..."
+# en-hash: d85dc02bbb8edecb01965d7dae37da15
+msgid "Contacting %s..."
+msgstr "Contact maken met %s..."
 
 # en-hash: 4046ca4eac71fd660ff5daa4372066e7
 msgid "Corrupted filename in Beam payload."
@@ -240,6 +300,10 @@ msgstr "Kon geen verbinding maken met WebDAV-server (HTTP %s)."
 # en-hash: ca1d08b2cacead2c94c25bc389f8f936
 msgid "Could not create Google Drive folder '%s' (HTTP %s): %s"
 msgstr "Kon Google Drive-map '%s' niet maken (HTTP %s): %s"
+
+# en-hash: a876db050884bcd574a8862d0845eff0
+msgid "Could not create OneDrive folder '%s' (HTTP %s): %s"
+msgstr "Kon OneDrive-map '%s' niet aanmaken (HTTP %s): %s"
 
 # en-hash: c17e50618f4af14444fec4b88f4df96d
 msgid "Could not read file: %s"
@@ -273,13 +337,13 @@ msgstr "'%s' aangemaakt"
 msgid "Creating Backup Archive"
 msgstr "Back-up archief maken"
 
-# en-hash: 0d325b507ae70a0aa07aa62c9415cdd4
-msgid "Creating backup archive...\nPlease wait."
-msgstr "Back-uparchief aanmaken...\nEven geduld a.u.b."
+# en-hash: 744989ee31aa7ce02b0a1dbbcad2a3c1
+msgid "Creating safety rollback snapshot..."
+msgstr "Veiligheids-rollback-snapshot maken..."
 
-# en-hash: bada9b5bd8a972e0a071fae33ad10d78
-msgid "Decrypting backup archive..."
-msgstr "Back-uparchief ontcijferen..."
+# en-hash: b9c28cd73fa0dd157c2e86a6af29d463
+msgid "Decrypting files..."
+msgstr "Bestanden ontsleutelen..."
 
 # en-hash: f2a6c498fb90ee345d997f888fce3b18
 msgid "Delete"
@@ -317,9 +381,9 @@ msgstr "Woordenboeken & OCR-gegevens"
 msgid "Disconnect / Log Out"
 msgstr "Verbinding verbreken / Uitloggen"
 
-# en-hash: 448d353fa19629918ce0a62f5a0a7d3f
-msgid "Disconnected from Google Drive."
-msgstr "Verbinding met Google Drive verbroken."
+# en-hash: b29490bf0f9a9dd9f84439ee1b9e5c74
+msgid "Disconnected from %s."
+msgstr "Verbinding met %s verbroken."
 
 # en-hash: f24351e020bd2306cdc4fc7dc6ad2bd2
 msgid "Disk full or write error writing header: %s"
@@ -377,14 +441,6 @@ msgstr "Back-uparchief downloaden (%s)..."
 msgid "Downloading backup archive..."
 msgstr "Backup-archief downloaden..."
 
-# en-hash: 315c0455b434a7612f52013fbb432f46
-msgid "Downloading backup from cloud..."
-msgstr "Backup downloaden vanaf cloud..."
-
-# en-hash: ad71758b5cb347965a2834182508e592
-msgid "Downloading backup..."
-msgstr "Backup downloaden..."
-
 # en-hash: 2648f64cd622baf1e8533966877521b7
 msgid "Downloading: %s / %s (%d%%)"
 msgstr "Downloaden: %s / %s (%d%%)"
@@ -412,6 +468,10 @@ msgstr "Voer bestandsnaam in (zonder extensie):"
 # en-hash: 54e8a9f101fc87da7d8cd250dadae2ef
 msgid "Enter the 6-digit Beam code from the sending device:"
 msgstr "Voer de 6-cijferige Beam-code van het verzendende apparaat in:"
+
+# en-hash: 12dc9c172dcbbddbdd606695f1cbd15f
+msgid "Extracting backup files to staging..."
+msgstr "Backupbestanden uitpakken naar staging..."
 
 # en-hash: c634f151487ff6ed8f7f69f634b5e455
 msgid "Extraction failed: %s"
@@ -473,9 +533,9 @@ msgstr "Fout bij het voorbereiden van de versleutelde stream"
 msgid "Failed to refresh authorization: %s. Please reconnect in Settings."
 msgstr "Fout bij vernieuwen autorisatie: %s. Maak opnieuw verbinding in Instellingen."
 
-# en-hash: 2fed14024e72136188bdb3bdc61680fe
-msgid "Failed to start Google Drive authorization:\n%s"
-msgstr "Fout bij starten Google Drive autorisatie:\n%s"
+# en-hash: ad8802154faed7004677d5b3e630cbef
+msgid "Failed to start %s authorization:\n%s"
+msgstr "Starten van %s-autorisatie mislukt:\n%s"
 
 # en-hash: 57941c50ba09c716619c005463b2b2c4
 msgid "Fetching backups from %s..."
@@ -484,6 +544,10 @@ msgstr "Back-ups ophalen van %s..."
 # en-hash: 332d057c38d882caaa299cbe6667aaed
 msgid "Finalizing upload..."
 msgstr "Upload afronden..."
+
+# en-hash: 0584ed873640c0651328df1c078a96ed
+msgid "Finalizing..."
+msgstr "Afronden..."
 
 # en-hash: b0f2b97dc5d2b76b26e040408bb1d8af
 msgid "Folder"
@@ -500,22 +564,6 @@ msgstr "Formaat: .%s"
 # en-hash: e0daf39823ec1a1a7878c9718f063d5f
 msgid "Google Drive"
 msgstr "Google Drive"
-
-# en-hash: ec8ef49010075664d482096b7d3c400b
-msgid "Google Drive Account"
-msgstr "Google Drive-account"
-
-# en-hash: 82fb77dd3982da6e93421de0721621b6
-msgid "Google Drive authentication error: %s"
-msgstr "Google Drive-authenticatiefout: %s"
-
-# en-hash: 0a70c365a3fd9db5f29d1e7e4910d8a7
-msgid "Google Drive authorization failed: %s"
-msgstr "Google Drive-autorisatie mislukt: %s"
-
-# en-hash: b65c7a6c10e78958a2c8516071ca16d4
-msgid "Google Drive authorization was denied."
-msgstr "Google Drive autorisatie werd geweigerd."
 
 # en-hash: 35c0e105a88d9b3a41c08e628830c494
 msgid "Google Drive download failed (HTTP %s)"
@@ -548,6 +596,10 @@ msgstr "Host (bv. sftp.example.com)"
 # en-hash: 8f67973007158337346584551b093be8
 msgid "Icons"
 msgstr "Pictogrammen"
+
+# en-hash: 0cd1788cf64d9b3ebe2abe1fd374da22
+msgid "Inspecting backup archive..."
+msgstr "Backuparchief inspecteren..."
 
 # en-hash: 185fdf3f043056d88a297a1a45e410f1
 msgid "Invalid Beam archive format."
@@ -649,6 +701,26 @@ msgstr "Open op het ontvangende apparaat\n'Ontvangen via Beam-code' en voer in:"
 msgid "On your phone or computer, open:"
 msgstr "Open op uw telefoon of computer:"
 
+# en-hash: e74e5184d08761e9f4b2f2cb1ae51168
+msgid "OneDrive chunk upload failed at %d-%d (HTTP %s): %s"
+msgstr "OneDrive-chunk-upload mislukt bij %d-%d (HTTP %s): %s"
+
+# en-hash: 6fe7581341c13e04cfffe7c7f809fa4f
+msgid "OneDrive download failed (HTTP %s)"
+msgstr "OneDrive-download mislukt (HTTP %s)"
+
+# en-hash: 63d849bde548506aa5eeca8cfd20ee92
+msgid "OneDrive listing failed (HTTP %s)"
+msgstr "OneDrive-weergave mislukt (HTTP %s)"
+
+# en-hash: 21c4522959a8dbc45e1eecb12893bb80
+msgid "OneDrive upload session creation failed (HTTP %s): %s"
+msgstr "Aanmaken van OneDrive-uploadsessie mislukt (HTTP %s): %s"
+
+# en-hash: d11334638cf7c636a72da22cae9d6373
+msgid "Operation in Progress"
+msgstr "Bewerking in uitvoering"
+
 # en-hash: b8065ad2628f1f82f3167af0947b3e43
 msgid "Page %d of %d"
 msgstr "Pagina %d van %d"
@@ -673,6 +745,10 @@ msgstr "Patches"
 msgid "Please enter a 6-digit Beam code."
 msgstr "Voer een 6-cijferige Beam-code in."
 
+# en-hash: 25e8f2fd2871c8423bbe4e254066cd98
+msgid "Please wait..."
+msgstr "Even geduld..."
+
 # en-hash: ca2313d2b27cec32ef66a1f7cfea3a5b
 msgid "Port (default 21)"
 msgstr "Poort (standaard 21)"
@@ -688,6 +764,10 @@ msgstr "Voorafgaande controle mislukt: %s"
 # en-hash: 3491fb9f8ed4c3dc8ce721c205bc428c
 msgid "Preparing backup payload..."
 msgstr "Back-up payload voorbereiden..."
+
+# en-hash: cfb13f78d52700e6873ec2adadb1ebae
+msgid "Preparing restore..."
+msgstr "Herstel voorbereiden..."
 
 # en-hash: bfed40473d5d0d7334fd0a5394e82b52
 msgid "Preparing upload..."
@@ -745,6 +825,10 @@ msgstr "KOReader nu herstarten om wijzigingen toe te passen?"
 msgid "Restore Backup"
 msgstr "Back-up herstellen"
 
+# en-hash: 32d36cb5f2bf223db676df1719e6128a
+msgid "Restore canceled. No system files were modified."
+msgstr "Herstel geannuleerd. Er zijn geen systeembestanden gewijzigd."
+
 # en-hash: c9f2b9e4673b26c89d8bf11abf2248ae
 msgid "Restore completed."
 msgstr "Herstel voltooid."
@@ -753,9 +837,9 @@ msgstr "Herstel voltooid."
 msgid "Restore failed: %s"
 msgstr "Herstellen mislukt: %s"
 
-# en-hash: 94ab523be5c63c972b0b889df91f061c
-msgid "Restoring backup...\nPlease wait."
-msgstr "Back-up herstellen...\nEven geduld a.u.b."
+# en-hash: 79f372a326d4dfebdc37877103a191cb
+msgid "Restoring Backup"
+msgstr "Backup herstellen"
 
 # en-hash: 0c3b566bc621cb23ac19bc5a8309064c
 msgid "Retention Limit"
@@ -893,13 +977,13 @@ msgstr "Test Cloud Verbinding"
 msgid "Test Connection"
 msgstr "Test Verbinding"
 
+# en-hash: 1657047945cd79b1052a6d3a761e1347
+msgid "Testing %s connection..."
+msgstr "Verbinding met %s testen..."
+
 # en-hash: 1fcfa381840b7f72dc35b91b84578009
 msgid "Testing FTP connection..."
 msgstr "Testen FTP-verbinding..."
-
-# en-hash: 597842216fe3224f9d6590c756d3eb3f
-msgid "Testing Google Drive connection..."
-msgstr "Testen Google Drive-verbinding..."
 
 # en-hash: 118431876fb3d109db7ab2f2e72db7cf
 msgid "Testing SFTP connection..."
@@ -953,10 +1037,6 @@ msgstr "Uploaden naar Cloud"
 msgid "Uploading backup archive..."
 msgstr "Back-uparchief uploaden..."
 
-# en-hash: ee15f5f203da0f048cb0222c62b08cfc
-msgid "Uploading backup to cloud..."
-msgstr "Back-up uploaden naar cloud..."
-
 # en-hash: ea6476a63b0c316c17f39f6ff17267c8
 msgid "Uploading: %s / %s (%d%%)"
 msgstr "Uploaden: %s / %s (%d%%)"
@@ -972,6 +1052,10 @@ msgstr "Gebruikersnaam"
 # en-hash: bb95a9ec0ed61e525a82023357a24e7e
 msgid "Username (or 'anonymous')"
 msgstr "Gebruikersnaam (of 'anoniem')"
+
+# en-hash: 7b12c6225bde4c87c5300306965c3f0b
+msgid "Verifying integrity..."
+msgstr "Integriteit verifiëren..."
 
 # en-hash: 4d65b3bed183b9aa051f4042e1036206
 msgid "Waiting for authorization..."

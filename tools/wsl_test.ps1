@@ -19,31 +19,21 @@ foreach ($item in $EnvList) {
     }
 }
 
-# Determine plugin directory (whether run from repo root or tools/)
-if (Test-Path "backup.koplugin/_meta.lua") {
-    $PluginDir = "backup.koplugin"
-} elseif (Test-Path "../backup.koplugin/_meta.lua") {
-    $PluginDir = "../backup.koplugin"
-} elseif (Test-Path "_meta.lua") {
-    $PluginDir = "."
+# Determine paths relative to this script
+$ToolsDir = $PSScriptRoot
+$RepoRoot = (Resolve-Path "$ToolsDir/..").Path
+
+if (Test-Path "$RepoRoot/backup.koplugin/_meta.lua") {
+    $PluginDir = Join-Path $RepoRoot "backup.koplugin"
+} elseif (Test-Path "$RepoRoot/_meta.lua") {
+    $PluginDir = $RepoRoot
 } else {
-    $PluginDir = "backup.koplugin"
+    $PluginDir = Join-Path $RepoRoot "backup.koplugin"
 }
 
 $WSLDest = "~/.config/koreader/plugins/backup.koplugin"
-$SyntaxScript = "tools/check_syntax.py"
-if (-not (Test-Path $SyntaxScript)) {
-    if (Test-Path "../tools/check_syntax.py") {
-        $SyntaxScript = "../tools/check_syntax.py"
-    }
-}
-
-$AuditScript = "tools/check_translations.py"
-if (-not (Test-Path $AuditScript)) {
-    if (Test-Path "../tools/check_translations.py") {
-        $AuditScript = "../tools/check_translations.py"
-    }
-}
+$SyntaxScript = Join-Path $ToolsDir "check_syntax.py"
+$AuditScript = Join-Path $ToolsDir "check_translations.py"
 
 # Probe for the squashfs-root location in WSL
 $SquashPath = ""
@@ -91,7 +81,6 @@ function Run-Workflow {
     Write-Host " PASSED" -ForegroundColor Green
 
     # Resolve repository root and plugin directory in WSL
-    $RepoRoot = if (Test-Path "tests") { "." } elseif (Test-Path "../tests") { ".." } else { "." }
     $winRepoPath = (Get-Item $RepoRoot).FullName -replace '\\', '/'
     $WslRepoDir = (wsl wslpath -u $winRepoPath).Trim()
 
@@ -123,6 +112,7 @@ function Run-Workflow {
     # 4. Restart KOReader
     Write-Host "Restarting KOReader..." -ForegroundColor Cyan
     wsl pkill -9 -f koreader 2>$null
+    wsl pkill -9 -f reader.lua 2>$null
     Start-Sleep -Seconds 1
 
     # Define start command

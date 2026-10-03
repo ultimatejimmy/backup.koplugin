@@ -24,6 +24,10 @@ local InputDialog = require("ui/widget/inputdialog")
 local LineWidget = require("ui/widget/linewidget")
 local MultiInputDialog = require("ui/widget/multiinputdialog")
 local ok_pbd, ProgressbarDialog = pcall(require, "ui/widget/progressbardialog")
+local ok_qr, QRWidget = pcall(require, "ui/widget/qrwidget")
+if not ok_qr or not QRWidget then
+    QRWidget = nil
+end
 local ScrollableContainer = require("ui/widget/container/scrollablecontainer")
 local SpinWidget = require("ui/widget/spinwidget")
 local TextBoxWidget = require("ui/widget/textboxwidget")
@@ -44,6 +48,7 @@ local FolderPicker = require("backup_folder_picker")
 local Beam = require("backup_beam")
 local Cloud = require("backup_cloud")
 local OAuth = require("backup_cloud_oauth")
+local BackupProgress = require("backup_progress")
 
 local ok_size, Size = pcall(require, "ui/size")
 if not ok_size or not Size then
@@ -885,70 +890,22 @@ function BackupUI.showCreateDialog(wizard_state)
         local filename = archive_name .. "." .. state.chosen_format
         local full_archive_path = backup_dir .. "/" .. filename
 
-        local is_canceled = false
-        local pbar
-        local info_msg
-        local file_widget
-
-        if ok_pbd and ProgressbarDialog then
-            pbar = ProgressbarDialog:new{
-                title = _("Creating Backup Archive"),
-                subtitle = _("Preparing backup payload..."),
-                progress_max = 100,
-                refresh_time_seconds = 1,
-                dismissable = false,
-                cancel_text = _("Cancel"),
-                cancel_callback = function()
-                    is_canceled = true
-                end,
-            }
-            pbar:show()
-            if pbar[1] and pbar[1][1] then
-                local vg = pbar[1][1]
-                local max_w = (vg[2] and vg[2].max_width) or (Device.screen:getWidth() - Device.screen:scaleBySize(80))
-                file_widget = TextWidget:new{
-                    text = "",
-                    face = Font:getFace("smallffont"),
-                    max_width = max_w,
-                    truncate_with_ellipsis = true,
-                    truncate_left = true,
-                }
-                table.insert(vg, 3, file_widget)
-            end
-        else
-            info_msg = InfoMessage:new{
-                text = _("Creating backup archive...\nPlease wait."),
-            }
-            UIManager:show(info_msg)
-        end
+        local progress_dlg = BackupProgress:new{
+            title = _("Creating Backup Archive"),
+            subtitle = _("Preparing backup payload..."),
+            detail = "",
+            cancel_text = _("Cancel"),
+        }
+        progress_dlg:show()
 
         local function setPbarProgress(curr_files, total_files, curr_bytes, total_bytes, current_path)
-            if pbar and pbar.reportProgress then
-                local pct = (total_bytes > 0) and math.min(100, math.floor((curr_bytes / total_bytes) * 100)) or 0
-                pbar.progress_max = 100
-                pbar:reportProgress(pct)
-                local file_disp = current_path and current_path:match("([^/\\]+)$") or current_path or ""
-                local template = _("Archiving (%d/%d - %s):\n%s")
-                local info_text = string.format(template,
-                    curr_files, math.max(total_files, 1), util.getFriendlySize(curr_bytes), file_disp)
-                local line1, line2 = info_text:match("^(.-)\n(.*)$")
-                if not line1 then
-                    line1 = info_text
-                    line2 = file_disp
-                end
-
-                if pbar[1] and pbar[1][1] then
-                    local vg = pbar[1][1]
-                    if vg[2] and type(vg[2].setText) == "function" then
-                        vg[2]:setText(line1)
-                    end
-                    if file_widget and type(file_widget.setText) == "function" then
-                        file_widget:setText(line2)
-                    end
-                    pbar[1]._size = nil
-                    vg._size = nil
-                end
-            end
+            local pct = (total_bytes > 0) and math.min(100, math.floor((curr_bytes / total_bytes) * 100)) or 0
+            progress_dlg:setProgress(pct)
+            local file_disp = current_path and current_path:match("([^/\\]+)$") or current_path or ""
+            local sub = string.format(_("Archiving (%d/%d - %s)"),
+                curr_files, math.max(total_files, 1), (util and util.getFriendlySize and util.getFriendlySize(curr_bytes) or tostring(curr_bytes)))
+            progress_dlg:setSubtitle(sub)
+            progress_dlg:setDetail(file_disp)
         end
 
         UIManager:nextTick(function()
@@ -963,24 +920,14 @@ function BackupUI.showCreateDialog(wizard_state)
                 backup_name = archive_name,
                 data_dir = data_dir,
                 books_dir = s.custom_books_dir or ArchiverMgr.getEffectiveBooksDir(),
-                is_canceled = function() return is_canceled end,
+                is_canceled = function() return progress_dlg:isCanceled() end,
                 on_progress = function(curr_files, total_files, curr_bytes, total_bytes, current_path)
                     setPbarProgress(curr_files, total_files, curr_bytes, total_bytes, current_path)
                 end,
             }
 
-            if pbar then
-                if pbar.close then
-                    pbar:close()
-                else
-                    UIManager:close(pbar, "ui")
-                end
-                pbar = nil
-            elseif info_msg then
-                UIManager:close(info_msg, "ui")
-                info_msg = nil
-            end
-            UIManager:setDirty("all", "ui")
+            local was_canceled = progress_dlg:isCanceled()
+            progress_dlg:close()
 
             local function showResultInfo(text, timeout)
                 UIManager:show(InfoMessage:new{
@@ -992,7 +939,8 @@ function BackupUI.showCreateDialog(wizard_state)
                 })
             end
 
-            if is_canceled or (not ok and tostring(res):find("canceled")) then
+            if was_canceled or (not ok and tostring(res):find("canceled")) then
+                pcall(os.remove, full_archive_path)
                 showResultInfo(_("Backup creation canceled."), 3)
             elseif ok and type(res) == "table" then
                 if s.retention_limit and s.retention_limit > 0 then
@@ -1368,8 +1316,13 @@ function BackupUI.showArchiveDetailSheet(filepath, on_back_cb)
             cancel_text = _("Cancel"),
             ok_callback = function()
                 UIManager:close(confirm)
-                local info = InfoMessage:new{ text = _("Restoring backup...\nPlease wait.") }
-                UIManager:show(info)
+                local progress_dlg = BackupProgress:new{
+                    title = _("Restoring Backup"),
+                    subtitle = _("Preparing restore..."),
+                    detail = "",
+                    cancel_text = _("Cancel"),
+                }
+                progress_dlg:show()
 
                 UIManager:nextTick(function()
                     local ok, msg, details = RestoreEngine.executeRestore(filepath, {
@@ -1381,11 +1334,34 @@ function BackupUI.showArchiveDetailSheet(filepath, on_back_cb)
                         selected_patches = sel_patches,
                         selected_fonts = sel_fonts,
                         selected_dictionaries = sel_dicts,
+                        is_canceled = function() return progress_dlg:isCanceled() end,
+                        on_phase = function(phase_text)
+                            progress_dlg:setSubtitle(phase_text)
+                        end,
+                        on_progress = function(current, total, file_name)
+                            local pct = (total and total > 0) and math.min(100, math.floor((current / total) * 100)) or 0
+                            progress_dlg:setProgress(pct)
+                            progress_dlg:setDetail(file_name and file_name:match("([^/\\]+)$") or file_name or "")
+                        end,
+                        on_applying_phase = function()
+                            -- Once files are being applied to system directories, cancel must be disabled for safety
+                            progress_dlg:setCancelable(false, _("Applying changes..."))
+                            progress_dlg:setProgress(95)
+                        end,
                     })
-                    UIManager:close(info, "ui")
-                    UIManager:setDirty("all", "ui")
 
-                    if ok then
+                    local was_canceled = progress_dlg:isCanceled()
+                    progress_dlg:close()
+
+                    if was_canceled or (not ok and tostring(msg):find("canceled")) then
+                        UIManager:show(InfoMessage:new{
+                            text = _("Restore canceled. No system files were modified."),
+                            timeout = 4,
+                            dismiss_callback = function()
+                                UIManager:setDirty("all", "ui")
+                            end,
+                        })
+                    elseif ok then
                         local stripped_count = (details and details.stripped_keys and #details.stripped_keys) or 0
                         local detail_msg = ""
                         if stripped_count > 0 then
@@ -1602,8 +1578,10 @@ end
 function BackupUI.showManageBackupsDialog()
     local backup_dir = getEffectiveBackupDir()
     local backups = Retention.listBackups(backup_dir)
+    local s = getPluginSettings()
+    local has_cloud = s.cloud_provider and s.cloud_provider ~= "none" and Cloud.isConfigured(s.cloud_provider)
 
-    if #backups == 0 then
+    if #backups == 0 and not has_cloud then
         UIManager:show(InfoMessage:new{
             text = string.format(_("No backup files found in:\n%s"), backup_dir),
             timeout = 3,
@@ -1640,7 +1618,10 @@ function BackupUI.showManageBackupsDialog()
         end
 
         backups = Retention.listBackups(backup_dir)
-        if #backups == 0 then
+        local cur_s = getPluginSettings()
+        local cur_has_cloud = cur_s.cloud_provider and cur_s.cloud_provider ~= "none" and Cloud.isConfigured(cur_s.cloud_provider)
+
+        if #backups == 0 and not cur_has_cloud then
             UIManager:show(InfoMessage:new{
                 text = string.format(_("No backup files found in:\n%s"), backup_dir),
                 timeout = 3,
@@ -1649,33 +1630,42 @@ function BackupUI.showManageBackupsDialog()
         end
 
         local buttons = {}
-        for idx, b in ipairs(backups) do
-            local label = string.format("%s (%s) • %s", b.filename, b.size_str, b.mtime_str)
-            if b.is_rollback then
-                label = "[Rollback] " .. label
-            end
-
+        if #backups == 0 then
             table.insert(buttons, {
                 {
-                    text = label,
-                    align = "left",
-                    callback = function()
-                        closeDialog()
-                        UIManager:nextTick(function()
-                            BackupUI.showArchiveDetailSheet(b.filepath, function()
-                                BackupUI.showManageBackupsDialog()
-                            end)
-                        end)
-                    end,
+                    text = string.format(_("No backup files found in:\n%s"), backup_dir),
+                    enabled = false,
                 },
             })
+        else
+            for idx, b in ipairs(backups) do
+                local label = string.format("%s (%s) • %s", b.filename, b.size_str, b.mtime_str)
+                if b.is_rollback then
+                    label = "[Rollback] " .. label
+                end
+
+                table.insert(buttons, {
+                    {
+                        text = label,
+                        align = "left",
+                        callback = function()
+                            closeDialog()
+                            UIManager:nextTick(function()
+                                BackupUI.showArchiveDetailSheet(b.filepath, function()
+                                    BackupUI.showManageBackupsDialog()
+                                end)
+                            end)
+                        end,
+                    },
+                })
+            end
         end
 
-        local s = getPluginSettings()
-        if s.cloud_provider and s.cloud_provider ~= "none" and Cloud.isConfigured(s.cloud_provider) then
+        if cur_has_cloud then
             table.insert(buttons, {
                 {
-                    text = string.format(_("Cloud Backups (%s) ▸"), Cloud.getProviderLabel(s.cloud_provider)),
+                    text = string.format(_("Cloud Backups (%s) ▸"), Cloud.getProviderLabel(cur_s.cloud_provider)),
+                    bold = (#backups == 0),
                     callback = function()
                         closeDialog()
                         BackupUI.showManageCloudBackupsDialog(function()
@@ -1933,8 +1923,8 @@ function BackupUI.showSettingsDialog()
             },
             ((s.cloud_provider and s.cloud_provider ~= "none") and {
                 {
-                    text = (s.cloud_provider == "gdrive" and not Cloud.isConfigured("gdrive"))
-                        and _("Connect Google Drive")
+                    text = (not Cloud.isConfigured(s.cloud_provider))
+                        and string.format(_("Connect %s"), Cloud.getProviderLabel(s.cloud_provider))
                         or string.format(_("Configure %s"), Cloud.getProviderLabel(s.cloud_provider)),
                     callback = function()
                         closeSettings()
@@ -1956,6 +1946,17 @@ function BackupUI.showSettingsDialog()
                                     timeout = 4,
                                 })
                             end)
+                        end)
+                    end,
+                },
+            } or nil),
+            ((s.cloud_provider and s.cloud_provider ~= "none" and Cloud.isConfigured(s.cloud_provider)) and {
+                {
+                    text = string.format(_("Cloud Backups (%s) ▸"), Cloud.getProviderLabel(s.cloud_provider)),
+                    callback = function()
+                        closeSettings()
+                        BackupUI.showManageCloudBackupsDialog(function()
+                            BackupUI.showSettingsDialog()
                         end)
                     end,
                 },
@@ -2163,93 +2164,64 @@ function BackupUI.showBeamSendDialog(filepath, on_finish_cb)
         end
 
         local function doStartUpload()
-            local pbar = nil
-            if ok_pbd and ProgressbarDialog then
-                pbar = ProgressbarDialog:new{
-                    title = _("Beam to Device"),
-                    subtitle = _("Encrypting backup archive..."),
-                    progress_max = 100,
-                    refresh_time_seconds = 1,
-                    dismissable = false,
-                }
-                pbar:show()
-            else
-                pbar = InfoMessage:new{
-                    text = _("Encrypting backup archive..."),
-                }
-                UIManager:show(pbar)
-            end
-
-        local function closePbar()
-            if pbar then
-                if pbar.close then
-                    pbar:close()
-                else
-                    UIManager:close(pbar, "ui")
-                end
-                pbar = nil
-                UIManager:setDirty("all", "ui")
-            end
-        end
-
-        local function setPbarSubtitle(text)
-            if not pbar then return end
-            pbar.subtitle = text
-            if pbar[1] and pbar[1][1] then
-                local vg = pbar[1][1]
-                if vg[2] and type(vg[2].setText) == "function" then
-                    vg[2]:setText(text)
-                end
-            end
-        end
-
-        local function setPbarProgress(val, force_redraw)
-            if not pbar or not pbar.reportProgress then return end
-            local clamped = math.min(100, math.max(0, math.floor(val or 0)))
-            pbar.progress_max = 100
-            pbar:reportProgress(clamped)
-            if force_redraw and pbar.redrawProgressbar then
-                pbar:redrawProgressbar()
-            end
-        end
+            local progress_dlg = BackupProgress:new{
+                title = _("Beam to Device"),
+                subtitle = _("Encrypting backup archive..."),
+                cancel_text = _("Cancel"),
+                on_cancel = function()
+                    Beam.cancelSession(pin, { relay_url = s.beam_relay_url })
+                end,
+            }
+            progress_dlg:show()
 
         UIManager:nextTick(function()
             local upload_opts = {
                 relay_url = s.beam_relay_url,
+                is_canceled = function() return progress_dlg:isCanceled() end,
                 on_progress = function(sent, total, stage)
-                    if not pbar then return end
+                    if progress_dlg:isCanceled() then return end
                     if stage == "encrypting" then
-                        setPbarSubtitle(_("Encrypting backup archive..."))
-                        setPbarProgress(5, true)
+                        progress_dlg:setSubtitle(_("Encrypting backup archive..."))
+                        progress_dlg:setProgress(5)
                     elseif stage == "connecting" then
-                        setPbarSubtitle(_("Connecting to Beam relay..."))
-                        setPbarProgress(10, true)
+                        progress_dlg:setSubtitle(_("Connecting to Beam relay..."))
+                        progress_dlg:setProgress(10)
                     elseif stage == "finalizing" then
-                        -- Payload uploaded; include relay server processing time in the loading bar
-                        setPbarSubtitle(_("Registering code with Beam relay..."))
-                        setPbarProgress(90, true)
+                        progress_dlg:setSubtitle(_("Registering code with Beam relay..."))
+                        progress_dlg:setProgress(90)
                     elseif stage == "complete" then
-                        setPbarSubtitle(_("Beam code ready!"))
-                        setPbarProgress(100, true)
+                        progress_dlg:setSubtitle(_("Beam code ready!"))
+                        progress_dlg:setProgress(100)
                     else
-                        -- Uploading stage: map chunk transfer progress from 10% to 85%
                         local ratio = (total and total > 0) and (sent / total) or 0
                         ratio = math.min(1.0, math.max(0.0, ratio))
                         local pct = math.floor(10 + ratio * 75)
                         pct = math.min(85, math.max(10, pct))
                         if util and util.getFriendlySize and total and total > 0 then
-                            setPbarSubtitle(string.format(_("Uploading: %s / %s (%d%%)"),
+                            progress_dlg:setSubtitle(string.format(_("Uploading: %s / %s (%d%%)"),
                                 util.getFriendlySize(sent), util.getFriendlySize(total), pct))
                         else
-                            setPbarSubtitle(_("Uploading backup archive..."))
+                            progress_dlg:setSubtitle(_("Uploading backup archive..."))
                         end
-                        setPbarProgress(pct, false)
+                        progress_dlg:setProgress(pct)
                     end
                 end,
             }
             Beam.upload(filepath, pin, upload_opts, function(ok, res)
+                local was_canceled = progress_dlg:isCanceled()
+                if was_canceled or (not ok and tostring(res):find("canceled")) then
+                    progress_dlg:close()
+                    Beam.cancelSession(pin, { relay_url = s.beam_relay_url })
+                    UIManager:show(InfoMessage:new{
+                        text = _("Beam send canceled."),
+                        timeout = 3,
+                    })
+                    if on_finish_cb then UIManager:nextTick(on_finish_cb) end
+                    return
+                end
+
                 if not ok then
-                    closePbar()
+                    progress_dlg:close()
                     UIManager:show(ConfirmBox:new{
                         text = string.format(_("Beam upload failed:\n%s"), tostring(res)),
                         ok_text = _("Retry"),
@@ -2267,11 +2239,11 @@ function BackupUI.showBeamSendDialog(filepath, on_finish_cb)
                 end
 
                 -- Show 100% completion before transitioning to the code modal
-                setPbarSubtitle(_("Beam code ready!"))
-                setPbarProgress(100, true)
+                progress_dlg:setSubtitle(_("Beam code ready!"))
+                progress_dlg:setProgress(100)
 
                 local function showBeamModal()
-                    closePbar()
+                    progress_dlg:close()
 
                     local beam_dialog
                     local function closeBeam()
@@ -2431,72 +2403,33 @@ function BackupUI.showBeamReceiveDialog()
                             end
                             UIManager:close(pin_dialog)
 
-                            local pbar = nil
-                            if ok_pbd and ProgressbarDialog then
-                                pbar = ProgressbarDialog:new{
-                                    title = _("Receive via Beam Code"),
-                                    subtitle = _("Connecting and downloading backup archive..."),
-                                    progress_max = 100,
-                                    refresh_time_seconds = 1,
-                                    dismissable = false,
-                                }
-                                pbar:show()
-                            else
-                                pbar = InfoMessage:new{
-                                    text = _("Connecting and downloading backup archive..."),
-                                }
-                                UIManager:show(pbar)
-                            end
-
-                            local function closePbar()
-                                if pbar then
-                                    if pbar.close then
-                                        pbar:close()
-                                    else
-                                        UIManager:close(pbar, "ui")
-                                    end
-                                    pbar = nil
-                                    UIManager:setDirty("all", "ui")
-                                end
-                            end
-
-                            local function setPbarSubtitle(text)
-                                if pbar and pbar[1] and pbar[1][1] then
-                                    local vg = pbar[1][1]
-                                    if vg[2] and type(vg[2].setText) == "function" then
-                                        vg[2]:setText(text)
-                                    end
-                                end
-                            end
-
-                            local function setPbarProgress(val, force_redraw)
-                                if not pbar or not pbar.reportProgress then return end
-                                local clamped = math.min(100, math.max(0, math.floor(val or 0)))
-                                pbar.progress_max = 100
-                                pbar:reportProgress(clamped)
-                                if force_redraw and pbar.redrawProgressbar then
-                                    pbar:redrawProgressbar()
-                                end
-                            end
+                            local progress_dlg = BackupProgress:new{
+                                title = _("Receive via Beam Code"),
+                                subtitle = _("Connecting and downloading backup archive..."),
+                                cancel_text = _("Cancel"),
+                            }
+                            progress_dlg:show()
 
                             UIManager:nextTick(function()
                                 local dest_dir = getEffectiveBackupDir()
                                 local highest_pct = 0
                                 local dl_opts = {
                                     relay_url = s.beam_relay_url,
+                                    is_canceled = function() return progress_dlg:isCanceled() end,
                                     on_total = function(total)
+                                        if progress_dlg:isCanceled() then return end
                                         if total and total > 0 and util and util.getFriendlySize then
-                                            setPbarSubtitle(string.format(_("Downloading backup archive (%s)..."), util.getFriendlySize(total)))
+                                            progress_dlg:setSubtitle(string.format(_("Downloading backup archive (%s)..."), util.getFriendlySize(total)))
                                         end
                                     end,
                                     on_progress = function(received, total)
-                                        if not pbar then return end
+                                        if progress_dlg:isCanceled() then return end
                                         if total and total > 0 then
                                             local pct = math.min(100, math.max(highest_pct, math.floor((received / total) * 100)))
                                             highest_pct = pct
-                                            setPbarProgress(pct, false)
+                                            progress_dlg:setProgress(pct)
                                             if util and util.getFriendlySize then
-                                                setPbarSubtitle(string.format(_("Downloading: %s / %s (%d%%)"),
+                                                progress_dlg:setSubtitle(string.format(_("Downloading: %s / %s (%d%%)"),
                                                     util.getFriendlySize(received), util.getFriendlySize(total), pct))
                                             end
                                         else
@@ -2505,19 +2438,32 @@ function BackupUI.showBeamReceiveDialog()
                                             if est_pct > highest_pct then
                                                 highest_pct = est_pct
                                             end
-                                            setPbarProgress(highest_pct, false)
+                                            progress_dlg:setProgress(highest_pct)
                                             if util and util.getFriendlySize then
-                                                setPbarSubtitle(string.format(_("Downloading: %s..."), util.getFriendlySize(received)))
+                                                progress_dlg:setSubtitle(string.format(_("Downloading: %s..."), util.getFriendlySize(received)))
                                             end
+                                        end
+                                    end,
+                                    on_decrypt_progress = function(pct, phase_msg)
+                                        if progress_dlg:isCanceled() then return end
+                                        progress_dlg:setProgress(pct)
+                                        if phase_msg then
+                                            progress_dlg:setSubtitle(phase_msg)
                                         end
                                     end,
                                 }
                                 Beam.download(clean_pin, dest_dir, dl_opts, function(ok, target_path, filename)
-                                    if ok then
-                                        setPbarSubtitle(_("Decrypting backup archive..."))
-                                        setPbarProgress(100, true)
+                                    local was_canceled = progress_dlg:isCanceled()
+                                    progress_dlg:close()
+
+                                    if was_canceled or (not ok and tostring(target_path):find("canceled")) then
+                                        UIManager:show(InfoMessage:new{
+                                            text = _("Beam download canceled."),
+                                            timeout = 3,
+                                        })
+                                        return
                                     end
-                                    closePbar()
+
                                     if not ok then
                                         UIManager:show(ConfirmBox:new{
                                             text = string.format(_("Beam reception failed:\n%s"), tostring(target_path)),
@@ -2569,6 +2515,8 @@ function BackupUI.showCloudProviderPicker(on_finish_cb)
     local providers = {
         { id = Constants.CLOUD_PROVIDERS.NONE, label = _("None (Disabled)") },
         { id = Constants.CLOUD_PROVIDERS.GDRIVE, label = _("Google Drive") },
+        { id = Constants.CLOUD_PROVIDERS.ONEDRIVE, label = _("Microsoft OneDrive") },
+        { id = Constants.CLOUD_PROVIDERS.DROPBOX, label = _("Dropbox") },
         { id = Constants.CLOUD_PROVIDERS.WEBDAV, label = _("WebDAV (Nextcloud / NAS)") },
         { id = Constants.CLOUD_PROVIDERS.FTP, label = _("FTP / FTPS") },
         { id = Constants.CLOUD_PROVIDERS.SFTP, label = _("SFTP (SSH)") },
@@ -2621,19 +2569,20 @@ function BackupUI.showCloudConfigDialog(provider, on_finish_cb)
     local s = getPluginSettings()
     provider = provider or s.cloud_provider
 
-    if provider == Constants.CLOUD_PROVIDERS.GDRIVE then
-        -- Google Drive: OAuth2 device-code authorization flow
-        if Cloud.isConfigured(Constants.CLOUD_PROVIDERS.GDRIVE) then
+    if provider == Constants.CLOUD_PROVIDERS.GDRIVE or provider == Constants.CLOUD_PROVIDERS.ONEDRIVE or provider == Constants.CLOUD_PROVIDERS.DROPBOX then
+        local prov_label = Cloud.getProviderLabel(provider)
+        -- OAuth2 device-code authorization flow
+        if Cloud.isConfigured(provider) then
             local gdialog
             local buttons = {
                 {
                     {
                         text = _("Test Connection"),
                         callback = function()
-                            local info = InfoMessage:new{ text = _("Testing Google Drive connection...") }
+                            local info = InfoMessage:new{ text = string.format(_("Testing %s connection..."), prov_label) }
                             UIManager:show(info)
                             UIManager:nextTick(function()
-                                Cloud.testConnection(Constants.CLOUD_PROVIDERS.GDRIVE, function(ok, msg)
+                                Cloud.testConnection(provider, function(ok, msg)
                                     UIManager:close(info)
                                     UIManager:show(InfoMessage:new{
                                         text = msg or (ok and _("Connection successful!") or _("Connection failed")),
@@ -2649,8 +2598,8 @@ function BackupUI.showCloudConfigDialog(provider, on_finish_cb)
                         text = _("Disconnect / Log Out"),
                         callback = function()
                             UIManager:close(gdialog)
-                            OAuth.clearTokens(Constants.CLOUD_PROVIDERS.GDRIVE)
-                            UIManager:show(InfoMessage:new{ text = _("Disconnected from Google Drive."), timeout = 3 })
+                            OAuth.clearTokens(provider)
+                            UIManager:show(InfoMessage:new{ text = string.format(_("Disconnected from %s."), prov_label), timeout = 3 })
                             if on_finish_cb then UIManager:nextTick(on_finish_cb) end
                         end,
                     },
@@ -2667,7 +2616,7 @@ function BackupUI.showCloudConfigDialog(provider, on_finish_cb)
                 },
             }
             gdialog = ButtonDialog:new{
-                title = _("Google Drive Account"),
+                title = string.format(_("%s Account"), prov_label),
                 buttons = buttons,
             }
             UIManager:show(gdialog)
@@ -2676,19 +2625,19 @@ function BackupUI.showCloudConfigDialog(provider, on_finish_cb)
 
         -- Not authenticated yet: start device-code grant
         Beam.ensureNetwork(function()
-            local req_info = InfoMessage:new{ text = _("Contacting Google Drive...") }
+            local req_info = InfoMessage:new{ text = string.format(_("Contacting %s..."), prov_label) }
             UIManager:show(req_info)
 
-            OAuth.requestDeviceCode(Constants.CLOUD_PROVIDERS.GDRIVE, {}, function(ok, info)
+            OAuth.requestDeviceCode(provider, {}, function(ok, info)
                 UIManager:close(req_info)
 
                 if not ok or not info then
                     UIManager:show(ConfirmBox:new{
-                        text = string.format(_("Failed to start Google Drive authorization:\n%s"), tostring(info)),
+                        text = string.format(_("Failed to start %s authorization:\n%s"), prov_label, tostring(info)),
                         ok_text = _("Retry"),
                         cancel_text = _("Cancel"),
                         ok_callback = function()
-                            BackupUI.showCloudConfigDialog(Constants.CLOUD_PROVIDERS.GDRIVE, on_finish_cb)
+                            BackupUI.showCloudConfigDialog(provider, on_finish_cb)
                         end,
                         cancel_callback = function()
                             if on_finish_cb then UIManager:nextTick(on_finish_cb) end
@@ -2721,57 +2670,98 @@ function BackupUI.showCloudConfigDialog(provider, on_finish_cb)
                 }
 
                 auth_dialog = ButtonDialog:new{
-                    title = _("Connect Google Drive"),
+                    title = string.format(_("Connect %s"), prov_label),
                     buttons = buttons,
                 }
 
                 local avail_w = auth_dialog:getAddedWidgetAvailableWidth()
-                local content = VerticalGroup:new{
+                local disp_url = info.verification_url or (provider == Constants.CLOUD_PROVIDERS.ONEDRIVE and "https://www.microsoft.com/link" or (provider == Constants.CLOUD_PROVIDERS.DROPBOX and "https://backup.ultimatejimmy.workers.dev/link" or "https://www.google.com/device"))
+
+                -- QR target URL: For Dropbox, encode user code so scanning with camera auto-authorizes
+                local qr_target_url = info.verification_uri_complete or info.verification_url or disp_url
+                if provider == Constants.CLOUD_PROVIDERS.DROPBOX and info.user_code and info.user_code ~= "" then
+                    qr_target_url = disp_url .. "?session=" .. info.user_code
+                end
+
+                local qr_widget_block = nil
+                if QRWidget then
+                    local qr_size = math.min(sc(160), math.floor(avail_w * 0.45))
+                    local ok_gen, qr_img = pcall(function()
+                        return QRWidget:new{
+                            text = qr_target_url,
+                            width = qr_size,
+                            height = qr_size,
+                        }
+                    end)
+                    if ok_gen and qr_img then
+                        qr_widget_block = CenterContainer:new{
+                            dimen = Geom:new{ w = avail_w, h = qr_size + sc(12) },
+                            FrameContainer:new{
+                                background = Blitbuffer.COLOR_WHITE,
+                                padding = sc(6),
+                                bordersize = sc(1),
+                                qr_img,
+                            },
+                        }
+                    end
+                end
+
+                local content_items = {
                     align = "center",
                     not_focusable = true,
-                    VerticalSpan:new{ width = sc(8) },
-                    TextBoxWidget:new{
-                        text = _("On your phone or computer, open:"),
-                        face = Font:getFace("cfont", 20),
-                        alignment = "center",
-                        width = avail_w,
-                    },
                     VerticalSpan:new{ width = sc(6) },
+                }
+
+                if qr_widget_block then
+                    table.insert(content_items, qr_widget_block)
+                    table.insert(content_items, VerticalSpan:new{ width = sc(8) })
+                end
+
+                table.insert(content_items, TextBoxWidget:new{
+                    text = _("On your phone or computer, open:"),
+                    face = Font:getFace("cfont", 19),
+                    alignment = "center",
+                    width = avail_w,
+                })
+                table.insert(content_items, VerticalSpan:new{ width = sc(4) })
+                table.insert(content_items, TextBoxWidget:new{
+                    text = disp_url,
+                    face = Font:getFace("cfont", 20),
+                    bold = true,
+                    alignment = "center",
+                    width = avail_w,
+                })
+                table.insert(content_items, VerticalSpan:new{ width = sc(10) })
+                table.insert(content_items, TextBoxWidget:new{
+                    text = _("And enter this code:"),
+                    face = Font:getFace("cfont", 19),
+                    alignment = "center",
+                    width = avail_w,
+                })
+                table.insert(content_items, VerticalSpan:new{ width = sc(6) })
+                table.insert(content_items, FrameContainer:new{
+                    bordersize = sc(2),
+                    padding_top = sc(8),
+                    padding_bottom = sc(8),
+                    padding_left = sc(24),
+                    padding_right = sc(24),
+                    background = Blitbuffer.COLOR_WHITE,
                     TextWidget:new{
-                        text = info.verification_url or "https://www.google.com/device",
-                        face = Font:getFace("cfont", 22),
+                        text = info.user_code or "",
+                        face = Font:getFace("tfont", 32),
                         bold = true,
                     },
-                    VerticalSpan:new{ width = sc(12) },
-                    TextBoxWidget:new{
-                        text = _("And enter this code:"),
-                        face = Font:getFace("cfont", 20),
-                        alignment = "center",
-                        width = avail_w,
-                    },
-                    VerticalSpan:new{ width = sc(6) },
-                    FrameContainer:new{
-                        bordersize = sc(2),
-                        padding_top = sc(10),
-                        padding_bottom = sc(10),
-                        padding_left = sc(28),
-                        padding_right = sc(28),
-                        background = Blitbuffer.COLOR_WHITE,
-                        TextWidget:new{
-                            text = info.user_code or "",
-                            face = Font:getFace("tfont", 34),
-                            bold = true,
-                        },
-                    },
-                    VerticalSpan:new{ width = sc(14) },
-                    TextBoxWidget:new{
-                        text = _("Waiting for authorization..."),
-                        face = Font:getFace("cfont", 18),
-                        alignment = "center",
-                        width = avail_w,
-                    },
-                    VerticalSpan:new{ width = sc(8) },
-                }
+                })
+                table.insert(content_items, VerticalSpan:new{ width = sc(12) })
+                table.insert(content_items, TextBoxWidget:new{
+                    text = _("Waiting for authorization..."),
+                    face = Font:getFace("cfont", 17),
+                    alignment = "center",
+                    width = avail_w,
+                })
+                table.insert(content_items, VerticalSpan:new{ width = sc(6) })
+
+                local content = VerticalGroup:new(content_items)
 
                 auth_dialog:addWidget(content)
                 UIManager:show(auth_dialog)
@@ -2784,14 +2774,14 @@ function BackupUI.showCloudConfigDialog(provider, on_finish_cb)
                 local function pollStep()
                     if not flow_active then return end
 
-                    OAuth.pollToken(Constants.CLOUD_PROVIDERS.GDRIVE, info.device_code, {}, function(poll_ok, token_data, raw_res)
+                    OAuth.pollToken(provider, info.device_code, {}, function(poll_ok, token_data, raw_res)
                         if not flow_active then return end
 
                         if poll_ok and token_data and token_data.access_token then
                             closeAuth()
-                            OAuth.saveTokens(Constants.CLOUD_PROVIDERS.GDRIVE, token_data)
+                            OAuth.saveTokens(provider, token_data)
                             UIManager:show(InfoMessage:new{
-                                text = _("Connected to Google Drive successfully!"),
+                                text = string.format(_("Connected to %s successfully!"), prov_label),
                                 timeout = 3,
                             })
                             if on_finish_cb then UIManager:nextTick(on_finish_cb) end
@@ -2811,7 +2801,7 @@ function BackupUI.showCloudConfigDialog(provider, on_finish_cb)
                             end
                         elseif token_data == "access_denied" then
                             closeAuth()
-                            UIManager:show(InfoMessage:new{ text = _("Google Drive authorization was denied."), timeout = 4 })
+                            UIManager:show(InfoMessage:new{ text = string.format(_("%s authorization was denied."), prov_label), timeout = 4 })
                             if on_finish_cb then UIManager:nextTick(on_finish_cb) end
                         elseif token_data == "expired_token" then
                             closeAuth()
@@ -2823,7 +2813,7 @@ function BackupUI.showCloudConfigDialog(provider, on_finish_cb)
                             -- Fatal configuration or server error: do not loop infinitely
                             closeAuth()
                             local detail = (raw_res and (raw_res.error_description or raw_res.error)) or token_data
-                            local err_msg = string.format(_("Google Drive authentication error: %s"), tostring(detail))
+                            local err_msg = string.format(_("%s authentication error: %s"), prov_label, tostring(detail))
                             UIManager:show(InfoMessage:new{ text = err_msg, timeout = 6 })
                             if on_finish_cb then UIManager:nextTick(on_finish_cb) end
                         else
@@ -2832,7 +2822,7 @@ function BackupUI.showCloudConfigDialog(provider, on_finish_cb)
                             if consecutive_errors >= MAX_CONSECUTIVE_ERRORS then
                                 closeAuth()
                                 local detail = (raw_res and (raw_res.error_description or raw_res.error)) or token_data or _("Connection timed out")
-                                local err_msg = string.format(_("Google Drive authorization failed: %s"), tostring(detail))
+                                local err_msg = string.format(_("%s authorization failed: %s"), prov_label, tostring(detail))
                                 UIManager:show(InfoMessage:new{ text = err_msg, timeout = 6 })
                                 if on_finish_cb then UIManager:nextTick(on_finish_cb) end
                             else
@@ -3098,73 +3088,50 @@ function BackupUI.showCloudUploadDialog(filepath, on_finish_cb)
     end
 
     Beam.ensureNetwork(function()
-        local pbar = nil
-        if ok_pbd and ProgressbarDialog then
-            pbar = ProgressbarDialog:new{
-                title = string.format(_("Upload to %s"), Cloud.getProviderLabel(provider)),
-                subtitle = _("Preparing upload..."),
-                progress_max = 100,
-                refresh_time_seconds = 1,
-                dismissable = false,
-            }
-            pbar:show()
-        else
-            pbar = InfoMessage:new{ text = _("Uploading backup to cloud...") }
-            UIManager:show(pbar)
-        end
-
-        local function closePbar()
-            if pbar then
-                if pbar.close then
-                    pbar:close()
-                else
-                    UIManager:close(pbar, "ui")
-                end
-                pbar = nil
-                UIManager:setDirty("all", "ui")
-            end
-        end
-
-        local function setPbarSubtitle(text)
-            if pbar and pbar[1] and pbar[1][1] then
-                local vg = pbar[1][1]
-                if vg[2] and type(vg[2].setText) == "function" then
-                    vg[2]:setText(text)
-                end
-            end
-        end
-
-        local function setPbarProgress(val)
-            if not pbar or not pbar.reportProgress then return end
-            pbar.progress_max = 100
-            pbar:reportProgress(math.min(100, math.max(0, math.floor(val or 0))))
-        end
+        local progress_dlg = BackupProgress:new{
+            title = string.format(_("Upload to %s"), Cloud.getProviderLabel(provider)),
+            subtitle = _("Preparing upload..."),
+            cancel_text = _("Cancel"),
+        }
+        progress_dlg:show()
 
         UIManager:nextTick(function()
             local upload_opts = {
+                is_canceled = function() return progress_dlg:isCanceled() end,
                 on_progress = function(sent, total, stage)
-                    if not pbar then return end
+                    if progress_dlg:isCanceled() then return end
                     if stage == "connecting" then
-                        setPbarSubtitle(_("Connecting to cloud..."))
-                        setPbarProgress(5)
+                        progress_dlg:setSubtitle(_("Connecting to cloud..."))
+                        progress_dlg:setProgress(5)
                     elseif stage == "finalizing" then
-                        setPbarSubtitle(_("Finalizing upload..."))
-                        setPbarProgress(95)
+                        progress_dlg:setSubtitle(_("Finalizing upload..."))
+                        progress_dlg:setProgress(95)
                     else
                         local pct = (total and total > 0) and math.floor((sent / total) * 100) or 0
-                        setPbarProgress(pct)
+                        progress_dlg:setProgress(pct)
                         if total and total > 0 and util and util.getFriendlySize then
-                            setPbarSubtitle(string.format(_("Uploading: %s / %s (%d%%)"),
+                            progress_dlg:setSubtitle(string.format(_("Uploading: %s / %s (%d%%)"),
                                 util.getFriendlySize(sent), util.getFriendlySize(total), pct))
                         else
-                            setPbarSubtitle(_("Uploading backup archive..."))
+                            progress_dlg:setSubtitle(_("Uploading backup archive..."))
                         end
                     end
                 end,
             }
 
             Cloud.upload(filepath, upload_opts, function(ok, res)
-                closePbar()
+                local was_canceled = progress_dlg:isCanceled()
+                progress_dlg:close()
+
+                if was_canceled or (not ok and tostring(res):find("canceled")) then
+                    UIManager:show(InfoMessage:new{
+                        text = _("Cloud upload canceled."),
+                        timeout = 3,
+                    })
+                    if on_finish_cb then UIManager:nextTick(on_finish_cb) end
+                    return
+                end
+
                 if ok then
                     local filename = filepath:match("([^/\\]+)$") or "backup archive"
                     UIManager:show(InfoMessage:new{
@@ -3259,49 +3226,39 @@ function BackupUI.showCloudDownloadDialog(on_finish_cb)
                             if util and util.makePath then util.makePath(dest_dir) end
                             local local_path = dest_dir .. "/" .. b.filename
 
-                            local pbar = nil
-                            if ok_pbd and ProgressbarDialog then
-                                pbar = ProgressbarDialog:new{
-                                    title = string.format(_("Download from %s"), Cloud.getProviderLabel(provider)),
-                                    subtitle = _("Downloading backup archive..."),
-                                    progress_max = 100,
-                                    refresh_time_seconds = 1,
-                                    dismissable = false,
-                                }
-                                pbar:show()
-                            else
-                                pbar = InfoMessage:new{ text = _("Downloading backup from cloud...") }
-                                UIManager:show(pbar)
-                            end
-
-                            local function closeDlPbar()
-                                if pbar then
-                                    if pbar.close then pbar:close() else UIManager:close(pbar, "ui") end
-                                    pbar = nil
-                                    UIManager:setDirty("all", "ui")
-                                end
-                            end
+                            local progress_dlg = BackupProgress:new{
+                                title = string.format(_("Download from %s"), Cloud.getProviderLabel(provider)),
+                                subtitle = _("Downloading backup archive..."),
+                                cancel_text = _("Cancel"),
+                            }
+                            progress_dlg:show()
 
                             local dl_opts = {
+                                is_canceled = function() return progress_dlg:isCanceled() end,
                                 on_progress = function(recv, total)
-                                    if not pbar or not pbar.reportProgress then return end
+                                    if progress_dlg:isCanceled() then return end
                                     local pct = (total and total > 0) and math.floor((recv / total) * 100) or 0
-                                    pbar.progress_max = 100
-                                    pbar:reportProgress(pct)
-                                    if pbar[1] and pbar[1][1] then
-                                        local vg = pbar[1][1]
-                                        if vg[2] and type(vg[2].setText) == "function" then
-                                            local text = (total and total > 0 and util and util.getFriendlySize)
-                                                and string.format(_("Downloading: %s / %s (%d%%)"), util.getFriendlySize(recv), util.getFriendlySize(total), pct)
-                                                or string.format(_("Downloading: %s..."), (util and util.getFriendlySize and util.getFriendlySize(recv) or tostring(recv)))
-                                            vg[2]:setText(text)
-                                        end
-                                    end
+                                    progress_dlg:setProgress(pct)
+                                    local text = (total and total > 0 and util and util.getFriendlySize)
+                                        and string.format(_("Downloading: %s / %s (%d%%)"), util.getFriendlySize(recv), util.getFriendlySize(total), pct)
+                                        or string.format(_("Downloading: %s..."), (util and util.getFriendlySize and util.getFriendlySize(recv) or tostring(recv)))
+                                    progress_dlg:setSubtitle(text)
                                 end,
                             }
 
                             Cloud.download(b, local_path, dl_opts, function(dl_ok, dl_res)
-                                closeDlPbar()
+                                local was_canceled = progress_dlg:isCanceled()
+                                progress_dlg:close()
+
+                                if was_canceled or (not dl_ok and tostring(dl_res):find("canceled")) then
+                                    UIManager:show(InfoMessage:new{
+                                        text = _("Cloud download canceled."),
+                                        timeout = 3,
+                                    })
+                                    if on_finish_cb then UIManager:nextTick(on_finish_cb) end
+                                    return
+                                end
+
                                 if dl_ok then
                                     UIManager:show(InfoMessage:new{
                                         text = string.format(_("Downloaded %s successfully!"), b.filename),
@@ -3420,10 +3377,41 @@ function BackupUI.showManageCloudBackupsDialog(on_finish_cb)
                                             local dest_dir = getEffectiveBackupDir()
                                             if util and util.makePath then util.makePath(dest_dir) end
                                             local local_path = dest_dir .. "/" .. b.filename
-                                            local info = InfoMessage:new{ text = _("Downloading backup...") }
-                                            UIManager:show(info)
-                                            Cloud.download(b, local_path, {}, function(dl_ok, dl_res)
-                                                UIManager:close(info)
+                                            local progress_dlg = BackupProgress:new{
+                                                title = string.format(_("Download from %s"), Cloud.getProviderLabel(provider)),
+                                                subtitle = _("Downloading backup archive..."),
+                                                cancel_text = _("Cancel"),
+                                            }
+                                            progress_dlg:show()
+
+                                            local dl_opts = {
+                                                is_canceled = function() return progress_dlg:isCanceled() end,
+                                                on_progress = function(recv, total)
+                                                    if progress_dlg:isCanceled() then return end
+                                                    local pct = (total and total > 0) and math.floor((recv / total) * 100) or 0
+                                                    progress_dlg:setProgress(pct)
+                                                    local text = (total and total > 0 and util and util.getFriendlySize)
+                                                        and string.format(_("Downloading: %s / %s (%d%%)"), util.getFriendlySize(recv), util.getFriendlySize(total), pct)
+                                                        or string.format(_("Downloading: %s..."), (util and util.getFriendlySize and util.getFriendlySize(recv) or tostring(recv)))
+                                                    progress_dlg:setSubtitle(text)
+                                                end,
+                                            }
+
+                                            Cloud.download(b, local_path, dl_opts, function(dl_ok, dl_res)
+                                                local was_canceled = progress_dlg:isCanceled()
+                                                progress_dlg:close()
+
+                                                if was_canceled or (not dl_ok and tostring(dl_res):find("canceled")) then
+                                                    UIManager:show(InfoMessage:new{
+                                                        text = _("Cloud download canceled."),
+                                                        timeout = 3,
+                                                    })
+                                                    UIManager:nextTick(function()
+                                                        BackupUI.showManageCloudBackupsDialog(on_finish_cb)
+                                                    end)
+                                                    return
+                                                end
+
                                                 if dl_ok then
                                                     UIManager:show(InfoMessage:new{
                                                         text = string.format(_("Downloaded %s successfully!"), b.filename),

@@ -423,7 +423,7 @@ end
 
 --- Decrypts a Beam payload from disk directly to dest_dir using low-memory streaming chunks.
 -- Returns true, target_path, filename OR false, error_msg.
-function Beam.decryptFileToPath(encrypted_path, pin, dest_dir)
+function Beam.decryptFileToPath(encrypted_path, pin, dest_dir, on_progress, is_canceled)
     assert(sha2 and sha2.sha256, "sha2 cryptographic module required")
     local clean_pin, err = Beam.cleanPin(pin)
     if not clean_pin then return false, err end
@@ -481,14 +481,28 @@ function Beam.decryptFileToPath(encrypted_path, pin, dest_dir)
     end
     local hash_chunks = not hasher and {} or nil
 
+    local total_file_size = f_in:seek("end") or 0
+    local payload_size = math.max(0, total_file_size - header_len)
+    f_in:seek("set", header_len)
+
     local chunk_size = 65536
+    local bytes_hashed = 0
     while true do
+        if is_canceled and is_canceled() then
+            f_in:close()
+            return false, "canceled"
+        end
         local chunk = f_in:read(chunk_size)
         if not chunk or #chunk == 0 then break end
         if hasher then
             hasher(chunk)
         else
             table.insert(hash_chunks, chunk)
+        end
+        bytes_hashed = bytes_hashed + #chunk
+        if on_progress then
+            local pct = (payload_size > 0) and math.floor((bytes_hashed / payload_size) * 50) or 25
+            on_progress(pct, _("Verifying integrity..."))
         end
     end
 
@@ -521,12 +535,22 @@ function Beam.decryptFileToPath(encrypted_path, pin, dest_dir)
     local mask_str = generateKeystreamMask(key, 65536)
     local byte_offset = 0
     while true do
+        if is_canceled and is_canceled() then
+            f_in:close()
+            f_out:close()
+            os.remove(target_path)
+            return false, "canceled"
+        end
         local chunk = f_in:read(chunk_size)
         if not chunk or #chunk == 0 then break end
 
         local plain_chunk = processKeystreamFast(chunk, key, byte_offset, mask_str)
         f_out:write(plain_chunk)
         byte_offset = byte_offset + #chunk
+        if on_progress then
+            local pct = 50 + ((payload_size > 0) and math.floor((byte_offset / payload_size) * 50) or 50)
+            on_progress(math.min(100, pct), _("Decrypting files..."))
+        end
     end
 
     f_in:close()
@@ -600,14 +624,22 @@ function Beam.encryptFile(filepath, pin)
 end
 
 --- Decrypts payload (from memory string or disk file path) and writes result to dest_dir.
-function Beam.decryptToFile(payload_or_path, pin, dest_dir)
+function Beam.decryptToFile(payload_or_path, pin, dest_dir, on_progress, is_canceled)
     if type(payload_or_path) == "string" and lfs and lfs.attributes and lfs.attributes(payload_or_path, "mode") == "file" then
-        return Beam.decryptFileToPath(payload_or_path, pin, dest_dir)
+        return Beam.decryptFileToPath(payload_or_path, pin, dest_dir, on_progress, is_canceled)
+    end
+
+    if is_canceled and is_canceled() then
+        return false, "canceled"
     end
 
     local ok, res_filename, decrypted_data = Beam.decryptPayload(payload_or_path, pin)
     if not ok then
         return false, res_filename
+    end
+
+    if is_canceled and is_canceled() then
+        return false, "canceled"
     end
 
     if util and util.makePath then
@@ -659,12 +691,15 @@ function Beam.ensureNetwork(on_connected_cb, on_cancel_cb)
 end
 
 --- Creates a chunked LTN12 source from a string that reports upload progress.
-local function makeProgressSource(data, on_progress)
+local function makeProgressSource(data, on_progress, is_canceled)
     local pos = 1
     local total = #data
     local chunk_size = 65536 -- 64KB chunks
     local finalized = false
     return function()
+        if is_canceled and is_canceled() then
+            return nil, "canceled"
+        end
         if pos > total then
             if on_progress and not finalized then
                 finalized = true
@@ -684,11 +719,14 @@ Beam._makeProgressSource = makeProgressSource
 
 --- Creates a chunked LTN12 source from an open file handle that reports upload progress.
 -- Keeps memory usage strictly constant (< 64KB) during transmission.
-local function makeFileProgressSource(file_handle, total_expected, on_progress)
+local function makeFileProgressSource(file_handle, total_expected, on_progress, is_canceled)
     local sent = 0
     local finalized = false
     local chunk_size = 65536
     return function()
+        if is_canceled and is_canceled() then
+            return nil, "canceled"
+        end
         if sent >= total_expected then
             if on_progress and not finalized then
                 finalized = true
@@ -719,7 +757,7 @@ Beam._makeFileProgressSource = makeFileProgressSource
 --         prepending the authenticated header, streaming directly into HTTP.
 -- Requires NO staging file — works even when Kindle disk is full.
 -- Returns: source_fn, total_payload_bytes, error_msg
-local function makeEncryptedStreamSource(src_path, clean_pin, on_progress)
+local function makeEncryptedStreamSource(src_path, clean_pin, on_progress, is_canceled)
     assert(sha2 and sha2.sha256, "sha2 required")
 
     local filename = src_path:match("([^/\\]+)$") or "backup.zip"
@@ -763,6 +801,10 @@ local function makeEncryptedStreamSource(src_path, clean_pin, on_progress)
 
     local byte_off_p1 = 0
     while true do
+        if is_canceled and is_canceled() then
+            f1:close()
+            return nil, nil, "canceled"
+        end
         local chunk = f1:read(65536)
         if not chunk or #chunk == 0 then break end
         local enc = processKeystreamFast(chunk, key, byte_off_p1, mask_str)
@@ -789,6 +831,10 @@ local function makeEncryptedStreamSource(src_path, clean_pin, on_progress)
     local finalized = false
 
     local function source()
+        if is_canceled and is_canceled() then
+            if f2 then f2:close(); f2 = nil end
+            return nil, "canceled"
+        end
         -- First call: emit the authenticated header
         if header_pending then
             local h = header_pending
@@ -820,9 +866,12 @@ local function makeEncryptedStreamSource(src_path, clean_pin, on_progress)
 end
 
 --- Creates a progress-tracking sink for downloads.
-local function makeProgressSink(target_sink, on_progress, total_expected)
+local function makeProgressSink(target_sink, on_progress, total_expected, is_canceled)
     local received = 0
     return function(chunk, err)
+        if is_canceled and is_canceled() then
+            return nil, "canceled"
+        end
         if chunk then
             received = received + #chunk
             if on_progress then
@@ -910,21 +959,21 @@ local function doHttpRequest(req)
             local total_bytes = req.total_bytes or (file_handle:seek("end") or 0)
             file_handle:seek("set", 0)
             if req.on_upload_progress then
-                source = makeFileProgressSource(file_handle, total_bytes, req.on_upload_progress)
+                source = makeFileProgressSource(file_handle, total_bytes, req.on_upload_progress, req.is_canceled)
             else
                 source = ltn12.source.file(file_handle)
             end
         elseif req.body then
             if req.on_upload_progress then
-                source = makeProgressSource(req.body, req.on_upload_progress)
+                source = makeProgressSource(req.body, req.on_upload_progress, req.is_canceled)
             else
                 source = ltn12.source.string(req.body)
             end
         end
     end
 
-    if req.on_download_progress then
-        sink = makeProgressSink(base_sink, req.on_download_progress, req.total_expected)
+    if req.on_download_progress or req.is_canceled then
+        sink = makeProgressSink(base_sink, req.on_download_progress, req.total_expected, req.is_canceled)
     end
 
     local prev_block, prev_total
@@ -1030,9 +1079,13 @@ function Beam.upload(filepath, pin, opts, callback)
     end
 
     -- Build two-pass zero-disk streaming source (no staging file needed)
-    local stream_source, payload_size, stream_err = makeEncryptedStreamSource(filepath, clean_pin, progress_wrap)
+    local stream_source, payload_size, stream_err = makeEncryptedStreamSource(filepath, clean_pin, progress_wrap, opts.is_canceled)
     if not stream_source then
         BeamLog.err("upload: makeEncryptedStreamSource FAILED: %s", tostring(stream_err))
+        if stream_err == "canceled" then
+            if callback then callback(false, "canceled") end
+            return
+        end
         if callback then callback(false, stream_err or _("Failed to prepare encrypted stream")) end
         return
     end
@@ -1047,6 +1100,10 @@ function Beam.upload(filepath, pin, opts, callback)
     local r, code, headers, status, resp_body
 
     for attempt = 1, max_attempts do
+        if opts.is_canceled and opts.is_canceled() then
+            if callback then callback(false, "canceled") end
+            return
+        end
         if attempt > 1 then
             if opts.on_progress then
                 opts.on_progress(0, payload_size, "connecting")
@@ -1054,7 +1111,7 @@ function Beam.upload(filepath, pin, opts, callback)
             Beam.sleep(1.5)
             -- Rebuild stream source for retry (resets file position)
             last_sent = 0
-            stream_source, payload_size, stream_err = makeEncryptedStreamSource(filepath, clean_pin, progress_wrap)
+            stream_source, payload_size, stream_err = makeEncryptedStreamSource(filepath, clean_pin, progress_wrap, opts.is_canceled)
             if not stream_source then
                 BeamLog.err("upload: retry stream rebuild FAILED: %s", tostring(stream_err))
                 break
@@ -1225,6 +1282,11 @@ function Beam.download(pin, dest_dir, opts, callback)
     os.remove(dl_staging_path)
 
     for attempt = 1, max_attempts do
+        if opts.is_canceled and opts.is_canceled() then
+            os.remove(dl_staging_path)
+            if callback then callback(false, "canceled") end
+            return
+        end
         if attempt > 1 then
             Beam.sleep(1.5)
         end
@@ -1239,15 +1301,28 @@ function Beam.download(pin, dest_dir, opts, callback)
             total_expected = opts.total_expected,
             total_bytes = opts.total_expected,
             on_download_progress = opts.on_progress,
+            is_canceled = opts.is_canceled,
         }
 
         if code == 200 or code == 404 then
             break
         end
 
+        if (opts.is_canceled and opts.is_canceled()) or tostring(code):find("canceled") then
+            os.remove(dl_staging_path)
+            if callback then callback(false, "canceled") end
+            return
+        end
+
         if not Beam.isTransientError(r, code, status) or attempt == max_attempts then
             break
         end
+    end
+
+    if opts.is_canceled and opts.is_canceled() then
+        os.remove(dl_staging_path)
+        if callback then callback(false, "canceled") end
+        return
     end
 
     if code == 200 then
@@ -1271,7 +1346,7 @@ function Beam.download(pin, dest_dir, opts, callback)
             return
         end
 
-        local ok, target_path, filename = Beam.decryptToFile(dl_staging_path, clean_pin, dest_dir)
+        local ok, target_path, filename = Beam.decryptToFile(dl_staging_path, clean_pin, dest_dir, opts.on_decrypt_progress, opts.is_canceled)
         os.remove(dl_staging_path)
         if ok then
             if callback then callback(true, target_path, filename) end
