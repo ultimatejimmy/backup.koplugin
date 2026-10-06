@@ -45,6 +45,14 @@ msgstr "+ Новая"
 msgid ".. (Parent Folder)"
 msgstr ".. (Родительская папка)"
 
+# en-hash: 9a41f2c39afb6eb1b86303f445a573b1
+msgid ".TAR.GZ (Compact compression)"
+msgstr ".TAR.GZ (Компактное сжатие)"
+
+# en-hash: 716407a6f5f5cb15c3d727b48bc29f98
+msgid ".ZIP (Standard compatibility)"
+msgstr ".ZIP (Стандартная совместимость)"
+
 # en-hash: 336f879eec1bf390db4fa65586734c78
 msgid "And enter this code:"
 msgstr "И введите этот код:"
@@ -56,6 +64,14 @@ msgstr "Применение изменений..."
 # en-hash: 278867324eb81091bad23a312322cee1
 msgid "Applying settings and components..."
 msgstr "Применение настроек и компонентов..."
+
+# en-hash: 543c77bd94b3c809e60e636c97030ea0
+msgid "Archive Format & Retention"
+msgstr "Формат архива и хранение"
+
+# en-hash: f200e2b8893f85a23cc8a00de3b6a84b
+msgid "Archive Format (.%s)"
+msgstr "Формат архива (.%s)"
 
 # en-hash: fcbaff9ec755238920363a1fff9402a5
 msgid "Archive: %s"
@@ -85,9 +101,9 @@ msgstr "Назад"
 msgid "Backup & Restore Settings"
 msgstr "Настройки резервного копирования"
 
-# en-hash: 89ae327082969ac88c567110a84d86f6
-msgid "Backup Folder:\n%s"
-msgstr "Папка копий:\n%s"
+# en-hash: 6f548f415e65b242a7809d2b1ee031f5
+msgid "Backup Folder: %s"
+msgstr "Папка бэкапов: %s"
 
 # en-hash: fb062769d9d546b0e921d27f871671b1
 msgid "Backup Name"
@@ -120,6 +136,10 @@ msgstr "Резервная копия успешно загружена в %s!\n
 # en-hash: de8e8367246b437c6b06b7b257933d07
 msgid "Beam Relay Server"
 msgstr "Сервер ретрансляции Beam"
+
+# en-hash: c14639d725272d9246cc2ad0ed69d4c1
+msgid "Beam Wireless Transfer"
+msgstr "Беспроводная передача Beam"
 
 # en-hash: e6da1ea23eee05a70698d9baa4b735c2
 msgid "Beam code expired or not found. Please verify the 6-digit code on the sending device."
@@ -157,9 +177,13 @@ msgstr "Передача Beam отменена."
 msgid "Beam upload failed:\n%s"
 msgstr "Ошибка отправки Beam:\n%s"
 
-# en-hash: 7111d6b15f836624b077a3dcdd7087bf
-msgid "Books Folder:\n%s"
-msgstr "Папка книг:\n%s"
+# en-hash: a71eb14f4ac46cebafbd6098c789bf6a
+msgid "Books Folder: %s"
+msgstr "Папка книг: %s"
+
+# en-hash: dd221263f507d0afb75318382497db4e
+msgid "Browse Cloud Backups (%s) ▸"
+msgstr "Обзор облачных бэкапов (%s) ▸"
 
 # en-hash: 12d72fb625ec7cee14aac12f2392eee1
 msgid "Browse Folder"
@@ -169,10 +193,6 @@ msgstr "Обзор папки"
 msgid "Cancel"
 msgstr "Отмена"
 
-# en-hash: a3a3b59ffa5b8e146a78268eb4a23427
-msgid "Canceling operation..."
-msgstr "Отмена операции..."
-
 # en-hash: ba9adecf9a948664724f010fe9ffd733
 msgid "Canceling..."
 msgstr "Отмена..."
@@ -181,9 +201,9 @@ msgstr "Отмена..."
 msgid "Clean Slate (Remove unlisted plugins)"
 msgstr "Чистая установка (удалить неуказанные плагины)"
 
-# en-hash: f27f9b10f84ccf1a56c1530d2db1a410
-msgid "Cleaning up temporary files..."
-msgstr "Очистка временных файлов..."
+# en-hash: e9740d4bd4658cebb65e36a67c56af05
+msgid "Clean Slate Restore (Remove unlisted plugins)"
+msgstr "Чистое восстановление (Удалить сторонние плагины)"
 
 # en-hash: e77fef0167598bb39846637ac3915f4e
 msgid "Clear All"
@@ -201,9 +221,9 @@ msgstr "Облачные резервные копии (%s)"
 msgid "Cloud Backups (%s) ▸"
 msgstr "Облачные резервные копии (%s) ▸"
 
-# en-hash: eecd606aaa9f5ce6977efc64386f750d
-msgid "Cloud Storage: %s"
-msgstr "Облачное хранилище: %s"
+# en-hash: be545e346f83b23f46415b456a32a258
+msgid "Cloud Storage (%s)"
+msgstr "Облачное хранилище (%s)"
 
 # en-hash: 4f1021ed4c7eca368a875ad306441315
 msgid "Cloud download canceled."
@@ -229,13 +249,17 @@ msgstr "Компоненты для восстановления: %s ▸"
 msgid "Components: %s ▸"
 msgstr "Компоненты: %s ▸"
 
-# en-hash: 9632519f95db5a4d4b26d97fe5f69dbf
-msgid "Configure %s"
-msgstr "Настроить %s"
+# en-hash: 66fe5475a73859a22a0ae5700bef42bc
+msgid "Configure %s..."
+msgstr "Настроить %s..."
 
 # en-hash: 211bafda79e78cb41c9603b58bef5a55
 msgid "Connect %s"
 msgstr "Подключить %s"
+
+# en-hash: c3f550ab4e1569992f931ccc143b2036
+msgid "Connect %s..."
+msgstr "Подключить %s..."
 
 # en-hash: a0d751dcebdc3dfa81b875be960fb184
 msgid "Connected to %s successfully!"
@@ -340,6 +364,10 @@ msgstr "Создание архива резервной копии"
 # en-hash: 744989ee31aa7ce02b0a1dbbcad2a3c1
 msgid "Creating safety rollback snapshot..."
 msgstr "Создание безопасной точки восстановления..."
+
+# en-hash: 2592cacd648e112a4a88c05d0928c658
+msgid "Custom Limit..."
+msgstr "Свой лимит..."
 
 # en-hash: b9c28cd73fa0dd157c2e86a6af29d463
 msgid "Decrypting files..."
@@ -621,6 +649,22 @@ msgstr "Недопустимое имя файла в данных Beam."
 msgid "Invalid filename in backup path."
 msgstr "Недопустимое имя файла в пути резервного копирования."
 
+# en-hash: ebce14b7294ff0be9cea760115786fbc
+msgid "Keep all backups (Unlimited)"
+msgstr "Сохранять все резервные копии (без ограничений)"
+
+# en-hash: a596386e6f2c58a4deca493b1dd025d2
+msgid "Keep newest 10 backups"
+msgstr "Сохранять 10 новейших копий"
+
+# en-hash: 2be0dda6998662d38de55eb09b740f3b
+msgid "Keep newest 3 backups"
+msgstr "Сохранять 3 новейшие копии"
+
+# en-hash: 92a4e288a8f9618873bccdeb32c2e0b0
+msgid "Keep newest 5 backups (Default)"
+msgstr "Сохранять 5 новейших копий (по умолчанию)"
+
 # en-hash: 79429c7a4f1314ebbe4b2a8455a09ba8
 msgid "Manage %s Backups"
 msgstr "Управление резервными копиями %s"
@@ -801,6 +845,10 @@ msgstr "Рекомендуемые"
 msgid "Registering code with Beam relay..."
 msgstr "Регистрация кода на сервере Beam..."
 
+# en-hash: eade8417c0d25ef9ac1b42feeed7cea5
+msgid "Relay Server: %s"
+msgstr "Ретранслятор: %s"
+
 # en-hash: 2d5e099b29563da5e67db51a71438c04
 msgid "Remote Backup Folder"
 msgstr "Папка удаленного резервного копирования"
@@ -812,6 +860,10 @@ msgstr "Удаленная папка: %s"
 # en-hash: d6ed253ff449bbd9606eff83124f1f2e
 msgid "Reset Default"
 msgstr "Сбросить"
+
+# en-hash: ff5bcc0096b8c3ceb34137c7082a3fbf
+msgid "Reset Relay to Default"
+msgstr "Сбросить ретранслятор по умолчанию"
 
 # en-hash: 51cfbcff36da74a9fc47f3a5140f99f2
 msgid "Restart"
@@ -844,6 +896,10 @@ msgstr "Восстановление резервной копии"
 # en-hash: 0c3b566bc621cb23ac19bc5a8309064c
 msgid "Retention Limit"
 msgstr "Лимит хранения"
+
+# en-hash: f60aceb5f241efe866d276a90f740568
+msgid "Retention Limit: Keep all (Unlimited)"
+msgstr "Лимит хранения: все (без ограничений)"
 
 # en-hash: 8cf857e68c82670f25c36a1648d648d6
 msgid "Retention Limit: Keep newest %d backups"
@@ -956,6 +1012,14 @@ msgstr "Настройки и жесты интерфейса"
 # en-hash: 022304b329e3f8ec0baa1b0dff584aae
 msgid "Source directory does not exist: %s"
 msgstr "Исходный каталог не существует: %s"
+
+# en-hash: 57bb488549e73f3d5f8009649867ae75
+msgid "Storage Locations & Paths"
+msgstr "Пути и места хранения"
+
+# en-hash: 2b6c445ab31410669df98214429beeab
+msgid "Storage Provider: %s"
+msgstr "Хранилище: %s"
 
 # en-hash: 6fa373b3bf8a90deffa023b29b27752b
 msgid "Style Tweaks"

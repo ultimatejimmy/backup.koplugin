@@ -23,6 +23,10 @@ local InputContainer = require("ui/widget/container/inputcontainer")
 local InputDialog = require("ui/widget/inputdialog")
 local LineWidget = require("ui/widget/linewidget")
 local MultiInputDialog = require("ui/widget/multiinputdialog")
+local ok_menu, Menu = pcall(require, "ui/widget/menu")
+if not ok_menu or not Menu then
+    Menu = nil
+end
 local ok_pbd, ProgressbarDialog = pcall(require, "ui/widget/progressbardialog")
 local ok_qr, QRWidget = pcall(require, "ui/widget/qrwidget")
 if not ok_qr or not QRWidget then
@@ -346,6 +350,8 @@ local function getPluginSettings()
     end
     return _settings_cache
 end
+BackupUI.getPluginSettings = getPluginSettings
+BackupUI._resetSettingsCache = function() _settings_cache = nil end
 
 local function savePluginSettings()
     local s = getPluginSettings()
@@ -1724,314 +1730,494 @@ function BackupUI.showManageBackupsDialog()
 end
 
 -- --------------------------------------------------------------------------
--- 6. Settings Dialog
+-- 6. Settings Submenus and Dialog
 -- --------------------------------------------------------------------------
-function BackupUI.showSettingsDialog()
-    local s = getPluginSettings()
-    local dialog
-    local focus_state = createFocusState()
-    local refresh
 
-    local function closeSettings()
-        if dialog then
-            local d = dialog
-            dialog = nil
-            UIManager:close(d)
+local function refreshMenuState(refresh_cb, menu_inst)
+    if refresh_cb then
+        refresh_cb()
+    end
+    if menu_inst and type(menu_inst.updateItems) == "function" then
+        menu_inst:updateItems()
+    end
+    UIManager:setDirty(nil, "ui")
+end
+
+--- Returns the submenu items for storage folder settings.
+function BackupUI.getStorageSettingsSubmenu(refresh_cb)
+    local s = getPluginSettings()
+
+    return {
+        {
+            text_func = function()
+                return string.format(_("Backup Folder: %s"), getEffectiveBackupDir())
+            end,
+            keep_menu_open = true,
+            callback = function(touch_menu)
+                FolderPicker.show{
+                    title = _("Select Backup Folder"),
+                    initial_path = getEffectiveBackupDir(),
+                    on_confirm = function(chosen)
+                        if chosen and chosen ~= "" then
+                            s.custom_backup_dir = chosen
+                            savePluginSettings()
+                        end
+                        refreshMenuState(refresh_cb, touch_menu)
+                    end,
+                    on_cancel = function()
+                        refreshMenuState(refresh_cb, touch_menu)
+                    end,
+                }
+            end,
+        },
+        {
+            text_func = function()
+                local books_dir = s.custom_books_dir or ArchiverMgr.getEffectiveBooksDir()
+                return string.format(_("Books Folder: %s"), books_dir)
+            end,
+            keep_menu_open = true,
+            callback = function(touch_menu)
+                local books_dir = s.custom_books_dir or ArchiverMgr.getEffectiveBooksDir()
+                FolderPicker.show{
+                    title = _("Select Books Folder"),
+                    initial_path = books_dir,
+                    on_confirm = function(chosen)
+                        if chosen and chosen ~= "" then
+                            s.custom_books_dir = chosen
+                            savePluginSettings()
+                        end
+                        refreshMenuState(refresh_cb, touch_menu)
+                    end,
+                    on_cancel = function()
+                        refreshMenuState(refresh_cb, touch_menu)
+                    end,
+                }
+            end,
+        },
+    }
+end
+
+--- Returns the submenu items for archive format, retention, and restore policies.
+function BackupUI.getArchiveSettingsSubmenu(refresh_cb)
+    local s = getPluginSettings()
+
+    return {
+        {
+            text_func = function()
+                return string.format(_("Archive Format (.%s)"), (s.default_format or "zip"):upper())
+            end,
+            keep_menu_open = true,
+            sub_item_table = {
+                {
+                    text = _(".ZIP (Standard compatibility)"),
+                    radio = true,
+                    keep_menu_open = true,
+                    checked_func = function()
+                        return (s.default_format or "zip") ~= "tar.gz"
+                    end,
+                    callback = function(touch_menu)
+                        s.default_format = "zip"
+                        savePluginSettings()
+                        refreshMenuState(refresh_cb, touch_menu)
+                    end,
+                },
+                {
+                    text = _(".TAR.GZ (Compact compression)"),
+                    radio = true,
+                    keep_menu_open = true,
+                    checked_func = function()
+                        return s.default_format == "tar.gz"
+                    end,
+                    callback = function(touch_menu)
+                        s.default_format = "tar.gz"
+                        savePluginSettings()
+                        refreshMenuState(refresh_cb, touch_menu)
+                    end,
+                },
+            },
+        },
+        {
+            text_func = function()
+                local n = s.retention_limit or 5
+                if n == 0 then
+                    return _("Retention Limit: Keep all (Unlimited)")
+                else
+                    return string.format(_("Retention Limit: Keep newest %d backups"), n)
+                end
+            end,
+            keep_menu_open = true,
+            sub_item_table_func = function()
+                return {
+                    {
+                        text = _("Keep newest 3 backups"),
+                        radio = true,
+                        keep_menu_open = true,
+                        checked_func = function() return (s.retention_limit or 5) == 3 end,
+                        callback = function(touch_menu)
+                            s.retention_limit = 3
+                            savePluginSettings()
+                            refreshMenuState(refresh_cb, touch_menu)
+                        end,
+                    },
+                    {
+                        text = _("Keep newest 5 backups (Default)"),
+                        radio = true,
+                        keep_menu_open = true,
+                        checked_func = function() return (s.retention_limit or 5) == 5 end,
+                        callback = function(touch_menu)
+                            s.retention_limit = 5
+                            savePluginSettings()
+                            refreshMenuState(refresh_cb, touch_menu)
+                        end,
+                    },
+                    {
+                        text = _("Keep newest 10 backups"),
+                        radio = true,
+                        keep_menu_open = true,
+                        checked_func = function() return (s.retention_limit or 5) == 10 end,
+                        callback = function(touch_menu)
+                            s.retention_limit = 10
+                            savePluginSettings()
+                            refreshMenuState(refresh_cb, touch_menu)
+                        end,
+                    },
+                    {
+                        text = _("Keep all backups (Unlimited)"),
+                        radio = true,
+                        keep_menu_open = true,
+                        checked_func = function() return (s.retention_limit or 5) == 0 end,
+                        callback = function(touch_menu)
+                            s.retention_limit = 0
+                            savePluginSettings()
+                            refreshMenuState(refresh_cb, touch_menu)
+                        end,
+                    },
+                    {
+                        text = _("Custom Limit..."),
+                        keep_menu_open = true,
+                        callback = function(touch_menu)
+                            local spin_dialog
+                            spin_dialog = InputDialog:new{
+                                title = _("Retention Limit"),
+                                description = _("Number of rolling backups to keep (0 = unlimited):"),
+                                input = tostring(s.retention_limit or 5),
+                                buttons = {
+                                    {
+                                        {
+                                            text = _("Cancel"),
+                                            callback = function()
+                                                UIManager:close(spin_dialog)
+                                                UIManager:nextTick(function() refreshMenuState(refresh_cb, touch_menu) end)
+                                            end,
+                                        },
+                                        {
+                                            text = _("Save"),
+                                            is_enter_default = true,
+                                            callback = function()
+                                                local num = tonumber(spin_dialog:getInputText())
+                                                UIManager:close(spin_dialog)
+                                                if num and num >= 0 then
+                                                    s.retention_limit = math.floor(num)
+                                                    savePluginSettings()
+                                                end
+                                                UIManager:nextTick(function() refreshMenuState(refresh_cb, touch_menu) end)
+                                            end,
+                                        },
+                                    },
+                                },
+                            }
+                            UIManager:show(spin_dialog)
+                        end,
+                    },
+                }
+            end,
+        },
+        {
+            text = _("Clean Slate Restore (Remove unlisted plugins)"),
+            keep_menu_open = true,
+            checked_func = function()
+                return s.clean_slate_restore == true
+            end,
+            callback = function(touch_menu)
+                s.clean_slate_restore = not s.clean_slate_restore
+                savePluginSettings()
+                refreshMenuState(refresh_cb, touch_menu)
+            end,
+        },
+    }
+end
+
+--- Returns the submenu items for cloud storage provider configuration and management.
+function BackupUI.getCloudSettingsSubmenu(refresh_cb)
+    local s = getPluginSettings()
+
+    local provider_list = {
+        Constants.CLOUD_PROVIDERS.NONE,
+        Constants.CLOUD_PROVIDERS.GDRIVE,
+        Constants.CLOUD_PROVIDERS.ONEDRIVE,
+        Constants.CLOUD_PROVIDERS.DROPBOX,
+        Constants.CLOUD_PROVIDERS.WEBDAV,
+        Constants.CLOUD_PROVIDERS.FTP,
+        Constants.CLOUD_PROVIDERS.SFTP,
+    }
+
+    local provider_subitems = {}
+    for _, p in ipairs(provider_list) do
+        table.insert(provider_subitems, {
+            text = Cloud.getProviderLabel(p),
+            radio = true,
+            keep_menu_open = true,
+            checked_func = function()
+                return (s.cloud_provider or Constants.CLOUD_PROVIDERS.NONE) == p
+            end,
+            callback = function(touch_menu)
+                s.cloud_provider = p
+                savePluginSettings()
+                refreshMenuState(refresh_cb, touch_menu)
+            end,
+        })
+    end
+
+    local items = {
+        {
+            text_func = function()
+                return string.format(_("Storage Provider: %s"), Cloud.getProviderLabel(s.cloud_provider or "none"))
+            end,
+            keep_menu_open = true,
+            sub_item_table = provider_subitems,
+        },
+    }
+
+    if s.cloud_provider and s.cloud_provider ~= "none" then
+        table.insert(items, {
+            text_func = function()
+                if not Cloud.isConfigured(s.cloud_provider) then
+                    return string.format(_("Connect %s..."), Cloud.getProviderLabel(s.cloud_provider))
+                else
+                    return string.format(_("Configure %s..."), Cloud.getProviderLabel(s.cloud_provider))
+                end
+            end,
+            keep_menu_open = true,
+            callback = function(touch_menu)
+                BackupUI.showCloudConfigDialog(s.cloud_provider, function()
+                    refreshMenuState(refresh_cb, touch_menu)
+                end)
+            end,
+        })
+
+        table.insert(items, {
+            text = _("Test Cloud Connection"),
+            keep_menu_open = true,
+            callback = function(touch_menu)
+                local info = InfoMessage:new{ text = _("Testing cloud connection...") }
+                UIManager:show(info)
+                UIManager:nextTick(function()
+                    Cloud.testConnection(s.cloud_provider, function(ok, msg)
+                        UIManager:close(info)
+                        UIManager:show(InfoMessage:new{
+                            text = msg or (ok and _("Connection successful!") or _("Connection failed")),
+                            timeout = 4,
+                        })
+                        refreshMenuState(refresh_cb, touch_menu)
+                    end)
+                end)
+            end,
+        })
+
+        table.insert(items, {
+            text_func = function()
+                return string.format(_("Remote Folder: %s"), s.cloud_remote_dir or Constants.CLOUD_DEFAULT_REMOTE_DIR or "koreader_backups")
+            end,
+            keep_menu_open = true,
+            callback = function(touch_menu)
+                local folder_dlg
+                folder_dlg = InputDialog:new{
+                    title = _("Remote Backup Folder"),
+                    description = _("Name of folder on remote storage:"),
+                    input = s.cloud_remote_dir or Constants.CLOUD_DEFAULT_REMOTE_DIR or "koreader_backups",
+                    buttons = {
+                        {
+                            {
+                                text = _("Cancel"),
+                                callback = function()
+                                    UIManager:close(folder_dlg)
+                                    UIManager:nextTick(function() refreshMenuState(refresh_cb, touch_menu) end)
+                                end,
+                            },
+                            {
+                                text = _("Save"),
+                                is_enter_default = true,
+                                callback = function()
+                                    local new_val = folder_dlg:getInputText()
+                                    UIManager:close(folder_dlg)
+                                    if new_val and new_val ~= "" then
+                                        s.cloud_remote_dir = new_val:gsub("^/+", ""):gsub("/+$", "")
+                                        savePluginSettings()
+                                    end
+                                    UIManager:nextTick(function() refreshMenuState(refresh_cb, touch_menu) end)
+                                end,
+                            },
+                        },
+                    },
+                }
+                UIManager:show(folder_dlg)
+            end,
+        })
+
+        if Cloud.isConfigured(s.cloud_provider) then
+            table.insert(items, {
+                text = string.format(_("Browse Cloud Backups (%s) ▸"), Cloud.getProviderLabel(s.cloud_provider)),
+                keep_menu_open = true,
+                callback = function(touch_menu)
+                    BackupUI.showManageCloudBackupsDialog(function()
+                        refreshMenuState(refresh_cb, touch_menu)
+                    end)
+                end,
+            })
         end
     end
 
-    refresh = function(target_x, target_y)
-        local focus_x, focus_y
-        if target_x and target_y then
-            focus_x = target_x
-            focus_y = target_y
-        elseif dialog and dialog.selected then
-            focus_x = dialog.selected.x
-            focus_y = dialog.selected.y
-        end
-        focus_state:onBeforeRefresh()
-        if dialog then
-            local d = dialog
-            dialog = nil
-            UIManager:close(d)
-        end
+    return items
+end
 
-        local current_dir = getEffectiveBackupDir()
-        local current_books_dir = s.custom_books_dir or ArchiverMgr.getEffectiveBooksDir()
+--- Returns the submenu items for Beam wireless relay server transfer.
+function BackupUI.getBeamSettingsSubmenu(refresh_cb)
+    local s = getPluginSettings()
 
-        local buttons = {
-            {
-                {
-                    text = string.format(_("Backup Folder:\n%s"), current_dir),
-                    callback = function()
-                        closeSettings()
-                        FolderPicker.show{
-                            title = _("Select Backup Folder"),
-                            initial_path = current_dir,
-                            on_confirm = function(chosen)
-                                if chosen and chosen ~= "" then
-                                    s.custom_backup_dir = chosen
+    return {
+        {
+            text_func = function()
+                return string.format(_("Relay Server: %s"), s.beam_relay_url or Constants.BEAM_DEFAULT_RELAY_URL)
+            end,
+            keep_menu_open = true,
+            callback = function(touch_menu)
+                local relay_dialog
+                relay_dialog = InputDialog:new{
+                    title = _("Beam Relay Server"),
+                    description = _("HTTPS address of the ephemeral Beam relay:"),
+                    input = s.beam_relay_url or Constants.BEAM_DEFAULT_RELAY_URL,
+                    buttons = {
+                        {
+                            {
+                                text = _("Cancel"),
+                                callback = function()
+                                    UIManager:close(relay_dialog)
+                                    UIManager:nextTick(function() refreshMenuState(refresh_cb, touch_menu) end)
+                                end,
+                            },
+                            {
+                                text = _("Reset Default"),
+                                callback = function()
+                                    s.beam_relay_url = Constants.BEAM_DEFAULT_RELAY_URL
                                     savePluginSettings()
-                                end
-                                UIManager:nextTick(function()
-                                    refresh(1, 1)
-                                end)
-                            end,
-                            on_cancel = function()
-                                UIManager:nextTick(function()
-                                    refresh(1, 1)
-                                end)
-                            end,
-                        }
-                    end,
-                },
-            },
-            {
-                {
-                    text = string.format(_("Books Folder:\n%s"), current_books_dir),
-                    callback = function()
-                        closeSettings()
-                        FolderPicker.show{
-                            title = _("Select Books Folder"),
-                            initial_path = current_books_dir,
-                            on_confirm = function(chosen)
-                                if chosen and chosen ~= "" then
-                                    s.custom_books_dir = chosen
-                                    savePluginSettings()
-                                end
-                                UIManager:nextTick(function()
-                                    refresh(1, 2)
-                                end)
-                            end,
-                            on_cancel = function()
-                                UIManager:nextTick(function()
-                                    refresh(1, 2)
-                                end)
-                            end,
-                        }
-                    end,
-                },
-            },
-            {
-                {
-                    text = string.format(_("Format: .%s"), (s.default_format or "zip"):upper()),
-                    callback = function()
-                        s.default_format = (s.default_format == "zip") and "tar.gz" or "zip"
-                        savePluginSettings()
-                        refresh(1, 3)
-                    end,
-                },
-            },
-            {
-                {
-                    text = string.format(_("Retention Limit: Keep newest %d backups"), s.retention_limit or 5),
-                    callback = function()
-                        closeSettings()
-                        local spin_dialog
-                        spin_dialog = InputDialog:new{
-                            title = _("Retention Limit"),
-                            description = _("Number of rolling backups to keep (0 = unlimited):"),
-                            input = tostring(s.retention_limit or 5),
-                            buttons = {
-                                {
-                                    {
-                                        text = _("Cancel"),
-                                        callback = function()
-                                            UIManager:close(spin_dialog)
-                                            UIManager:nextTick(function()
-                                                refresh(1, 4)
-                                            end)
-                                        end,
-                                    },
-                                    {
-                                        text = _("Save"),
-                                        is_enter_default = true,
-                                        callback = function()
-                                            local num = tonumber(spin_dialog:getInputText())
-                                            UIManager:close(spin_dialog)
-                                            if num and num >= 0 then
-                                                s.retention_limit = math.floor(num)
-                                                savePluginSettings()
-                                            end
-                                            UIManager:nextTick(function()
-                                                refresh(1, 4)
-                                            end)
-                                        end,
-                                    },
-                                },
+                                    UIManager:close(relay_dialog)
+                                    UIManager:nextTick(function() refreshMenuState(refresh_cb, touch_menu) end)
+                                end,
                             },
-                        }
-                        UIManager:show(spin_dialog)
-                    end,
-                },
-            },
-            {
-                {
-                    text = string.format("%s:\n%s", _("Beam Relay Server"), s.beam_relay_url or Constants.BEAM_DEFAULT_RELAY_URL),
-                    callback = function()
-                        closeSettings()
-                        local relay_dialog
-                        relay_dialog = InputDialog:new{
-                            title = _("Beam Relay Server"),
-                            description = _("HTTPS address of the ephemeral Beam relay:"),
-                            input = s.beam_relay_url or Constants.BEAM_DEFAULT_RELAY_URL,
-                            buttons = {
-                                {
-                                    {
-                                        text = _("Cancel"),
-                                        callback = function()
-                                            UIManager:close(relay_dialog)
-                                            UIManager:nextTick(function() refresh(1, 5) end)
-                                        end,
-                                    },
-                                    {
-                                        text = _("Reset Default"),
-                                        callback = function()
-                                            s.beam_relay_url = Constants.BEAM_DEFAULT_RELAY_URL
-                                            savePluginSettings()
-                                            UIManager:close(relay_dialog)
-                                            UIManager:nextTick(function() refresh(1, 5) end)
-                                        end,
-                                    },
-                                    {
-                                        text = _("Save"),
-                                        is_enter_default = true,
-                                        callback = function()
-                                            local url = relay_dialog:getInputText()
-                                            UIManager:close(relay_dialog)
-                                            if url and url ~= "" then
-                                                s.beam_relay_url = url
-                                                savePluginSettings()
-                                            end
-                                            UIManager:nextTick(function() refresh(1, 5) end)
-                                        end,
-                                    },
-                                },
+                            {
+                                text = _("Save"),
+                                is_enter_default = true,
+                                callback = function()
+                                    local url = relay_dialog:getInputText()
+                                    UIManager:close(relay_dialog)
+                                    if url and url ~= "" then
+                                        s.beam_relay_url = url
+                                        savePluginSettings()
+                                    end
+                                    UIManager:nextTick(function() refreshMenuState(refresh_cb, touch_menu) end)
+                                end,
                             },
-                        }
-                        UIManager:show(relay_dialog)
-                    end,
-                },
-            },
-            {
-                {
-                    text = string.format(_("Cloud Storage: %s"), Cloud.getProviderLabel(s.cloud_provider or "none")),
-                    callback = function()
-                        closeSettings()
-                        BackupUI.showCloudProviderPicker(function()
-                            BackupUI.showSettingsDialog()
-                        end)
-                    end,
-                },
-            },
-            ((s.cloud_provider and s.cloud_provider ~= "none") and {
-                {
-                    text = (not Cloud.isConfigured(s.cloud_provider))
-                        and string.format(_("Connect %s"), Cloud.getProviderLabel(s.cloud_provider))
-                        or string.format(_("Configure %s"), Cloud.getProviderLabel(s.cloud_provider)),
-                    callback = function()
-                        closeSettings()
-                        BackupUI.showCloudConfigDialog(s.cloud_provider, function()
-                            BackupUI.showSettingsDialog()
-                        end)
-                    end,
-                },
-                {
-                    text = _("Test Cloud Connection"),
-                    callback = function()
-                        local info = InfoMessage:new{ text = _("Testing cloud connection...") }
-                        UIManager:show(info)
-                        UIManager:nextTick(function()
-                            Cloud.testConnection(s.cloud_provider, function(ok, msg)
-                                UIManager:close(info)
-                                UIManager:show(InfoMessage:new{
-                                    text = msg or (ok and _("Connection successful!") or _("Connection failed")),
-                                    timeout = 4,
-                                })
-                            end)
-                        end)
-                    end,
-                },
-            } or nil),
-            ((s.cloud_provider and s.cloud_provider ~= "none" and Cloud.isConfigured(s.cloud_provider)) and {
-                {
-                    text = string.format(_("Cloud Backups (%s) ▸"), Cloud.getProviderLabel(s.cloud_provider)),
-                    callback = function()
-                        closeSettings()
-                        BackupUI.showManageCloudBackupsDialog(function()
-                            BackupUI.showSettingsDialog()
-                        end)
-                    end,
-                },
-            } or nil),
-            ((s.cloud_provider and s.cloud_provider ~= "none") and {
-                {
-                    text = string.format(_("Remote Folder: %s"), s.cloud_remote_dir or Constants.CLOUD_DEFAULT_REMOTE_DIR or "koreader_backups"),
-                    callback = function()
-                        closeSettings()
-                        local folder_dlg
-                        folder_dlg = InputDialog:new{
-                            title = _("Remote Backup Folder"),
-                            description = _("Name of folder on remote storage:"),
-                            input = s.cloud_remote_dir or Constants.CLOUD_DEFAULT_REMOTE_DIR or "koreader_backups",
-                            buttons = {
-                                {
-                                    {
-                                        text = _("Cancel"),
-                                        callback = function()
-                                            UIManager:close(folder_dlg)
-                                            UIManager:nextTick(function() refresh() end)
-                                        end,
-                                    },
-                                    {
-                                        text = _("Save"),
-                                        is_enter_default = true,
-                                        callback = function()
-                                            local new_val = folder_dlg:getInputText()
-                                            UIManager:close(folder_dlg)
-                                            if new_val and new_val ~= "" then
-                                                s.cloud_remote_dir = new_val:gsub("^/+", ""):gsub("/+$", "")
-                                                savePluginSettings()
-                                            end
-                                            UIManager:nextTick(function() refresh() end)
-                                        end,
-                                    },
-                                },
-                            },
-                        }
-                        UIManager:show(folder_dlg)
-                    end,
-                },
-            } or nil),
-            {
-                {
-                    text = _("Close"),
-                    callback = function()
-                        closeSettings()
-                    end,
-                },
-            },
-        }
+                        },
+                    },
+                }
+                UIManager:show(relay_dialog)
+            end,
+        },
+        {
+            text = _("Reset Relay to Default"),
+            keep_menu_open = true,
+            enabled_func = function()
+                return (s.beam_relay_url or "") ~= Constants.BEAM_DEFAULT_RELAY_URL
+            end,
+            callback = function(touch_menu)
+                s.beam_relay_url = Constants.BEAM_DEFAULT_RELAY_URL
+                savePluginSettings()
+                refreshMenuState(refresh_cb, touch_menu)
+            end,
+        },
+    }
+end
 
-        -- Filter out nil rows
-        local clean_buttons = {}
-        for idx, row in ipairs(buttons) do
-            if row ~= nil then
-                table.insert(clean_buttons, row)
+--- Returns the 4-category root settings menu table for KOReader native menus.
+function BackupUI.getSettingsMenuTable(refresh_cb)
+    local s = getPluginSettings()
+
+    return {
+        {
+            text = _("Storage Locations & Paths"),
+            keep_menu_open = true,
+            sub_item_table_func = function()
+                return BackupUI.getStorageSettingsSubmenu(refresh_cb)
+            end,
+        },
+        {
+            text = _("Archive Format & Retention"),
+            keep_menu_open = true,
+            sub_item_table_func = function()
+                return BackupUI.getArchiveSettingsSubmenu(refresh_cb)
+            end,
+        },
+        {
+            text_func = function()
+                local cur_s = getPluginSettings()
+                return string.format(_("Cloud Storage (%s)"), Cloud.getProviderLabel(cur_s.cloud_provider or "none"))
+            end,
+            keep_menu_open = true,
+            sub_item_table_func = function()
+                return BackupUI.getCloudSettingsSubmenu(refresh_cb)
+            end,
+        },
+        {
+            text = _("Beam Wireless Transfer"),
+            keep_menu_open = true,
+            sub_item_table_func = function()
+                return BackupUI.getBeamSettingsSubmenu(refresh_cb)
+            end,
+        },
+    }
+end
+
+--- Shows the native KOReader settings menu as a standalone fullscreen widget.
+function BackupUI.showSettingsDialog(on_finish_cb)
+    local menu
+    local function closeMenu()
+        if menu then
+            local m = menu
+            menu = nil
+            UIManager:close(m)
+            if on_finish_cb then
+                UIManager:nextTick(on_finish_cb)
             end
         end
-        buttons = clean_buttons
-
-        dialog = ButtonDialog:new{
-            title = _("Backup & Restore Settings"),
-            buttons = buttons,
-        }
-        focus_state:wrapDialog(dialog)
-        UIManager:show(dialog)
-        focus_state:applyFocus(dialog, focus_x, focus_y)
     end
 
-    refresh()
+    local function refreshMenu()
+        if menu and menu.updateItems then
+            menu:updateItems()
+        end
+    end
+
+    if Menu then
+        menu = Menu:new{
+            title = _("Backup & Restore Settings"),
+            item_table = BackupUI.getSettingsMenuTable(refreshMenu),
+            covers_fullscreen = true,
+        }
+        menu.close_callback = function()
+            closeMenu()
+        end
+        UIManager:show(menu)
+    end
 end
 
 -- --------------------------------------------------------------------------

@@ -136,5 +136,24 @@ describe("backup_main_menu", function()
         for _, item in ipairs(dynamic_sub) do
             assert.is_true(item.keep_menu_open)
         end
+
+        -- Find Settings item and verify its submenus
+        local settings_item = nil
+        for _, item in ipairs(dynamic_sub) do
+            if item.text == "Backup & Restore Settings" then
+                settings_item = item
+                break
+            end
+        end
+        assert.is_not_nil(settings_item)
+        assert.is_function(settings_item.sub_item_table_func)
+
+        local settings_categories = settings_item.sub_item_table_func()
+        assert.is_table(settings_categories)
+        assert.are.equal(4, #settings_categories)
+        for _, cat in ipairs(settings_categories) do
+            assert.is_true(cat.keep_menu_open)
+            assert.is_function(cat.sub_item_table_func)
+        end
     end)
 end)

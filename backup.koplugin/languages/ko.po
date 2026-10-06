@@ -45,6 +45,14 @@ msgstr "+ 새로 만들기"
 msgid ".. (Parent Folder)"
 msgstr ".. (상위 폴더)"
 
+# en-hash: 9a41f2c39afb6eb1b86303f445a573b1
+msgid ".TAR.GZ (Compact compression)"
+msgstr ".TAR.GZ (높은 압축률)"
+
+# en-hash: 716407a6f5f5cb15c3d727b48bc29f98
+msgid ".ZIP (Standard compatibility)"
+msgstr ".ZIP (표준 호환성)"
+
 # en-hash: 336f879eec1bf390db4fa65586734c78
 msgid "And enter this code:"
 msgstr "그리고 이 코드를 입력하세요:"
@@ -56,6 +64,14 @@ msgstr "변경 사항 적용 중..."
 # en-hash: 278867324eb81091bad23a312322cee1
 msgid "Applying settings and components..."
 msgstr "설정 및 구성 요소 적용 중..."
+
+# en-hash: 543c77bd94b3c809e60e636c97030ea0
+msgid "Archive Format & Retention"
+msgstr "압축 형식 및 보관 개수"
+
+# en-hash: f200e2b8893f85a23cc8a00de3b6a84b
+msgid "Archive Format (.%s)"
+msgstr "압축 형식 (.%s)"
 
 # en-hash: fcbaff9ec755238920363a1fff9402a5
 msgid "Archive: %s"
@@ -85,9 +101,9 @@ msgstr "뒤로"
 msgid "Backup & Restore Settings"
 msgstr "백업 및 복원 설정"
 
-# en-hash: 89ae327082969ac88c567110a84d86f6
-msgid "Backup Folder:\n%s"
-msgstr "백업 폴더:\n%s"
+# en-hash: 6f548f415e65b242a7809d2b1ee031f5
+msgid "Backup Folder: %s"
+msgstr "백업 폴더: %s"
 
 # en-hash: fb062769d9d546b0e921d27f871671b1
 msgid "Backup Name"
@@ -120,6 +136,10 @@ msgstr "%s에 백업이 성공적으로 업로드되었습니다!\n\n파일: %s"
 # en-hash: de8e8367246b437c6b06b7b257933d07
 msgid "Beam Relay Server"
 msgstr "Beam 릴레이 서버"
+
+# en-hash: c14639d725272d9246cc2ad0ed69d4c1
+msgid "Beam Wireless Transfer"
+msgstr "Beam 무선 전송"
 
 # en-hash: e6da1ea23eee05a70698d9baa4b735c2
 msgid "Beam code expired or not found. Please verify the 6-digit code on the sending device."
@@ -157,9 +177,13 @@ msgstr "Beam 전송이 취소되었습니다."
 msgid "Beam upload failed:\n%s"
 msgstr "Beam 업로드 실패:\n%s"
 
-# en-hash: 7111d6b15f836624b077a3dcdd7087bf
-msgid "Books Folder:\n%s"
-msgstr "도서 폴더:\n%s"
+# en-hash: a71eb14f4ac46cebafbd6098c789bf6a
+msgid "Books Folder: %s"
+msgstr "도서 폴더: %s"
+
+# en-hash: dd221263f507d0afb75318382497db4e
+msgid "Browse Cloud Backups (%s) ▸"
+msgstr "클라우드 백업 찾아보기 (%s) ▸"
 
 # en-hash: 12d72fb625ec7cee14aac12f2392eee1
 msgid "Browse Folder"
@@ -169,10 +193,6 @@ msgstr "폴더 찾아보기"
 msgid "Cancel"
 msgstr "취소"
 
-# en-hash: a3a3b59ffa5b8e146a78268eb4a23427
-msgid "Canceling operation..."
-msgstr "작업 취소 중..."
-
 # en-hash: ba9adecf9a948664724f010fe9ffd733
 msgid "Canceling..."
 msgstr "취소 중..."
@@ -181,9 +201,9 @@ msgstr "취소 중..."
 msgid "Clean Slate (Remove unlisted plugins)"
 msgstr "클린 설치 (목록에 없는 플러그인 제거)"
 
-# en-hash: f27f9b10f84ccf1a56c1530d2db1a410
-msgid "Cleaning up temporary files..."
-msgstr "임시 파일 정리 중..."
+# en-hash: e9740d4bd4658cebb65e36a67c56af05
+msgid "Clean Slate Restore (Remove unlisted plugins)"
+msgstr "클린 복원 (목록에 없는 플러그인 제거)"
 
 # en-hash: e77fef0167598bb39846637ac3915f4e
 msgid "Clear All"
@@ -201,9 +221,9 @@ msgstr "클라우드 백업 (%s)"
 msgid "Cloud Backups (%s) ▸"
 msgstr "클라우드 백업 (%s) ▸"
 
-# en-hash: eecd606aaa9f5ce6977efc64386f750d
-msgid "Cloud Storage: %s"
-msgstr "클라우드 저장소: %s"
+# en-hash: be545e346f83b23f46415b456a32a258
+msgid "Cloud Storage (%s)"
+msgstr "클라우드 스토리지 (%s)"
 
 # en-hash: 4f1021ed4c7eca368a875ad306441315
 msgid "Cloud download canceled."
@@ -229,13 +249,17 @@ msgstr "복원할 구성 요소: %s ▸"
 msgid "Components: %s ▸"
 msgstr "구성 요소: %s ▸"
 
-# en-hash: 9632519f95db5a4d4b26d97fe5f69dbf
-msgid "Configure %s"
-msgstr "%s 설정"
+# en-hash: 66fe5475a73859a22a0ae5700bef42bc
+msgid "Configure %s..."
+msgstr "%s 설정..."
 
 # en-hash: 211bafda79e78cb41c9603b58bef5a55
 msgid "Connect %s"
 msgstr "%s 연결"
+
+# en-hash: c3f550ab4e1569992f931ccc143b2036
+msgid "Connect %s..."
+msgstr "%s 연결..."
 
 # en-hash: a0d751dcebdc3dfa81b875be960fb184
 msgid "Connected to %s successfully!"
@@ -340,6 +364,10 @@ msgstr "백업 아카이브 생성 중"
 # en-hash: 744989ee31aa7ce02b0a1dbbcad2a3c1
 msgid "Creating safety rollback snapshot..."
 msgstr "안전 롤백 스냅샷 생성 중..."
+
+# en-hash: 2592cacd648e112a4a88c05d0928c658
+msgid "Custom Limit..."
+msgstr "사용자 지정 제한..."
 
 # en-hash: b9c28cd73fa0dd157c2e86a6af29d463
 msgid "Decrypting files..."
@@ -621,6 +649,22 @@ msgstr "Beam 페이로드의 파일 이름이 잘못되었습니다."
 msgid "Invalid filename in backup path."
 msgstr "백업 경로에 잘못된 파일 이름이 있습니다."
 
+# en-hash: ebce14b7294ff0be9cea760115786fbc
+msgid "Keep all backups (Unlimited)"
+msgstr "모든 백업 유지 (무제한)"
+
+# en-hash: a596386e6f2c58a4deca493b1dd025d2
+msgid "Keep newest 10 backups"
+msgstr "최신 백업 10개 유지"
+
+# en-hash: 2be0dda6998662d38de55eb09b740f3b
+msgid "Keep newest 3 backups"
+msgstr "최신 백업 3개 유지"
+
+# en-hash: 92a4e288a8f9618873bccdeb32c2e0b0
+msgid "Keep newest 5 backups (Default)"
+msgstr "최신 백업 5개 유지 (기본값)"
+
 # en-hash: 79429c7a4f1314ebbe4b2a8455a09ba8
 msgid "Manage %s Backups"
 msgstr "%s 백업 관리"
@@ -801,6 +845,10 @@ msgstr "권장"
 msgid "Registering code with Beam relay..."
 msgstr "Beam 중계에 코드 등록 중..."
 
+# en-hash: eade8417c0d25ef9ac1b42feeed7cea5
+msgid "Relay Server: %s"
+msgstr "릴레이 서버: %s"
+
 # en-hash: 2d5e099b29563da5e67db51a71438c04
 msgid "Remote Backup Folder"
 msgstr "원격 백업 폴더"
@@ -812,6 +860,10 @@ msgstr "원격 폴더: %s"
 # en-hash: d6ed253ff449bbd9606eff83124f1f2e
 msgid "Reset Default"
 msgstr "기본값 복원"
+
+# en-hash: ff5bcc0096b8c3ceb34137c7082a3fbf
+msgid "Reset Relay to Default"
+msgstr "릴레이를 기본값으로 재설정"
 
 # en-hash: 51cfbcff36da74a9fc47f3a5140f99f2
 msgid "Restart"
@@ -844,6 +896,10 @@ msgstr "백업 복원 중"
 # en-hash: 0c3b566bc621cb23ac19bc5a8309064c
 msgid "Retention Limit"
 msgstr "보관 제한"
+
+# en-hash: f60aceb5f241efe866d276a90f740568
+msgid "Retention Limit: Keep all (Unlimited)"
+msgstr "보관 제한: 모두 유지 (무제한)"
 
 # en-hash: 8cf857e68c82670f25c36a1648d648d6
 msgid "Retention Limit: Keep newest %d backups"
@@ -956,6 +1012,14 @@ msgstr "설정 및 제스처"
 # en-hash: 022304b329e3f8ec0baa1b0dff584aae
 msgid "Source directory does not exist: %s"
 msgstr "원본 디렉터리가 존재하지 않습니다: %s"
+
+# en-hash: 57bb488549e73f3d5f8009649867ae75
+msgid "Storage Locations & Paths"
+msgstr "저장소 위치 및 경로"
+
+# en-hash: 2b6c445ab31410669df98214429beeab
+msgid "Storage Provider: %s"
+msgstr "저장소 공급자: %s"
 
 # en-hash: 6fa373b3bf8a90deffa023b29b27752b
 msgid "Style Tweaks"

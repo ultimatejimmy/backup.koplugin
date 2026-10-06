@@ -45,6 +45,14 @@ msgstr "+ Yeni"
 msgid ".. (Parent Folder)"
 msgstr ".. (Üst Klasör)"
 
+# en-hash: 9a41f2c39afb6eb1b86303f445a573b1
+msgid ".TAR.GZ (Compact compression)"
+msgstr ".TAR.GZ (Kompakt sıkıştırma)"
+
+# en-hash: 716407a6f5f5cb15c3d727b48bc29f98
+msgid ".ZIP (Standard compatibility)"
+msgstr ".ZIP (Standart uyumluluk)"
+
 # en-hash: 336f879eec1bf390db4fa65586734c78
 msgid "And enter this code:"
 msgstr "Ve şu kodu girin:"
@@ -56,6 +64,14 @@ msgstr "Değişiklikler uygulanıyor..."
 # en-hash: 278867324eb81091bad23a312322cee1
 msgid "Applying settings and components..."
 msgstr "Ayarlar ve bileşenler uygulanıyor..."
+
+# en-hash: 543c77bd94b3c809e60e636c97030ea0
+msgid "Archive Format & Retention"
+msgstr "Arşiv Formatı ve Saklama"
+
+# en-hash: f200e2b8893f85a23cc8a00de3b6a84b
+msgid "Archive Format (.%s)"
+msgstr "Arşiv Formatı (.%s)"
 
 # en-hash: fcbaff9ec755238920363a1fff9402a5
 msgid "Archive: %s"
@@ -85,9 +101,9 @@ msgstr "Geri"
 msgid "Backup & Restore Settings"
 msgstr "Yedekleme ve Geri Yükleme Ayarları"
 
-# en-hash: 89ae327082969ac88c567110a84d86f6
-msgid "Backup Folder:\n%s"
-msgstr "Yedek Klasörü:\n%s"
+# en-hash: 6f548f415e65b242a7809d2b1ee031f5
+msgid "Backup Folder: %s"
+msgstr "Yedekleme Klasörü: %s"
 
 # en-hash: fb062769d9d546b0e921d27f871671b1
 msgid "Backup Name"
@@ -120,6 +136,10 @@ msgstr "Yedekleme %s adresine başarıyla yüklendi!\n\nDosya: %s"
 # en-hash: de8e8367246b437c6b06b7b257933d07
 msgid "Beam Relay Server"
 msgstr "Beam Aktarım Sunucusu"
+
+# en-hash: c14639d725272d9246cc2ad0ed69d4c1
+msgid "Beam Wireless Transfer"
+msgstr "Beam Kablosuz Aktarım"
 
 # en-hash: e6da1ea23eee05a70698d9baa4b735c2
 msgid "Beam code expired or not found. Please verify the 6-digit code on the sending device."
@@ -157,9 +177,13 @@ msgstr "Beam aktarımı iptal edildi."
 msgid "Beam upload failed:\n%s"
 msgstr "Beam yüklemesi başarısız:\n%s"
 
-# en-hash: 7111d6b15f836624b077a3dcdd7087bf
-msgid "Books Folder:\n%s"
-msgstr "Kitaplar Klasörü:\n%s"
+# en-hash: a71eb14f4ac46cebafbd6098c789bf6a
+msgid "Books Folder: %s"
+msgstr "Kitaplar Klasörü: %s"
+
+# en-hash: dd221263f507d0afb75318382497db4e
+msgid "Browse Cloud Backups (%s) ▸"
+msgstr "Bulut Yedeklemelerine Göz At (%s) ▸"
 
 # en-hash: 12d72fb625ec7cee14aac12f2392eee1
 msgid "Browse Folder"
@@ -169,10 +193,6 @@ msgstr "Klasöre Göz At"
 msgid "Cancel"
 msgstr "İptal"
 
-# en-hash: a3a3b59ffa5b8e146a78268eb4a23427
-msgid "Canceling operation..."
-msgstr "İşlem iptal ediliyor..."
-
 # en-hash: ba9adecf9a948664724f010fe9ffd733
 msgid "Canceling..."
 msgstr "İptal ediliyor..."
@@ -181,9 +201,9 @@ msgstr "İptal ediliyor..."
 msgid "Clean Slate (Remove unlisted plugins)"
 msgstr "Temiz Kurulum (listelenmeyen eklentileri kaldır)"
 
-# en-hash: f27f9b10f84ccf1a56c1530d2db1a410
-msgid "Cleaning up temporary files..."
-msgstr "Geçici dosyalar temizleniyor..."
+# en-hash: e9740d4bd4658cebb65e36a67c56af05
+msgid "Clean Slate Restore (Remove unlisted plugins)"
+msgstr "Temiz Kurulum Geri Yüklemesi (Listelenmeyen eklentileri kaldır)"
 
 # en-hash: e77fef0167598bb39846637ac3915f4e
 msgid "Clear All"
@@ -201,9 +221,9 @@ msgstr "Bulut Yedekleri (%s)"
 msgid "Cloud Backups (%s) ▸"
 msgstr "Bulut Yedekleri (%s) ▸"
 
-# en-hash: eecd606aaa9f5ce6977efc64386f750d
-msgid "Cloud Storage: %s"
-msgstr "Bulut Depolama: %s"
+# en-hash: be545e346f83b23f46415b456a32a258
+msgid "Cloud Storage (%s)"
+msgstr "Bulut Depolama (%s)"
 
 # en-hash: 4f1021ed4c7eca368a875ad306441315
 msgid "Cloud download canceled."
@@ -229,13 +249,17 @@ msgstr "Geri Yüklenecek Bileşenler: %s ▸"
 msgid "Components: %s ▸"
 msgstr "Bileşenler: %s ▸"
 
-# en-hash: 9632519f95db5a4d4b26d97fe5f69dbf
-msgid "Configure %s"
-msgstr "%s Yapılandır"
+# en-hash: 66fe5475a73859a22a0ae5700bef42bc
+msgid "Configure %s..."
+msgstr "%s Yapılandır..."
 
 # en-hash: 211bafda79e78cb41c9603b58bef5a55
 msgid "Connect %s"
 msgstr "%s Bağlan"
+
+# en-hash: c3f550ab4e1569992f931ccc143b2036
+msgid "Connect %s..."
+msgstr "%s Bağlan..."
 
 # en-hash: a0d751dcebdc3dfa81b875be960fb184
 msgid "Connected to %s successfully!"
@@ -340,6 +364,10 @@ msgstr "Yedek Arşivi Oluşturuluyor"
 # en-hash: 744989ee31aa7ce02b0a1dbbcad2a3c1
 msgid "Creating safety rollback snapshot..."
 msgstr "Güvenlik Geri Alınma Anlık Görüntüsü oluşturuluyor..."
+
+# en-hash: 2592cacd648e112a4a88c05d0928c658
+msgid "Custom Limit..."
+msgstr "Özel Sınır..."
 
 # en-hash: b9c28cd73fa0dd157c2e86a6af29d463
 msgid "Decrypting files..."
@@ -621,6 +649,22 @@ msgstr "Beam yükünde geçersiz dosya adı."
 msgid "Invalid filename in backup path."
 msgstr "Yedekleme yolunda geçersiz dosya adı."
 
+# en-hash: ebce14b7294ff0be9cea760115786fbc
+msgid "Keep all backups (Unlimited)"
+msgstr "Tüm yedekleri sakla (Sınırsız)"
+
+# en-hash: a596386e6f2c58a4deca493b1dd025d2
+msgid "Keep newest 10 backups"
+msgstr "En yeni 10 yedeği sakla"
+
+# en-hash: 2be0dda6998662d38de55eb09b740f3b
+msgid "Keep newest 3 backups"
+msgstr "En yeni 3 yedeği sakla"
+
+# en-hash: 92a4e288a8f9618873bccdeb32c2e0b0
+msgid "Keep newest 5 backups (Default)"
+msgstr "En yeni 5 yedeği sakla (Varsayılan)"
+
 # en-hash: 79429c7a4f1314ebbe4b2a8455a09ba8
 msgid "Manage %s Backups"
 msgstr "%s Yedeklemelerini Yönet"
@@ -801,6 +845,10 @@ msgstr "Önerilen"
 msgid "Registering code with Beam relay..."
 msgstr "Kod Beam sunucusuna kaydediliyor..."
 
+# en-hash: eade8417c0d25ef9ac1b42feeed7cea5
+msgid "Relay Server: %s"
+msgstr "Aktarıcı Sunucu: %s"
+
 # en-hash: 2d5e099b29563da5e67db51a71438c04
 msgid "Remote Backup Folder"
 msgstr "Uzak Yedekleme Klasörü"
@@ -812,6 +860,10 @@ msgstr "Uzak Klasör: %s"
 # en-hash: d6ed253ff449bbd9606eff83124f1f2e
 msgid "Reset Default"
 msgstr "Varsayılana Sıfırla"
+
+# en-hash: ff5bcc0096b8c3ceb34137c7082a3fbf
+msgid "Reset Relay to Default"
+msgstr "Aktarıcıyı Varsayılanlara Sıfırla"
 
 # en-hash: 51cfbcff36da74a9fc47f3a5140f99f2
 msgid "Restart"
@@ -844,6 +896,10 @@ msgstr "Yedek Geri Yükleniyor"
 # en-hash: 0c3b566bc621cb23ac19bc5a8309064c
 msgid "Retention Limit"
 msgstr "Saklama Limiti"
+
+# en-hash: f60aceb5f241efe866d276a90f740568
+msgid "Retention Limit: Keep all (Unlimited)"
+msgstr "Saklama Sınırı: Tümünü sakla (Sınırsız)"
 
 # en-hash: 8cf857e68c82670f25c36a1648d648d6
 msgid "Retention Limit: Keep newest %d backups"
@@ -956,6 +1012,14 @@ msgstr "Ayarlar ve Arayüz Hareketleri"
 # en-hash: 022304b329e3f8ec0baa1b0dff584aae
 msgid "Source directory does not exist: %s"
 msgstr "Kaynak dizin mevcut değil: %s"
+
+# en-hash: 57bb488549e73f3d5f8009649867ae75
+msgid "Storage Locations & Paths"
+msgstr "Depolama Konumları ve Yolları"
+
+# en-hash: 2b6c445ab31410669df98214429beeab
+msgid "Storage Provider: %s"
+msgstr "Depolama Sağlayıcısı: %s"
 
 # en-hash: 6fa373b3bf8a90deffa023b29b27752b
 msgid "Style Tweaks"

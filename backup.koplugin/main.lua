@@ -188,6 +188,9 @@ function Backup:getSubMenuItems()
         {
             text = _("Backup & Restore Settings"),
             keep_menu_open = true,
+            sub_item_table_func = function()
+                return BackupUI.getSettingsMenuTable()
+            end,
             callback = function()
                 BackupUI.showSettingsDialog()
             end,

@@ -35,6 +35,12 @@ msgstr "+ New"
 msgid ".. (Parent Folder)"
 msgstr ".. (Parent Folder)"
 
+msgid ".TAR.GZ (Compact compression)"
+msgstr ".TAR.GZ (Compact compression)"
+
+msgid ".ZIP (Standard compatibility)"
+msgstr ".ZIP (Standard compatibility)"
+
 msgid "And enter this code:"
 msgstr "And enter this code:"
 
@@ -43,6 +49,12 @@ msgstr "Applying changes..."
 
 msgid "Applying settings and components..."
 msgstr "Applying settings and components..."
+
+msgid "Archive Format & Retention"
+msgstr "Archive Format & Retention"
+
+msgid "Archive Format (.%s)"
+msgstr "Archive Format (.%s)"
 
 msgid "Archive: %s"
 msgstr "Archive: %s"
@@ -65,8 +77,8 @@ msgstr "Back"
 msgid "Backup & Restore Settings"
 msgstr "Backup & Restore Settings"
 
-msgid "Backup Folder:\n%s"
-msgstr "Backup Folder:\n%s"
+msgid "Backup Folder: %s"
+msgstr "Backup Folder: %s"
 
 msgid "Backup Name"
 msgstr "Backup Name"
@@ -91,6 +103,9 @@ msgstr "Backup uploaded to %s successfully!\n\nFile: %s"
 
 msgid "Beam Relay Server"
 msgstr "Beam Relay Server"
+
+msgid "Beam Wireless Transfer"
+msgstr "Beam Wireless Transfer"
 
 msgid "Beam code expired or not found. Please verify the 6-digit code on the sending device."
 msgstr "Beam code expired or not found. Please verify the 6-digit code on the sending device."
@@ -119,8 +134,11 @@ msgstr "Beam transfer canceled."
 msgid "Beam upload failed:\n%s"
 msgstr "Beam upload failed:\n%s"
 
-msgid "Books Folder:\n%s"
-msgstr "Books Folder:\n%s"
+msgid "Books Folder: %s"
+msgstr "Books Folder: %s"
+
+msgid "Browse Cloud Backups (%s) ▸"
+msgstr "Browse Cloud Backups (%s) ▸"
 
 msgid "Browse Folder"
 msgstr "Browse Folder"
@@ -128,17 +146,14 @@ msgstr "Browse Folder"
 msgid "Cancel"
 msgstr "Cancel"
 
-msgid "Canceling operation..."
-msgstr "Canceling operation..."
-
 msgid "Canceling..."
 msgstr "Canceling..."
 
 msgid "Clean Slate (Remove unlisted plugins)"
 msgstr "Clean Slate (Remove unlisted plugins)"
 
-msgid "Cleaning up temporary files..."
-msgstr "Cleaning up temporary files..."
+msgid "Clean Slate Restore (Remove unlisted plugins)"
+msgstr "Clean Slate Restore (Remove unlisted plugins)"
 
 msgid "Clear All"
 msgstr "Clear All"
@@ -152,8 +167,8 @@ msgstr "Cloud Backups (%s)"
 msgid "Cloud Backups (%s) ▸"
 msgstr "Cloud Backups (%s) ▸"
 
-msgid "Cloud Storage: %s"
-msgstr "Cloud Storage: %s"
+msgid "Cloud Storage (%s)"
+msgstr "Cloud Storage (%s)"
 
 msgid "Cloud download canceled."
 msgstr "Cloud download canceled."
@@ -173,11 +188,14 @@ msgstr "Components to Restore: %s ▸"
 msgid "Components: %s ▸"
 msgstr "Components: %s ▸"
 
-msgid "Configure %s"
-msgstr "Configure %s"
+msgid "Configure %s..."
+msgstr "Configure %s..."
 
 msgid "Connect %s"
 msgstr "Connect %s"
+
+msgid "Connect %s..."
+msgstr "Connect %s..."
 
 msgid "Connected to %s successfully!"
 msgstr "Connected to %s successfully!"
@@ -256,6 +274,9 @@ msgstr "Creating Backup Archive"
 
 msgid "Creating safety rollback snapshot..."
 msgstr "Creating safety rollback snapshot..."
+
+msgid "Custom Limit..."
+msgstr "Custom Limit..."
 
 msgid "Decrypting files..."
 msgstr "Decrypting files..."
@@ -467,6 +488,18 @@ msgstr "Invalid filename in Beam payload."
 msgid "Invalid filename in backup path."
 msgstr "Invalid filename in backup path."
 
+msgid "Keep all backups (Unlimited)"
+msgstr "Keep all backups (Unlimited)"
+
+msgid "Keep newest 10 backups"
+msgstr "Keep newest 10 backups"
+
+msgid "Keep newest 3 backups"
+msgstr "Keep newest 3 backups"
+
+msgid "Keep newest 5 backups (Default)"
+msgstr "Keep newest 5 backups (Default)"
+
 msgid "Manage %s Backups"
 msgstr "Manage %s Backups"
 
@@ -602,6 +635,9 @@ msgstr "Recommended"
 msgid "Registering code with Beam relay..."
 msgstr "Registering code with Beam relay..."
 
+msgid "Relay Server: %s"
+msgstr "Relay Server: %s"
+
 msgid "Remote Backup Folder"
 msgstr "Remote Backup Folder"
 
@@ -610,6 +646,9 @@ msgstr "Remote Folder: %s"
 
 msgid "Reset Default"
 msgstr "Reset Default"
+
+msgid "Reset Relay to Default"
+msgstr "Reset Relay to Default"
 
 msgid "Restart"
 msgstr "Restart"
@@ -634,6 +673,9 @@ msgstr "Restoring Backup"
 
 msgid "Retention Limit"
 msgstr "Retention Limit"
+
+msgid "Retention Limit: Keep all (Unlimited)"
+msgstr "Retention Limit: Keep all (Unlimited)"
 
 msgid "Retention Limit: Keep newest %d backups"
 msgstr "Retention Limit: Keep newest %d backups"
@@ -718,6 +760,12 @@ msgstr "Settings & UI Gestures"
 
 msgid "Source directory does not exist: %s"
 msgstr "Source directory does not exist: %s"
+
+msgid "Storage Locations & Paths"
+msgstr "Storage Locations & Paths"
+
+msgid "Storage Provider: %s"
+msgstr "Storage Provider: %s"
 
 msgid "Style Tweaks"
 msgstr "Style Tweaks"

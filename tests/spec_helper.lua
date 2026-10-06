@@ -271,6 +271,13 @@ package.loaded["ui/widget/buttondialog"] = {
 package.loaded["ui/widget/confirmbox"] = {
     new = function(self, args) return args or {} end,
 }
+package.loaded["ui/widget/menu"] = {
+    new = function(self, args)
+        local o = args or {}
+        o.updateItems = function() end
+        return o
+    end,
+}
 package.loaded["ui/widget/checkmark"] = {
     new = function(self, args) return args or {} end,
 }

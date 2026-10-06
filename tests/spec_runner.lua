@@ -231,6 +231,7 @@ local test_files = {
     "backup_sanitizer_test.lua",
     "backup_ui_focus_test.lua",
     "backup_ui_cloud_test.lua",
+    "backup_ui_settings_menu_test.lua",
 }
 
 if arg and arg[1] then
