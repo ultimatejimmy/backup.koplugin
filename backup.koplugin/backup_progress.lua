@@ -125,15 +125,16 @@ function BackupProgress:init()
 
         self.subtitle_widget = TextWidget:new{
             text = self.subtitle,
-            face = (Font and Font.getFace and Font:getFace("cfont", 13)),
+            face = (Font and Font.getFace and Font:getFace("cfont", 14)),
             max_width = inner_width,
-            fgcolor = (Blitbuffer and Blitbuffer.COLOR_DARK_GRAY),
+            fgcolor = (Blitbuffer and Blitbuffer.COLOR_BLACK),
         }
 
         self.detail_widget = TextWidget:new{
             text = self.detail,
             face = (Font and Font.getFace and Font:getFace("smallffont")),
             max_width = inner_width,
+            fgcolor = (Blitbuffer and Blitbuffer.COLOR_BLACK),
             truncate_with_ellipsis = true,
             truncate_left = true,
         }
@@ -180,15 +181,41 @@ function BackupProgress:init()
 
     local group_items = {}
     if self.title_widget then
-        table.insert(group_items, self.title_widget)
+        local title_item = self.title_widget
+        if CenterContainer and self.title_widget.getSize then
+            local t_size = self.title_widget:getSize()
+            title_item = CenterContainer:new{
+                dimen = { w = inner_width, h = (t_size and t_size.h) or sc(20) },
+                self.title_widget,
+            }
+        end
+        table.insert(group_items, title_item)
         if VerticalSpan then table.insert(group_items, VerticalSpan:new{ width = sc(8) }) end
     end
     if self.subtitle_widget then
-        table.insert(group_items, self.subtitle_widget)
+        local sub_item = self.subtitle_widget
+        if CenterContainer and self.subtitle_widget.getSize then
+            local s_size = self.subtitle_widget:getSize()
+            self.subtitle_container = CenterContainer:new{
+                dimen = { w = inner_width, h = (s_size and s_size.h) or sc(16) },
+                self.subtitle_widget,
+            }
+            sub_item = self.subtitle_container
+        end
+        table.insert(group_items, sub_item)
         if VerticalSpan then table.insert(group_items, VerticalSpan:new{ width = sc(4) }) end
     end
     if self.detail_widget then
-        table.insert(group_items, self.detail_widget)
+        local det_item = self.detail_widget
+        if CenterContainer and self.detail_widget.getSize then
+            local d_size = self.detail_widget:getSize()
+            self.detail_container = CenterContainer:new{
+                dimen = { w = inner_width, h = (d_size and d_size.h) or sc(14) },
+                self.detail_widget,
+            }
+            det_item = self.detail_container
+        end
+        table.insert(group_items, det_item)
         if VerticalSpan then table.insert(group_items, VerticalSpan:new{ width = sc(12) }) end
     end
     if self.pbar_widget then
@@ -202,6 +229,7 @@ function BackupProgress:init()
     end
 
     if VerticalGroup then
+        group_items.align = "center"
         self.content_group = VerticalGroup:new(group_items)
     else
         self.content_group = group_items
@@ -282,6 +310,15 @@ function BackupProgress:setSubtitle(text)
     self.subtitle = text
     if self.subtitle_widget and type(self.subtitle_widget.setText) == "function" then
         self.subtitle_widget:setText(text)
+        if self.subtitle_container and self.subtitle_widget.getSize then
+            local s_size = self.subtitle_widget:getSize()
+            if self.subtitle_container.dimen and s_size and s_size.h and s_size.h > 0 then
+                self.subtitle_container.dimen.h = s_size.h
+            end
+        end
+        if self.content_group and self.content_group.resetLayout then
+            self.content_group:resetLayout()
+        end
         self:redrawIfNeeded()
     end
 end
@@ -293,6 +330,15 @@ function BackupProgress:setDetail(text)
     self.detail = text or ""
     if self.detail_widget and type(self.detail_widget.setText) == "function" then
         self.detail_widget:setText(self.detail)
+        if self.detail_container and self.detail_widget.getSize then
+            local d_size = self.detail_widget:getSize()
+            if self.detail_container.dimen and d_size and d_size.h and d_size.h > 0 then
+                self.detail_container.dimen.h = d_size.h
+            end
+        end
+        if self.content_group and self.content_group.resetLayout then
+            self.content_group:resetLayout()
+        end
         self:redrawIfNeeded()
     end
 end
@@ -387,6 +433,9 @@ end
 --- Forces a redraw of the progress dialog.
 function BackupProgress:redraw()
     if self.is_closed then return end
+    if self.content_group and self.content_group.resetLayout then
+        self.content_group:resetLayout()
+    end
     if UIManager and UIManager.setDirty then
         UIManager:setDirty(self, function() return "fast", self.dimen end)
         if UIManager.forceRePaint then

@@ -189,6 +189,13 @@ end
 
 --- Lists backup archives on the remote SFTP server.
 function SFTP.list(opts, callback)
+    if not SFTP.isAvailable() then
+        if callback then
+            callback(false, _("SFTP client ('sftp' binary) is not installed on this system."))
+        end
+        return
+    end
+
     local dir = getRemoteDir(opts)
     local cmds = {
         "cd " .. dir,
@@ -198,7 +205,7 @@ function SFTP.list(opts, callback)
 
     local ok, out = runSftpBatch(opts, cmds)
     if not ok then
-        -- Directory may not exist yet
+        -- Directory may not exist yet on a valid SFTP server
         if callback then callback(true, {}) end
         return
     end

@@ -24,8 +24,9 @@ local WebDAV = {}
 -- Base64 Encoding Helper
 -- --------------------------------------------------------------------------
 local function toBase64(str)
+    if not str or str == "" then return "" end
     if ok_mime and mime and mime.b64 then
-        return mime.b64(str)
+        return mime.b64(str) or ""
     end
     -- Pure Lua fallback for Base64 encoding
     local b64chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"

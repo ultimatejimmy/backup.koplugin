@@ -49,6 +49,9 @@ local Beam = require("backup_beam")
 local Cloud = require("backup_cloud")
 local OAuth = require("backup_cloud_oauth")
 local BackupProgress = require("backup_progress")
+local WebDAV = require("backup_cloud_webdav")
+local FTP = require("backup_cloud_ftp")
+local SFTP = require("backup_cloud_sftp")
 
 local ok_size, Size = pcall(require, "ui/size")
 if not ok_size or not Size then
@@ -2884,7 +2887,7 @@ function BackupUI.showCloudConfigDialog(provider, on_finish_cb)
                             }
                             local info = InfoMessage:new{ text = _("Testing WebDAV connection...") }
                             UIManager:show(info)
-                            WebDAV.testConnection(test_creds, function(ok, msg)
+                            Cloud.testConnection(Constants.CLOUD_PROVIDERS.WEBDAV, test_creds, function(ok, msg)
                                 UIManager:close(info)
                                 UIManager:show(InfoMessage:new{
                                     text = msg or (ok and _("Connection successful!") or _("Connection failed")),
@@ -2960,7 +2963,7 @@ function BackupUI.showCloudConfigDialog(provider, on_finish_cb)
                             }
                             local info = InfoMessage:new{ text = _("Testing FTP connection...") }
                             UIManager:show(info)
-                            FTP.testConnection(test_creds, function(ok, msg)
+                            Cloud.testConnection(Constants.CLOUD_PROVIDERS.FTP, test_creds, function(ok, msg)
                                 UIManager:close(info)
                                 UIManager:show(InfoMessage:new{
                                     text = msg or (ok and _("Connection successful!") or _("Connection failed")),
@@ -3037,7 +3040,7 @@ function BackupUI.showCloudConfigDialog(provider, on_finish_cb)
                             }
                             local info = InfoMessage:new{ text = _("Testing SFTP connection...") }
                             UIManager:show(info)
-                            SFTP.testConnection(test_creds, function(ok, msg)
+                            Cloud.testConnection(Constants.CLOUD_PROVIDERS.SFTP, test_creds, function(ok, msg)
                                 UIManager:close(info)
                                 UIManager:show(InfoMessage:new{
                                     text = msg or (ok and _("Connection successful!") or _("Connection failed")),

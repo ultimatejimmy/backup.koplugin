@@ -28,6 +28,7 @@ for _, base in ipairs(koreader_bases) do
         package.path = package.path .. ";" .. base .. "/ffi/?.lua"
         package.cpath = package.cpath .. ";" .. base .. "/libs/?.so"
         package.cpath = package.cpath .. ";" .. base .. "/libs/libkoreader-?.so"
+        package.cpath = package.cpath .. ";" .. base .. "/common/?.so"
         package.cpath = package.cpath .. ";" .. base .. "/?.so"
     end
 end
@@ -57,6 +58,21 @@ else
         end,
     }
 end
+
+-- Mock socket
+package.loaded["socket"] = {
+    tcp = function()
+        return {
+            settimeout = function() end,
+            connect = function() return 1 end,
+            send = function() return 0 end,
+            receive = function() return "" end,
+            close = function() return 1 end,
+        }
+    end,
+    gettime = function() return os.time() end,
+    sleep = function() end,
+}
 
 -- Mock dump
 package.loaded["dump"] = function(val, _, _)
@@ -259,7 +275,18 @@ package.loaded["ui/widget/checkmark"] = {
     new = function(self, args) return args or {} end,
 }
 package.loaded["ui/widget/multiinputdialog"] = {
-    new = function(self, args) return args or {} end,
+    new = function(self, args)
+        local o = args or {}
+        o.fields = o.fields or {}
+        o.getFields = function(self_dlg)
+            local res = {}
+            for _, f in ipairs(o.fields) do
+                table.insert(res, f.text or "")
+            end
+            return res
+        end
+        return o
+    end,
 }
 package.loaded["ui/widget/container/scrollablecontainer"] = {
     new = function(self, args) return args or {} end,

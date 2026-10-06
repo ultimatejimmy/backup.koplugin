@@ -29,6 +29,7 @@ package.path = package.path .. ";backup.koplugin/?.lua;backup.koplugin/backup.ko
 
 package.cpath = package.cpath .. ";" .. AppDir .. "/libs/?.so"
 package.cpath = package.cpath .. ";" .. AppDir .. "/libs/libkoreader-?.so"
+package.cpath = package.cpath .. ";" .. AppDir .. "/common/?.so"
 package.cpath = package.cpath .. ";" .. AppDir .. "/?.so"
 
 local ok_real_lfs, real_lfs = pcall(require, "libs/libkoreader-lfs")
@@ -217,6 +218,8 @@ local test_files = {
     "backup_beam_test.lua",
     "backup_cloud_oauth_test.lua",
     "backup_cloud_webdav_test.lua",
+    "backup_cloud_ftp_test.lua",
+    "backup_cloud_sftp_test.lua",
     "backup_cloud_dropbox_test.lua",
     "backup_cloud_dispatch_test.lua",
     "backup_folder_picker_test.lua",
@@ -227,6 +230,7 @@ local test_files = {
     "backup_retention_test.lua",
     "backup_sanitizer_test.lua",
     "backup_ui_focus_test.lua",
+    "backup_ui_cloud_test.lua",
 }
 
 if arg and arg[1] then

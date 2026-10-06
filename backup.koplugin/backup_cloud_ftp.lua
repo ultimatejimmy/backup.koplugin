@@ -404,10 +404,11 @@ function FTP.download(remote_filename, local_path, opts, callback)
             return
         end
 
-        local chunk, recv_err = data_sock:receive(65536)
-        if chunk and #chunk > 0 then
-            f_out:write(chunk)
-            received_bytes = received_bytes + #chunk
+        local chunk, recv_err, partial = data_sock:receive(65536)
+        local data = chunk or partial
+        if data and #data > 0 then
+            f_out:write(data)
+            received_bytes = received_bytes + #data
             if opts.on_progress then
                 opts.on_progress(received_bytes, total_expected, "downloading")
             end
@@ -419,10 +420,12 @@ function FTP.download(remote_filename, local_path, opts, callback)
                 if callback then callback(false, "canceled") end
                 return
             end
-        else
-            if recv_err and recv_err ~= "closed" then
-                read_failed = true
-            end
+        end
+
+        if recv_err == "closed" then
+            break
+        elseif recv_err then
+            read_failed = true
             break
         end
     end

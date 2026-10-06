@@ -147,13 +147,19 @@ function Cloud.isConfigured(provider)
     return false
 end
 
---- Tests connection to the active cloud provider.
+--- Tests connection to a cloud provider.
+-- Supports testing with either saved credentials or transient dialog credentials.
 -- @param provider string (optional, defaults to active provider from settings)
+-- @param opts_or_creds table|function (optional credentials table, or callback if omitted)
 -- @param callback function(ok, msg_or_err)
-function Cloud.testConnection(provider, callback)
+function Cloud.testConnection(provider, opts_or_creds, callback)
     if type(provider) == "function" then
         callback = provider
+        opts_or_creds = nil
         provider = nil
+    elseif type(opts_or_creds) == "function" then
+        callback = opts_or_creds
+        opts_or_creds = nil
     end
 
     local s = Cloud.getPluginSettings()
@@ -169,8 +175,15 @@ function Cloud.testConnection(provider, callback)
         return
     end
 
-    local creds = Cloud.loadCredentials(target_provider)
-    creds.remote_dir = s.cloud_remote_dir or Constants.CLOUD_DEFAULT_REMOTE_DIR
+    local creds = {}
+    if opts_or_creds and type(opts_or_creds) == "table" then
+        for k, v in pairs(opts_or_creds) do creds[k] = v end
+    else
+        creds = Cloud.loadCredentials(target_provider)
+    end
+    if not creds.remote_dir or creds.remote_dir == "" then
+        creds.remote_dir = s.cloud_remote_dir or Constants.CLOUD_DEFAULT_REMOTE_DIR
+    end
 
     driver.testConnection(creds, callback)
 end
