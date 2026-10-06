@@ -5,6 +5,6 @@ return {
     fullname = _("Device Backup & Restore"),
     description = _("Create, manage, and restore modular KOReader backups with intelligent cross-device hardware sanitization and disaster recovery."),
     author = "jpautz",
-    version = "26.10.3-beta",
+    version = "26.10.6-beta",
 }
 
