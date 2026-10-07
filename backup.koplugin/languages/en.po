@@ -143,6 +143,12 @@ msgstr "Browse Cloud Backups (%s) ▸"
 msgid "Browse Folder"
 msgstr "Browse Folder"
 
+msgid "Browser download link:\n\n%s"
+msgstr "Browser download link:\n\n%s"
+
+msgid "Browser: %s"
+msgstr "Browser: %s"
+
 msgid "Cancel"
 msgstr "Cancel"
 
@@ -554,8 +560,8 @@ msgstr "OAuth Client ID is not configured for this provider."
 msgid "OK"
 msgstr "OK"
 
-msgid "On the receiving device, open\n'Receive via Beam Code' and enter:"
-msgstr "On the receiving device, open\n'Receive via Beam Code' and enter:"
+msgid "On another e-reader or web browser, enter:"
+msgstr "On another e-reader or web browser, enter:"
 
 msgid "On your phone or computer, open:"
 msgstr "On your phone or computer, open:"
@@ -616,6 +622,9 @@ msgstr "Preparing upload..."
 
 msgid "Proceed"
 msgstr "Proceed"
+
+msgid "QR Code"
+msgstr "QR Code"
 
 msgid "Reading History & Stats"
 msgstr "Reading History & Stats"

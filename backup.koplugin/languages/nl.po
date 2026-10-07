@@ -189,6 +189,14 @@ msgstr "Blader door cloudback-ups (%s) ▸"
 msgid "Browse Folder"
 msgstr "Map bladeren"
 
+# en-hash: 09527087aa5ab733f99b05be7eb7d117
+msgid "Browser download link:\n\n%s"
+msgstr "Downloadlink voor browser:\n\n%s"
+
+# en-hash: 2963d703dca006f4b490c0a57b7ec4c3
+msgid "Browser: %s"
+msgstr "Browser: %s"
+
 # en-hash: ea4788705e6873b424c65e91c2846b19
 msgid "Cancel"
 msgstr "Annuleren"
@@ -737,9 +745,9 @@ msgstr "OAuth Client ID is niet geconfigureerd voor deze provider."
 msgid "OK"
 msgstr "OK"
 
-# en-hash: f9eedd2311cf95a0d780865f9d915a48
-msgid "On the receiving device, open\n'Receive via Beam Code' and enter:"
-msgstr "Open op het ontvangende apparaat\n'Ontvangen via Beam-code' en voer in:"
+# en-hash: 4b3a20c7a9a98d6c27fe557aa46ba2d5
+msgid "On another e-reader or web browser, enter:"
+msgstr "Voer in op een andere e-reader of webbrowser:"
 
 # en-hash: 8e3ff64e87266cd4eab00bfd008794bc
 msgid "On your phone or computer, open:"
@@ -820,6 +828,10 @@ msgstr "Voorbereiden uploaden..."
 # en-hash: f262fae0a2f17e8c1eb4e9eddb0160e4
 msgid "Proceed"
 msgstr "Doorgaan"
+
+# en-hash: 9e3272ea568fdb0e64052f79f37e2c3c
+msgid "QR Code"
+msgstr "QR-code"
 
 # en-hash: 4fe018c28e35e662f93f36f498cc3e12
 msgid "Reading History & Stats"

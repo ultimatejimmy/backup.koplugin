@@ -181,6 +181,7 @@ Constants.OAUTH_DEFAULT_RELAY_URL = "https://backup.ultimatejimmy.workers.dev"
 
 -- Beam cross-device transfer constants
 Constants.BEAM_DEFAULT_RELAY_URL = "https://backup.ultimatejimmy.workers.dev"
+Constants.BEAM_WEB_PORTAL_URL = "https://backup.ultimatejimmy.workers.dev"
 Constants.BEAM_CODE_LENGTH = 6
 Constants.BEAM_TTL_SECONDS = 900 -- 15 minutes
 Constants.BEAM_MAGIC_HEADER = "KOBEAM01"

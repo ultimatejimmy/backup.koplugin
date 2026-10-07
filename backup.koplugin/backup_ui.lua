@@ -2453,6 +2453,27 @@ function BackupUI.showBeamSendDialog(filepath, on_finish_cb)
                     local filename = filepath:match("([^/\\]+)$") or "backup archive"
                     local display_code = formatted_pin
 
+                    local function showQrModal()
+                        local relay_base = (s.beam_relay_url or Constants.BEAM_DEFAULT_RELAY_URL):gsub("/+$", "")
+                        local qr_url = string.format("%s/?code=%s", relay_base, tostring(pin))
+                        local ok_qrm, QRMessage = pcall(require, "ui/widget/qrmessage")
+                        if ok_qrm and QRMessage then
+                            local Screen = Device and Device.screen
+                            local qr_size = Screen and Screen.scaleBySize and Screen:scaleBySize(400) or 400
+                            local qr_box = QRMessage:new{
+                                text = qr_url,
+                                width = qr_size,
+                                height = qr_size,
+                            }
+                            UIManager:show(qr_box)
+                        else
+                            UIManager:show(InfoMessage:new{
+                                text = string.format(_("Browser download link:\n\n%s"), qr_url),
+                                timeout = 6,
+                            })
+                        end
+                    end
+
                     local buttons = {
                         {
                             {
@@ -2462,6 +2483,10 @@ function BackupUI.showBeamSendDialog(filepath, on_finish_cb)
                                     Beam.cancelSession(pin, { relay_url = s.beam_relay_url })
                                     UIManager:show(InfoMessage:new{ text = _("Beam transfer canceled."), timeout = 3 })
                                 end,
+                            },
+                            {
+                                text = _("QR Code"),
+                                callback = showQrModal,
                             },
                             {
                                 text = _("Done"),
@@ -2478,12 +2503,14 @@ function BackupUI.showBeamSendDialog(filepath, on_finish_cb)
 
                     local avail_w = beam_dialog:getAddedWidgetAvailableWidth()
 
+                    local browser_url = (s.beam_relay_url or Constants.BEAM_DEFAULT_RELAY_URL):gsub("^https?://", "")
+
                     local content = VerticalGroup:new{
                         align = "center",
                         not_focusable = true,
                         VerticalSpan:new{ width = sc(8) },
                         TextBoxWidget:new{
-                            text = _("On the receiving device, open\n'Receive via Beam Code' and enter:"),
+                            text = _("On another e-reader or web browser, enter:"),
                             face = Font:getFace("cfont", 22),
                             alignment = "center",
                             width = avail_w,
@@ -2506,6 +2533,13 @@ function BackupUI.showBeamSendDialog(filepath, on_finish_cb)
                         TextBoxWidget:new{
                             text = string.format(_("Archive: %s"), filename),
                             face = Font:getFace("cfont", 20),
+                            alignment = "center",
+                            width = avail_w,
+                        },
+                        VerticalSpan:new{ width = sc(4) },
+                        TextBoxWidget:new{
+                            text = string.format(_("Browser: %s"), browser_url),
+                            face = Font:getFace("cfont", 18),
                             alignment = "center",
                             width = avail_w,
                         },
