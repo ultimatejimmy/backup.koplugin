@@ -55,13 +55,53 @@ WebDAV._toBase64 = toBase64
 local function normalizeUrl(url)
     if not url then return "" end
     url = url:gsub("%s+", "")
+    if url == "" then return "" end
     -- If no protocol specified, default to https://
     if not url:match("^https?://") then
         url = "https://" .. url
     end
-    -- Strip trailing slashes
-    return url:gsub("/+$", "")
+    -- Collapse multiple consecutive trailing slashes down to a single slash,
+    -- but preserve a single trailing slash if provided by the user.
+    return url:gsub("/+$", "/")
 end
+WebDAV._normalizeUrl = normalizeUrl
+
+--- Resolves an HTTP redirect Location header against the base URL (RFC 3986).
+local function resolveRedirectUrl(base_url, location)
+    if not location or location == "" then return nil end
+    location = location:match("^%s*(.-)%s*$")
+    if location == "" then return nil end
+
+    -- Absolute URL: starts with scheme (e.g. http:// or https://)
+    if location:match("^https?://") then
+        return location
+    end
+
+    -- Parse base_url components: scheme, host_port, path
+    local scheme, host_port, path = base_url:match("^(https?://)([^/]+)(/?.*)$")
+    if not scheme or not host_port then
+        return nil
+    end
+    if not path or path == "" then
+        path = "/"
+    end
+
+    -- Protocol-relative URL: starts with //
+    if location:match("^//") then
+        return scheme:match("^(https?:)") .. location
+    end
+
+    -- Path-absolute URL: starts with /
+    if location:sub(1, 1) == "/" then
+        return scheme .. host_port .. location
+    end
+
+    -- Relative path: resolve against directory portion of current base_url path
+    local dir = path:match("^(.-/)[^/]*$") or "/"
+    return scheme .. host_port .. dir .. location
+end
+WebDAV._resolveRedirectUrl = resolveRedirectUrl
+
 
 --- Builds authorization header if credentials exist.
 local function buildAuthHeader(username, password)
@@ -125,62 +165,19 @@ local function makeFileProgressSink(target_sink, on_progress, total_expected, is
     end
 end
 
---- Performs an HTTP/HTTPS WebDAV request.
+--- Performs an HTTP/HTTPS WebDAV request, automatically following HTTP redirects (301, 302, 303, 307, 308).
 local function doRequest(req)
     if not ok_ltn or not ltn12 then
         return nil, "ltn12 module not available"
     end
-    local url = req.url or ""
-    local is_ssl = url:match("^https://")
-    local client = is_ssl and https or http
-    if is_ssl and not ok_https then
-        return nil, "ssl.https module not available for HTTPS connection"
-    end
-    if not is_ssl and not ok_http then
-        return nil, "socket.http module not available"
-    end
 
-    local resp_file_handle = nil
-    local resp_body = {}
-    local base_sink
-
-    if req.sink_file_path then
-        resp_file_handle = io.open(req.sink_file_path, "wb")
-        if not resp_file_handle then
-            return nil, "Could not open destination file: " .. tostring(req.sink_file_path)
-        end
-        base_sink = ltn12.sink.file(resp_file_handle)
-    else
-        base_sink = ltn12.sink.table(resp_body)
-    end
-
-    local sink = base_sink
-    if req.on_download_progress or req.is_canceled then
-        sink = makeFileProgressSink(base_sink, req.on_download_progress, req.total_expected, req.is_canceled)
-    end
-
-    local source = req.source
-    local file_handle = nil
-    local headers = req.headers or {}
-
-    if not source then
-        if req.file_path then
-            file_handle = io.open(req.file_path, "rb")
-            if not file_handle then
-                if resp_file_handle then pcall(resp_file_handle.close, resp_file_handle) end
-                return nil, "Could not open body file: " .. tostring(req.file_path)
-            end
-            local total_bytes = req.total_bytes or (file_handle:seek("end") or 0)
-            file_handle:seek("set", 0)
-            headers["Content-Length"] = tostring(total_bytes)
-            if req.on_upload_progress or req.is_canceled then
-                source = makeFileProgressSource(file_handle, total_bytes, req.on_upload_progress, req.is_canceled)
-            else
-                source = ltn12.source.file(file_handle)
-            end
-        elseif req.body then
-            headers["Content-Length"] = tostring(#req.body)
-            source = ltn12.source.string(req.body)
+    local max_redirects = 5
+    local current_url = req.url or ""
+    local method = req.method or "GET"
+    local headers = {}
+    if req.headers then
+        for k, v in pairs(req.headers) do
+            headers[k] = v
         end
     end
 
@@ -196,21 +193,141 @@ local function doRequest(req)
         end)
     end
 
-    local ok_call, r, code, resp_headers, status = pcall(client.request, {
-        url = url,
-        method = req.method or "GET",
-        headers = headers,
-        source = source,
-        sink = sink,
-    })
+    local final_r, final_code, final_resp_headers, final_status, final_body_str
+    local redirect_count = 0
 
-    if file_handle then
-        pcall(file_handle.close, file_handle)
-        file_handle = nil
-    end
-    if resp_file_handle then
-        pcall(resp_file_handle.close, resp_file_handle)
-        resp_file_handle = nil
+    while redirect_count <= max_redirects do
+        if req.is_canceled and req.is_canceled() then
+            final_code = "canceled"
+            break
+        end
+
+        local is_ssl = current_url:match("^https://")
+        local client = is_ssl and https or http
+        if is_ssl and not ok_https then
+            final_code = "ssl.https module not available for HTTPS connection"
+            break
+        end
+        if not is_ssl and not ok_http then
+            final_code = "socket.http module not available"
+            break
+        end
+
+        local resp_file_handle = nil
+        local resp_body = {}
+        local base_sink
+
+        if req.sink_file_path then
+            resp_file_handle = io.open(req.sink_file_path, "wb")
+            if not resp_file_handle then
+                final_code = "Could not open destination file: " .. tostring(req.sink_file_path)
+                break
+            end
+            base_sink = ltn12.sink.file(resp_file_handle)
+        else
+            base_sink = ltn12.sink.table(resp_body)
+        end
+
+        local sink = base_sink
+        if req.on_download_progress or req.is_canceled then
+            sink = makeFileProgressSink(base_sink, req.on_download_progress, req.total_expected, req.is_canceled)
+        end
+
+        local source = nil
+        local file_handle = nil
+
+        if req.file_path then
+            file_handle = io.open(req.file_path, "rb")
+            if not file_handle then
+                if resp_file_handle then pcall(resp_file_handle.close, resp_file_handle) end
+                final_code = "Could not open body file: " .. tostring(req.file_path)
+                break
+            end
+            local total_bytes = req.total_bytes or (file_handle:seek("end") or 0)
+            file_handle:seek("set", 0)
+            headers["Content-Length"] = tostring(total_bytes)
+            if req.on_upload_progress or req.is_canceled then
+                source = makeFileProgressSource(file_handle, total_bytes, req.on_upload_progress, req.is_canceled)
+            else
+                source = ltn12.source.file(file_handle)
+            end
+        elseif req.body then
+            headers["Content-Length"] = tostring(#req.body)
+            source = ltn12.source.string(req.body)
+        elseif req.source then
+            source = req.source
+        end
+
+        local ok_call, r, code, resp_headers, status = pcall(client.request, {
+            url = current_url,
+            method = method,
+            headers = headers,
+            source = source,
+            sink = sink,
+        })
+
+        if file_handle then
+            pcall(file_handle.close, file_handle)
+            file_handle = nil
+        end
+        if resp_file_handle then
+            pcall(resp_file_handle.close, resp_file_handle)
+            resp_file_handle = nil
+        end
+
+        if not ok_call then
+            final_r = nil
+            final_code = tostring(r)
+            final_resp_headers = nil
+            final_status = nil
+            final_body_str = ""
+            break
+        end
+
+        local num_code = tonumber(code) or 0
+        final_r = r
+        final_code = num_code > 0 and num_code or code
+        final_resp_headers = resp_headers
+        final_status = status
+        if not req.sink_file_path then
+            final_body_str = table.concat(resp_body)
+        else
+            final_body_str = ""
+        end
+
+        -- Check for HTTP redirect status codes
+        local is_redirect = (num_code == 301 or num_code == 302 or num_code == 303 or num_code == 307 or num_code == 308)
+        local location = resp_headers and (resp_headers["location"] or resp_headers["Location"])
+
+        if is_redirect and location and redirect_count < max_redirects then
+            local next_url = resolveRedirectUrl(current_url, location)
+            if next_url and next_url ~= "" then
+                -- Cross-host security protection: strip Authorization if redirecting to a different host
+                local orig_host = current_url:match("^https?://([^/:]+)")
+                local next_host = next_url:match("^https?://([^/:]+)")
+                if orig_host and next_host and orig_host:lower() ~= next_host:lower() then
+                    headers["Authorization"] = nil
+                    headers["authorization"] = nil
+                end
+
+                -- RFC 7231: 303 See Other changes method to GET and discards payload
+                if num_code == 303 then
+                    method = "GET"
+                    headers["Content-Length"] = nil
+                    headers["Content-Type"] = nil
+                    req.body = nil
+                    req.file_path = nil
+                    req.source = nil
+                end
+
+                current_url = next_url
+                redirect_count = redirect_count + 1
+            else
+                break
+            end
+        else
+            break
+        end
     end
 
     if ok_su and socketutil then
@@ -223,20 +340,9 @@ local function doRequest(req)
         end)
     end
 
-    if not ok_call then
-        code = tostring(r)
-        r = nil
-        resp_headers = nil
-        status = nil
-    end
-
-    local body_str = ""
-    if not req.sink_file_path then
-        body_str = table.concat(resp_body)
-    end
-
-    return r, tonumber(code) or code, resp_headers, status, body_str
+    return final_r, final_code, final_resp_headers, final_status, final_body_str, current_url
 end
+WebDAV._doRequest = doRequest
 
 --- Builds full remote folder URL from server url and remote_dir.
 local function getRemoteFolderUrl(opts)
@@ -246,8 +352,9 @@ local function getRemoteFolderUrl(opts)
     if dir == "" then
         return base
     end
-    return base .. "/" .. dir
+    return base:gsub("/+$", "") .. "/" .. dir
 end
+WebDAV._getRemoteFolderUrl = getRemoteFolderUrl
 
 --- Tests connectivity and credentials with the WebDAV server.
 -- @param opts table: { url, username, password, remote_dir }
@@ -327,7 +434,7 @@ function WebDAV.ensureFolder(opts, callback)
         table.insert(segments, seg)
     end
 
-    local current_url = base_url
+    local current_url = base_url:gsub("/+$", "")
     local function createNext(idx)
         if idx > #segments then
             if callback then callback(true) end
@@ -380,7 +487,7 @@ function WebDAV.upload(local_path, opts, callback)
 
         local filename = local_path:match("([^/\\]+)$") or "backup.zip"
         local folder_url = getRemoteFolderUrl(opts)
-        local upload_url = folder_url .. "/" .. filename
+        local upload_url = folder_url:gsub("/+$", "") .. "/" .. filename
 
         local file_size = 0
         if lfs and lfs.attributes then
@@ -427,7 +534,7 @@ end
 -- @param callback function(ok, local_path_or_err)
 function WebDAV.download(remote_filename, local_path, opts, callback)
     local folder_url = getRemoteFolderUrl(opts)
-    local file_url = folder_url .. "/" .. remote_filename
+    local file_url = folder_url:gsub("/+$", "") .. "/" .. remote_filename
     local auth = buildAuthHeader(opts.username, opts.password)
 
     -- First probe file size via HEAD request if possible
@@ -553,7 +660,7 @@ end
 -- @param callback function(ok, err)
 function WebDAV.delete(remote_filename, opts, callback)
     local folder_url = getRemoteFolderUrl(opts)
-    local file_url = folder_url .. "/" .. remote_filename
+    local file_url = folder_url:gsub("/+$", "") .. "/" .. remote_filename
     local auth = buildAuthHeader(opts.username, opts.password)
     local headers = {}
     if auth then headers["Authorization"] = auth end
