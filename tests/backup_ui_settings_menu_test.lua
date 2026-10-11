@@ -26,6 +26,7 @@ describe("backup_ui native settings submenus", function()
         s.beam_relay_url = Constants.BEAM_DEFAULT_RELAY_URL
         s.cloud_provider = "none"
         s.cloud_remote_dir = "koreader_backups"
+        s.upload_to_cloud = true
     end)
 
     describe("getSettingsMenuTable", function()
@@ -69,7 +70,7 @@ describe("backup_ui native settings submenus", function()
         it("provides format radios and allows switching between zip and tar.gz", function()
             local items = BackupUI.getArchiveSettingsSubmenu(refresh_cb)
             assert.is_table(items)
-            assert.are.equal(3, #items)
+            assert.are.equal(4, #items)
 
             local format_item = items[1]
             assert.is_function(format_item.text_func)
@@ -100,7 +101,14 @@ describe("backup_ui native settings submenus", function()
         it("provides retention presets and toggles clean slate restore", function()
             local items = BackupUI.getArchiveSettingsSubmenu(refresh_cb)
             local retention_item = items[2]
-            local clean_slate_item = items[3]
+            local upload_cloud_item = items[3]
+            local clean_slate_item = items[4]
+
+            assert.is_function(upload_cloud_item.checked_func)
+            assert.is_true(upload_cloud_item.checked_func())
+            upload_cloud_item.callback()
+            assert.is_true(refreshed)
+            assert.is_false(upload_cloud_item.checked_func())
 
             assert.is_function(retention_item.text_func)
             assert.is_function(retention_item.sub_item_table_func)

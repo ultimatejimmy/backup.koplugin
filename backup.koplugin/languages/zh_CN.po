@@ -1157,3 +1157,39 @@ msgstr "WebDAV 设置已保存。"
 msgid "WebDAV upload failed (HTTP %s): %s"
 msgstr "WebDAV 上传失败（HTTP %s）：%s"
 
+# en-hash: 9c749cd3cef0c54f9d7c018b5df6720a
+msgid "Upload to Cloud (%s)"
+msgstr "上传至云端 (%s)"
+
+# en-hash: f16e7b27ab2bcc26c2370547638298f5
+msgid "Upload to Cloud (Not Configured)"
+msgstr "上传至云端 (未配置)"
+
+# en-hash: 0a94e726b85475b873afad771c04e4e8
+msgid "Upload to Cloud on Creation"
+msgstr "创建时上传至云端"
+
+# en-hash: 9fbd7684e309a55750f504ddf2cffee1
+msgid "Create & Upload"
+msgstr "创建并上传"
+
+# en-hash: f1206f9fadc5ce41694f69129aecac26
+msgid "Configure"
+msgstr "配置"
+
+# en-hash: 5215066261b2a2bbd6c57e276eeae4ca
+msgid "Cloud storage is not configured.\nWould you like to configure a cloud provider now?"
+msgstr "云存储尚未配置。\n您现在要配置云存储提供商吗？"
+
+# en-hash: 023a8772362b3af15fb85f247a9d2ec2
+msgid "Upload to Cloud on Creation: Yes (%s)"
+msgstr "创建时上传至云端: 是 (%s)"
+
+# en-hash: 5718c95a96738cd9c74c474de1f27d16
+msgid "Upload to Cloud on Creation: No"
+msgstr "创建时上传至云端: 否"
+
+# en-hash: b74869af01e4e561569b5a13e049b618
+msgid "Upload to Cloud on Creation: Not Configured"
+msgstr "创建时上传至云端: 未配置"
+

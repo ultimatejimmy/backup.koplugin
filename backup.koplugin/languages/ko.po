@@ -1157,3 +1157,39 @@ msgstr "WebDAV 설정이 저장되었습니다."
 msgid "WebDAV upload failed (HTTP %s): %s"
 msgstr "WebDAV 업로드 실패 (HTTP %s): %s"
 
+# en-hash: 9c749cd3cef0c54f9d7c018b5df6720a
+msgid "Upload to Cloud (%s)"
+msgstr "클라우드에 업로드 (%s)"
+
+# en-hash: f16e7b27ab2bcc26c2370547638298f5
+msgid "Upload to Cloud (Not Configured)"
+msgstr "클라우드에 업로드 (구성되지 않음)"
+
+# en-hash: 0a94e726b85475b873afad771c04e4e8
+msgid "Upload to Cloud on Creation"
+msgstr "생성 시 클라우드에 업로드"
+
+# en-hash: 9fbd7684e309a55750f504ddf2cffee1
+msgid "Create & Upload"
+msgstr "생성 및 업로드"
+
+# en-hash: f1206f9fadc5ce41694f69129aecac26
+msgid "Configure"
+msgstr "구성"
+
+# en-hash: 5215066261b2a2bbd6c57e276eeae4ca
+msgid "Cloud storage is not configured.\nWould you like to configure a cloud provider now?"
+msgstr "클라우드 스토리지가 구성되지 않았습니다.\n지금 클라우드 공급자를 구성하시겠습니까?"
+
+# en-hash: 023a8772362b3af15fb85f247a9d2ec2
+msgid "Upload to Cloud on Creation: Yes (%s)"
+msgstr "생성 시 클라우드에 업로드: 예 (%s)"
+
+# en-hash: 5718c95a96738cd9c74c474de1f27d16
+msgid "Upload to Cloud on Creation: No"
+msgstr "생성 시 클라우드에 업로드: 아니요"
+
+# en-hash: b74869af01e4e561569b5a13e049b618
+msgid "Upload to Cloud on Creation: Not Configured"
+msgstr "생성 시 클라우드에 업로드: 구성되지 않음"
+

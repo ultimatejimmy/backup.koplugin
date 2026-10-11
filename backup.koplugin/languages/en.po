@@ -179,6 +179,9 @@ msgstr "Cloud Storage (%s)"
 msgid "Cloud download canceled."
 msgstr "Cloud download canceled."
 
+msgid "Cloud storage is not configured.\nWould you like to configure a cloud provider now?"
+msgstr "Cloud storage is not configured.\nWould you like to configure a cloud provider now?"
+
 msgid "Cloud upload canceled."
 msgstr "Cloud upload canceled."
 
@@ -193,6 +196,9 @@ msgstr "Components to Restore: %s ▸"
 
 msgid "Components: %s ▸"
 msgstr "Components: %s ▸"
+
+msgid "Configure"
+msgstr "Configure"
 
 msgid "Configure %s..."
 msgstr "Configure %s..."
@@ -262,6 +268,9 @@ msgstr "Could not write file: %s"
 
 msgid "Create"
 msgstr "Create"
+
+msgid "Create & Upload"
+msgstr "Create & Upload"
 
 msgid "Create Backup"
 msgstr "Create Backup"
@@ -832,6 +841,24 @@ msgstr "Upload to %s"
 
 msgid "Upload to Cloud"
 msgstr "Upload to Cloud"
+
+msgid "Upload to Cloud (%s)"
+msgstr "Upload to Cloud (%s)"
+
+msgid "Upload to Cloud (Not Configured)"
+msgstr "Upload to Cloud (Not Configured)"
+
+msgid "Upload to Cloud on Creation"
+msgstr "Upload to Cloud on Creation"
+
+msgid "Upload to Cloud on Creation: No"
+msgstr "Upload to Cloud on Creation: No"
+
+msgid "Upload to Cloud on Creation: Not Configured"
+msgstr "Upload to Cloud on Creation: Not Configured"
+
+msgid "Upload to Cloud on Creation: Yes (%s)"
+msgstr "Upload to Cloud on Creation: Yes (%s)"
 
 msgid "Uploading backup archive..."
 msgstr "Uploading backup archive..."

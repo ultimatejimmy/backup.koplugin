@@ -337,6 +337,7 @@ local function getPluginSettings()
             cloud_provider = "none",
             cloud_remote_dir = Constants.CLOUD_DEFAULT_REMOTE_DIR or "koreader_backups",
             cloud_prune_remote = true,
+            upload_to_cloud = true,
         }
     end
     if not _settings_cache.cloud_provider then
@@ -347,6 +348,9 @@ local function getPluginSettings()
     end
     if _settings_cache.cloud_prune_remote == nil then
         _settings_cache.cloud_prune_remote = true
+    end
+    if _settings_cache.upload_to_cloud == nil then
+        _settings_cache.upload_to_cloud = true
     end
     return _settings_cache
 end
@@ -862,6 +866,7 @@ function BackupUI.showCreateDialog(wizard_state)
         local sel_dicts = {}
         for _, d in ipairs(avail_dicts) do sel_dicts[d] = true end
 
+        local is_configured = Cloud.isConfigured(s.cloud_provider)
         state = {
             current_name = "backup_" .. os.date("%Y-%m-%d_%H%M%S", now),
             chosen_format = s.default_format or "zip",
@@ -874,7 +879,12 @@ function BackupUI.showCreateDialog(wizard_state)
             selected_fonts = sel_fonts,
             available_dicts = avail_dicts,
             selected_dicts = sel_dicts,
+            upload_to_cloud = (s.upload_to_cloud ~= false) and is_configured or false,
         }
+    end
+    if state.upload_to_cloud == nil then
+        local is_configured = Cloud.isConfigured(s.cloud_provider)
+        state.upload_to_cloud = (s.upload_to_cloud ~= false) and is_configured or false
     end
 
     local focus_state = createFocusState()
@@ -958,8 +968,12 @@ function BackupUI.showCreateDialog(wizard_state)
 
                 local sz_str = Retention.formatSize(res.size or 0)
                 local file_count = res.file_count or 0
-                showResultInfo(string.format(_("Backup created successfully!\n\nFile: %s\nSize: %s\nArchived files: %d"),
-                    filename, sz_str, file_count), 5)
+                if state.upload_to_cloud then
+                    BackupUI.showCloudUploadDialog(full_archive_path)
+                else
+                    showResultInfo(string.format(_("Backup created successfully!\n\nFile: %s\nSize: %s\nArchived files: %d"),
+                        filename, sz_str, file_count), 5)
+                end
             else
                 showResultInfo(string.format(_("Failed to create backup:\n%s"), tostring(res)), 6)
             end
@@ -991,6 +1005,10 @@ function BackupUI.showCreateDialog(wizard_state)
             dialog = nil
             UIManager:close(d)
         end
+
+        local cur_s = getPluginSettings()
+        local is_configured = Cloud.isConfigured(cur_s.cloud_provider)
+        local provider_label = Cloud.getProviderLabel(cur_s.cloud_provider)
 
         local buttons = {
             {
@@ -1070,13 +1088,55 @@ function BackupUI.showCreateDialog(wizard_state)
             },
             {
                 {
+                    text = is_configured and (
+                        state.upload_to_cloud
+                        and string.format(_("Upload to Cloud on Creation: Yes (%s)"), provider_label)
+                        or _("Upload to Cloud on Creation: No")
+                    ) or _("Upload to Cloud on Creation: Not Configured"),
+                    callback = function()
+                        local cur_s = getPluginSettings()
+                        if not Cloud.isConfigured(cur_s.cloud_provider) then
+                            local config_confirm
+                            config_confirm = ConfirmBox:new{
+                                text = _("Cloud storage is not configured.\nWould you like to configure a cloud provider now?"),
+                                ok_text = _("Configure"),
+                                cancel_text = _("Cancel"),
+                                ok_callback = function()
+                                    UIManager:close(config_confirm)
+                                    closeDialog()
+                                    BackupUI.showCloudProviderPicker(function()
+                                        local updated_s = getPluginSettings()
+                                        if Cloud.isConfigured(updated_s.cloud_provider) then
+                                            state.upload_to_cloud = true
+                                            updated_s.upload_to_cloud = true
+                                            savePluginSettings()
+                                        end
+                                        BackupUI.showCreateDialog(state)
+                                    end)
+                                end,
+                                cancel_callback = function()
+                                    UIManager:close(config_confirm)
+                                end,
+                            }
+                            UIManager:show(config_confirm)
+                            return
+                        end
+                        state.upload_to_cloud = not state.upload_to_cloud
+                        cur_s.upload_to_cloud = state.upload_to_cloud
+                        savePluginSettings()
+                        refresh(1, 4)
+                    end,
+                }
+            },
+            {
+                {
                     text = _("Cancel"),
                     callback = function()
                         closeDialog()
                     end,
                 },
                 {
-                    text = _("Create Backup"),
+                    text = state.upload_to_cloud and _("Create & Upload") or _("Create Backup"),
                     bold = true,
                     callback = function()
                         startBackupCreation(state.current_name)
@@ -1085,9 +1145,11 @@ function BackupUI.showCreateDialog(wizard_state)
             }
         }
 
+        local screen_w = (Device.screen and Device.screen.getWidth and Device.screen:getWidth()) or 600
         dialog = ButtonDialog:new{
             title = _("Create Backup"),
             buttons = buttons,
+            width = math.min(math.floor(screen_w * 0.92), sc(500)),
         }
         focus_state:wrapDialog(dialog)
         UIManager:show(dialog)
@@ -1933,6 +1995,18 @@ function BackupUI.getArchiveSettingsSubmenu(refresh_cb)
             end,
         },
         {
+            text = _("Upload to Cloud on Creation"),
+            keep_menu_open = true,
+            checked_func = function()
+                return s.upload_to_cloud ~= false
+            end,
+            callback = function(touch_menu)
+                s.upload_to_cloud = not (s.upload_to_cloud ~= false)
+                savePluginSettings()
+                refreshMenuState(refresh_cb, touch_menu)
+            end,
+        },
+        {
             text = _("Clean Slate Restore (Remove unlisted plugins)"),
             keep_menu_open = true,
             checked_func = function()
@@ -2065,6 +2139,18 @@ function BackupUI.getCloudSettingsSubmenu(refresh_cb)
         })
 
         if Cloud.isConfigured(s.cloud_provider) then
+            table.insert(items, {
+                text = _("Upload to Cloud on Creation"),
+                keep_menu_open = true,
+                checked_func = function()
+                    return s.upload_to_cloud ~= false
+                end,
+                callback = function(touch_menu)
+                    s.upload_to_cloud = not (s.upload_to_cloud ~= false)
+                    savePluginSettings()
+                    refreshMenuState(refresh_cb, touch_menu)
+                end,
+            })
             table.insert(items, {
                 text = string.format(_("Browse Cloud Backups (%s) ▸"), Cloud.getProviderLabel(s.cloud_provider)),
                 keep_menu_open = true,

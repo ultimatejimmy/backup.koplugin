@@ -158,6 +158,7 @@ Constants.DEFAULT_SETTINGS = {
     cloud_provider = "none", -- "none", "gdrive", "webdav", "ftp", "sftp"
     cloud_remote_dir = "koreader_backups",
     cloud_prune_remote = true,
+    upload_to_cloud = true, -- upload directly to cloud on backup creation when cloud is configured
 }
 
 -- Cloud storage providers (Phase 1: WebDAV, FTP, SFTP, Google Drive)
