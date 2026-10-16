@@ -159,6 +159,20 @@ Constants.DEFAULT_SETTINGS = {
     cloud_remote_dir = "koreader_backups",
     cloud_prune_remote = true,
     upload_to_cloud = true, -- upload directly to cloud on backup creation when cloud is configured
+    auto_backup_enabled = false, -- enable scheduled backup reminders
+    auto_backup_interval = 604800, -- 7 days in seconds
+    auto_backup_grace_period = 150, -- 150 seconds (2.5 minutes) post-wake grace period
+    auto_backup_cloud_upload = false, -- automatically upload scheduled backup to cloud if connected
+    auto_backup_components = nil, -- nil = defaults to copy of DEFAULT_COMPONENT_SELECTION
+    auto_backup_last_time = 0, -- timestamp of last backup
+}
+
+-- Scheduled backup interval presets (in seconds)
+Constants.AUTO_BACKUP_INTERVALS = {
+    THREE_DAYS = 259200,   -- 3 days
+    WEEKLY = 604800,       -- 7 days
+    TWO_WEEKS = 1209600,   -- 14 days
+    MONTHLY = 2592000,     -- 30 days
 }
 
 -- Cloud storage providers (Phase 1: WebDAV, FTP, SFTP, Google Drive)

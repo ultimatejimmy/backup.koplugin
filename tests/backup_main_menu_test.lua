@@ -150,7 +150,7 @@ describe("backup_main_menu", function()
 
         local settings_categories = settings_item.sub_item_table_func()
         assert.is_table(settings_categories)
-        assert.are.equal(4, #settings_categories)
+        assert.are.equal(5, #settings_categories)
         for _, cat in ipairs(settings_categories) do
             assert.is_true(cat.keep_menu_open)
             assert.is_function(cat.sub_item_table_func)

@@ -11,6 +11,12 @@ msgstr "\n\nSanitized %d hardware keys for device compatibility."
 msgid "%d backups found in this folder"
 msgstr "%d backups found in this folder"
 
+msgid "%d days ago"
+msgstr "%d days ago"
+
+msgid "%d hours ago"
+msgstr "%d hours ago"
+
 msgid "%s Account"
 msgstr "%s Account"
 
@@ -40,6 +46,9 @@ msgstr ".TAR.GZ (Compact compression)"
 
 msgid ".ZIP (Standard compatibility)"
 msgstr ".ZIP (Standard compatibility)"
+
+msgid "1 hour ago"
+msgstr "1 hour ago"
 
 msgid "And enter this code:"
 msgstr "And enter this code:"
@@ -71,6 +80,9 @@ msgstr "Authentication failed. Please verify your username and password."
 msgid "Authorization code expired. Please try again."
 msgstr "Authorization code expired. Please try again."
 
+msgid "Auto-Backup Components"
+msgstr "Auto-Backup Components"
+
 msgid "Back"
 msgstr "Back"
 
@@ -83,8 +95,17 @@ msgstr "Backup Folder: %s"
 msgid "Backup Name"
 msgstr "Backup Name"
 
+msgid "Backup Now"
+msgstr "Backup Now"
+
+msgid "Backup Reminder"
+msgstr "Backup Reminder"
+
 msgid "Backup created successfully!\n\nFile: %s\nSize: %s\nArchived files: %d"
 msgstr "Backup created successfully!\n\nFile: %s\nSize: %s\nArchived files: %d"
+
+msgid "Backup created successfully!\n\nFile: %s\nSize: %s\nArchived files: %d\n\n(Cloud upload skipped: Wi-Fi offline)"
+msgstr "Backup created successfully!\n\nFile: %s\nSize: %s\nArchived files: %d\n\n(Cloud upload skipped: Wi-Fi offline)"
 
 msgid "Backup creation canceled."
 msgstr "Backup creation canceled."
@@ -191,6 +212,9 @@ msgstr "Cloud upload failed:\n%s"
 msgid "Code expires in 15 minutes\nSingle-use end-to-end encrypted"
 msgstr "Code expires in 15 minutes\nSingle-use end-to-end encrypted"
 
+msgid "Components to Back Up ▸"
+msgstr "Components to Back Up ▸"
+
 msgid "Components to Restore: %s ▸"
 msgstr "Components to Restore: %s ▸"
 
@@ -287,6 +311,9 @@ msgstr "Created '%s'"
 msgid "Creating Backup Archive"
 msgstr "Creating Backup Archive"
 
+msgid "Creating Scheduled Backup"
+msgstr "Creating Scheduled Backup"
+
 msgid "Creating safety rollback snapshot..."
 msgstr "Creating safety rollback snapshot..."
 
@@ -377,6 +404,9 @@ msgstr "Downloading: %s..."
 msgid "Dropbox"
 msgstr "Dropbox"
 
+msgid "Enable Scheduled Reminders"
+msgstr "Enable Scheduled Reminders"
+
 msgid "Encrypting backup archive..."
 msgstr "Encrypting backup archive..."
 
@@ -388,6 +418,12 @@ msgstr "Enter custom filename (without extension):"
 
 msgid "Enter the 6-digit Beam code from the sending device:"
 msgstr "Enter the 6-digit Beam code from the sending device:"
+
+msgid "Every 2 Weeks"
+msgstr "Every 2 Weeks"
+
+msgid "Every 3 Days"
+msgstr "Every 3 Days"
 
 msgid "Extracting backup files to staging..."
 msgstr "Extracting backup files to staging..."
@@ -515,6 +551,15 @@ msgstr "Keep newest 3 backups"
 msgid "Keep newest 5 backups (Default)"
 msgstr "Keep newest 5 backups (Default)"
 
+msgid "Last Backup: %s"
+msgstr "Last Backup: %s"
+
+msgid "Later"
+msgstr "Later"
+
+msgid "Less than an hour ago"
+msgstr "Less than an hour ago"
+
 msgid "Manage %s Backups"
 msgstr "Manage %s Backups"
 
@@ -524,11 +569,17 @@ msgstr "Manage Backups"
 msgid "Microsoft OneDrive"
 msgstr "Microsoft OneDrive"
 
+msgid "Monthly (Every 30 Days)"
+msgstr "Monthly (Every 30 Days)"
+
 msgid "Name of folder on remote storage:"
 msgstr "Name of folder on remote storage:"
 
 msgid "Network transfer interrupted."
 msgstr "Network transfer interrupted."
+
+msgid "Never"
+msgstr "Never"
 
 msgid "New Folder"
 msgstr "New Folder"
@@ -587,6 +638,9 @@ msgstr "OneDrive listing failed (HTTP %s)"
 msgid "OneDrive upload session creation failed (HTTP %s): %s"
 msgstr "OneDrive upload session creation failed (HTTP %s): %s"
 
+msgid "Open Settings"
+msgstr "Open Settings"
+
 msgid "Operation in Progress"
 msgstr "Operation in Progress"
 
@@ -623,6 +677,9 @@ msgstr "Pre-flight check failed: %s"
 msgid "Preparing backup payload..."
 msgstr "Preparing backup payload..."
 
+msgid "Preparing payload..."
+msgstr "Preparing payload..."
+
 msgid "Preparing restore..."
 msgstr "Preparing restore..."
 
@@ -655,6 +712,9 @@ msgstr "Registering code with Beam relay..."
 
 msgid "Relay Server: %s"
 msgstr "Relay Server: %s"
+
+msgid "Reminder Frequency: %s"
+msgstr "Reminder Frequency: %s"
 
 msgid "Remote Backup Folder"
 msgstr "Remote Backup Folder"
@@ -740,6 +800,18 @@ msgstr "Sanitize Hardware Settings"
 msgid "Save"
 msgstr "Save"
 
+msgid "Scheduled Backup Reminders"
+msgstr "Scheduled Backup Reminders"
+
+msgid "Scheduled backup canceled."
+msgstr "Scheduled backup canceled."
+
+msgid "Scheduled backup created and uploaded to %s!\n\nFile: %s\nSize: %s"
+msgstr "Scheduled backup created and uploaded to %s!\n\nFile: %s\nSize: %s"
+
+msgid "Scheduled backup failed:\n%s"
+msgstr "Scheduled backup failed:\n%s"
+
 msgid "Screensavers"
 msgstr "Screensavers"
 
@@ -800,6 +872,9 @@ msgstr "Test Cloud Connection"
 msgid "Test Connection"
 msgstr "Test Connection"
 
+msgid "Test Reminder Now"
+msgstr "Test Reminder Now"
+
 msgid "Testing %s connection..."
 msgstr "Testing %s connection..."
 
@@ -842,11 +917,8 @@ msgstr "Upload to %s"
 msgid "Upload to Cloud"
 msgstr "Upload to Cloud"
 
-msgid "Upload to Cloud (%s)"
-msgstr "Upload to Cloud (%s)"
-
-msgid "Upload to Cloud (Not Configured)"
-msgstr "Upload to Cloud (Not Configured)"
+msgid "Upload to Cloud on Completion"
+msgstr "Upload to Cloud on Completion"
 
 msgid "Upload to Cloud on Creation"
 msgstr "Upload to Cloud on Creation"
@@ -895,4 +967,13 @@ msgstr "WebDAV settings saved."
 
 msgid "WebDAV upload failed (HTTP %s): %s"
 msgstr "WebDAV upload failed (HTTP %s): %s"
+
+msgid "Weekly (Every 7 Days)"
+msgstr "Weekly (Every 7 Days)"
+
+msgid "Yesterday"
+msgstr "Yesterday"
+
+msgid "Your scheduled backup is due.\nLast backup: %s\n\nWould you like to back up your device now?"
+msgstr "Your scheduled backup is due.\nLast backup: %s\n\nWould you like to back up your device now?"
 

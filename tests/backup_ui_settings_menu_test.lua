@@ -27,13 +27,18 @@ describe("backup_ui native settings submenus", function()
         s.cloud_provider = "none"
         s.cloud_remote_dir = "koreader_backups"
         s.upload_to_cloud = true
+        s.auto_backup_enabled = false
+        s.auto_backup_interval = Constants.AUTO_BACKUP_INTERVALS.WEEKLY
+        s.auto_backup_grace_period = 150
+        s.auto_backup_cloud_upload = false
+        s.auto_backup_last_time = 0
     end)
 
     describe("getSettingsMenuTable", function()
-        it("returns the 4 top-level settings categories with sub_item_table_func", function()
+        it("returns the 5 top-level settings categories with sub_item_table_func", function()
             local menu_table = BackupUI.getSettingsMenuTable(refresh_cb)
             assert.is_table(menu_table)
-            assert.are.equal(4, #menu_table)
+            assert.are.equal(5, #menu_table)
 
             for _, cat in ipairs(menu_table) do
                 assert.is_true(cat.keep_menu_open)
@@ -42,6 +47,46 @@ describe("backup_ui native settings submenus", function()
                 assert.is_table(sub)
                 assert.is_true(#sub > 0)
             end
+        end)
+    end)
+
+    describe("Scheduled Backup Reminders Submenu", function()
+        it("provides toggle, frequency radios, components, cloud upload, and test reminder items", function()
+            local items = BackupUI.getScheduledBackupSettingsSubmenu(refresh_cb)
+            assert.is_table(items)
+            assert.are.equal(6, #items)
+
+            -- Item 1: Enable Reminders toggle
+            local enable_item = items[1]
+            assert.is_not_nil(enable_item.checked_func)
+            assert.is_false(enable_item.checked_func())
+            enable_item.callback()
+            local s = BackupUI.getPluginSettings()
+            assert.is_true(s.auto_backup_enabled)
+            assert.is_true(enable_item.checked_func())
+
+            -- Item 2: Frequency radio subitems
+            local freq_item = items[2]
+            assert.is_function(freq_item.text_func)
+            assert.is_table(freq_item.sub_item_table)
+            assert.are.equal(4, #freq_item.sub_item_table)
+
+            -- Item 3: Components
+            local comp_item = items[3]
+            assert.is_function(comp_item.callback)
+
+            -- Item 4: Cloud upload toggle
+            local cloud_item = items[4]
+            assert.is_function(cloud_item.checked_func)
+
+            -- Item 5: Last backup status text
+            local status_item = items[5]
+            assert.is_function(status_item.text_func)
+            assert.is_false(status_item.enabled_func())
+
+            -- Item 6: Test Reminder Now
+            local test_item = items[6]
+            assert.is_function(test_item.callback)
         end)
     end)
 
@@ -221,7 +266,24 @@ describe("backup_ui native settings submenus", function()
             assert.are.equal("Backup & Restore Settings", shown_menu.title)
             assert.is_true(shown_menu.covers_fullscreen)
             assert.is_table(shown_menu.item_table)
-            assert.are.equal(4, #shown_menu.item_table)
+            assert.are.equal(5, #shown_menu.item_table)
+
+            UIManager.show = orig_show
+        end)
+
+        it("instantiates a fullscreen Menu for scheduled reminders via showScheduledBackupSettingsDialog", function()
+            local shown_menu = nil
+            local orig_show = UIManager.show
+            UIManager.show = function(self, widget)
+                shown_menu = widget
+            end
+
+            BackupUI.showScheduledBackupSettingsDialog()
+            assert.is_not_nil(shown_menu)
+            assert.are.equal("Scheduled Backup Reminders", shown_menu.title)
+            assert.is_true(shown_menu.covers_fullscreen)
+            assert.is_table(shown_menu.item_table)
+            assert.are.equal(6, #shown_menu.item_table)
 
             UIManager.show = orig_show
         end)

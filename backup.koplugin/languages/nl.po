@@ -13,6 +13,14 @@ msgstr "\n\n%d hardwaresleutels geschoond voor apparaatcompatibiliteit."
 msgid "%d backups found in this folder"
 msgstr "%d reservekopieën gevonden in deze map"
 
+# en-hash: 2ed6918e891e1ae6e39f871102dabe5b
+msgid "%d days ago"
+msgstr "%d dagen geleden"
+
+# en-hash: 56508e677862d0e47343c53005e417c6
+msgid "%d hours ago"
+msgstr "%d uur geleden"
+
 # en-hash: eb15c8258912980aa6eebaf6c597a474
 msgid "%s Account"
 msgstr "%s-account"
@@ -52,6 +60,10 @@ msgstr ".TAR.GZ (Compacte compressie)"
 # en-hash: 716407a6f5f5cb15c3d727b48bc29f98
 msgid ".ZIP (Standard compatibility)"
 msgstr ".ZIP (Standaard compatibiliteit)"
+
+# en-hash: d33d790d61ffbc685da62153a8676e0c
+msgid "1 hour ago"
+msgstr "1 uur geleden"
 
 # en-hash: 336f879eec1bf390db4fa65586734c78
 msgid "And enter this code:"
@@ -93,6 +105,10 @@ msgstr "Authenticatie mislukt. Controleer uw gebruikersnaam en wachtwoord."
 msgid "Authorization code expired. Please try again."
 msgstr "Autorisatiecode verlopen. Probeer het opnieuw."
 
+# en-hash: f3d43b87673d9cb64d35a7b6353912fb
+msgid "Auto-Backup Components"
+msgstr "Automatische reservekopiecomponenten"
+
 # en-hash: 0557fa923dcee4d0f86b1409f5c2167f
 msgid "Back"
 msgstr "Terug"
@@ -109,9 +125,21 @@ msgstr "Backupmap: %s"
 msgid "Backup Name"
 msgstr "Back-upnaam"
 
+# en-hash: 9a9852432e1a7055c64fef6ff8f6dd65
+msgid "Backup Now"
+msgstr "Nu reservekopie maken"
+
+# en-hash: dfab58c0344afcf52b564cef6dca89a0
+msgid "Backup Reminder"
+msgstr "Reservekopieherinnering"
+
 # en-hash: 5e9f37fad626c515ba7b36e74c42e17d
 msgid "Backup created successfully!\n\nFile: %s\nSize: %s\nArchived files: %d"
 msgstr "Back-up succesvol aangemaakt!\n\nBestand: %s\nGrootte: %s\nGearchiveerde bestanden: %d"
+
+# en-hash: dd33f6fa143463147da8f6a8c54108a6
+msgid "Backup created successfully!\n\nFile: %s\nSize: %s\nArchived files: %d\n\n(Cloud upload skipped: Wi-Fi offline)"
+msgstr "Reservekopie succesvol gemaakt!\n\nBestand: %s\nGrootte: %s\nGearchiveerde bestanden: %d\n\n(Cloud-upload overgeslagen: wifi offline)"
 
 # en-hash: df35262c72a71cb296f0130fe9dc8652
 msgid "Backup creation canceled."
@@ -237,6 +265,10 @@ msgstr "Cloudopslag (%s)"
 msgid "Cloud download canceled."
 msgstr "Cloud-download geannuleerd."
 
+# en-hash: 5215066261b2a2bbd6c57e276eeae4ca
+msgid "Cloud storage is not configured.\nWould you like to configure a cloud provider now?"
+msgstr "Cloudopslag is niet geconfigureerd.\nWilt u nu een cloudprovider instellen?"
+
 # en-hash: 340178bde18e06cde46fbf21d6796158
 msgid "Cloud upload canceled."
 msgstr "Cloud-upload geannuleerd."
@@ -249,6 +281,10 @@ msgstr "Cloud-upload mislukt:\n%s"
 msgid "Code expires in 15 minutes\nSingle-use end-to-end encrypted"
 msgstr "Code verloopt over 15 minuten\nEenmalig gebruik, end-to-end versleuteld"
 
+# en-hash: 8860a6c003ccf6287569e240aebe7c2f
+msgid "Components to Back Up ▸"
+msgstr "Onderdelen om te back-uppen ▸"
+
 # en-hash: 86aac18111beed926d7ba20edf59b7ce
 msgid "Components to Restore: %s ▸"
 msgstr "Te herstellen onderdelen: %s ▸"
@@ -256,6 +292,10 @@ msgstr "Te herstellen onderdelen: %s ▸"
 # en-hash: 8019b3bf9614191cdcd24f143bbaafa0
 msgid "Components: %s ▸"
 msgstr "Onderdelen: %s ▸"
+
+# en-hash: f1206f9fadc5ce41694f69129aecac26
+msgid "Configure"
+msgstr "Configureren"
 
 # en-hash: 66fe5475a73859a22a0ae5700bef42bc
 msgid "Configure %s..."
@@ -349,6 +389,10 @@ msgstr "Kan bestand niet schrijven: %s"
 msgid "Create"
 msgstr "Aanmaken"
 
+# en-hash: 9fbd7684e309a55750f504ddf2cffee1
+msgid "Create & Upload"
+msgstr "Maken & uploaden"
+
 # en-hash: c14ce86aeadca087a22896b2a64a5c58
 msgid "Create Backup"
 msgstr "Back-up maken"
@@ -368,6 +412,10 @@ msgstr "'%s' aangemaakt"
 # en-hash: 19e21238e20af336ede460df8cf776a6
 msgid "Creating Backup Archive"
 msgstr "Back-up archief maken"
+
+# en-hash: 3ac3ffb090f61ce4998cfc21ce6d20e6
+msgid "Creating Scheduled Backup"
+msgstr "Geplande reservekopie maken"
 
 # en-hash: 744989ee31aa7ce02b0a1dbbcad2a3c1
 msgid "Creating safety rollback snapshot..."
@@ -489,6 +537,10 @@ msgstr "Downloaden: %s..."
 msgid "Dropbox"
 msgstr "Dropbox"
 
+# en-hash: f1f0f012997827445c2daabb3cf2b1af
+msgid "Enable Scheduled Reminders"
+msgstr "Geplande herinneringen inschakelen"
+
 # en-hash: f7a124dce93e38381ea3023a4f0aa14e
 msgid "Encrypting backup archive..."
 msgstr "Back-uparchief versleutelen..."
@@ -504,6 +556,14 @@ msgstr "Voer bestandsnaam in (zonder extensie):"
 # en-hash: 54e8a9f101fc87da7d8cd250dadae2ef
 msgid "Enter the 6-digit Beam code from the sending device:"
 msgstr "Voer de 6-cijferige Beam-code van het verzendende apparaat in:"
+
+# en-hash: 8c4fb2dbe62c8c19f1b5879922810ae0
+msgid "Every 2 Weeks"
+msgstr "Elke 2 weken"
+
+# en-hash: ec935f96416c04cdcb54cd29c1931e62
+msgid "Every 3 Days"
+msgstr "Elke 3 dagen"
 
 # en-hash: 12dc9c172dcbbddbdd606695f1cbd15f
 msgid "Extracting backup files to staging..."
@@ -673,6 +733,18 @@ msgstr "3 nieuwste back-ups bewaren"
 msgid "Keep newest 5 backups (Default)"
 msgstr "5 nieuwste back-ups bewaren (Standaard)"
 
+# en-hash: 829a77d749701631a26f26ad5c0b035a
+msgid "Last Backup: %s"
+msgstr "Laatste reservekopie: %s"
+
+# en-hash: 61057a0c84605444201929bdd72014f0
+msgid "Later"
+msgstr "Later"
+
+# en-hash: d30ca914f4a8a87fc0d6810df4e1e106
+msgid "Less than an hour ago"
+msgstr "Minder dan een uur geleden"
+
 # en-hash: 79429c7a4f1314ebbe4b2a8455a09ba8
 msgid "Manage %s Backups"
 msgstr "Beheer %s Back-ups"
@@ -685,6 +757,10 @@ msgstr "Back-ups beheren"
 msgid "Microsoft OneDrive"
 msgstr "Microsoft OneDrive"
 
+# en-hash: 1a84a1dfd3ba5be9c1a688954057e9be
+msgid "Monthly (Every 30 Days)"
+msgstr "Maandelijks (elke 30 dagen)"
+
 # en-hash: 57df334530fbba0549520ad80fc4dd2f
 msgid "Name of folder on remote storage:"
 msgstr "Naam van map op externe opslag:"
@@ -692,6 +768,10 @@ msgstr "Naam van map op externe opslag:"
 # en-hash: d178b09cacd82f290b2077ecb350ef81
 msgid "Network transfer interrupted."
 msgstr "Netwerkoverdracht onderbroken."
+
+# en-hash: 6e7b34fa59e1bd229b207892956dc41c
+msgid "Never"
+msgstr "Nooit"
 
 # en-hash: 5148905edb46ca87df979cbb369c403d
 msgid "New Folder"
@@ -769,6 +849,10 @@ msgstr "OneDrive-weergave mislukt (HTTP %s)"
 msgid "OneDrive upload session creation failed (HTTP %s): %s"
 msgstr "Aanmaken van OneDrive-uploadsessie mislukt (HTTP %s): %s"
 
+# en-hash: 638c05f4f159a403e04aebe94b46a2a8
+msgid "Open Settings"
+msgstr "Instellingen openen"
+
 # en-hash: d11334638cf7c636a72da22cae9d6373
 msgid "Operation in Progress"
 msgstr "Bewerking in uitvoering"
@@ -817,6 +901,10 @@ msgstr "Voorafgaande controle mislukt: %s"
 msgid "Preparing backup payload..."
 msgstr "Back-up payload voorbereiden..."
 
+# en-hash: b6a89b7a8e777e46adb05dea8d16fa84
+msgid "Preparing payload..."
+msgstr "Payload voorbereiden..."
+
 # en-hash: cfb13f78d52700e6873ec2adadb1ebae
 msgid "Preparing restore..."
 msgstr "Herstel voorbereiden..."
@@ -860,6 +948,10 @@ msgstr "Code registreren bij Beam-relay..."
 # en-hash: eade8417c0d25ef9ac1b42feeed7cea5
 msgid "Relay Server: %s"
 msgstr "Relayserver: %s"
+
+# en-hash: 99e7b2be4325d95b34cd6174bd427f4d
+msgid "Reminder Frequency: %s"
+msgstr "Herinneringsfrequentie: %s"
 
 # en-hash: 2d5e099b29563da5e67db51a71438c04
 msgid "Remote Backup Folder"
@@ -973,6 +1065,22 @@ msgstr "Hardware-instellingen schonen"
 msgid "Save"
 msgstr "Opslaan"
 
+# en-hash: db3b3b390772b2e502f5a7f4b00175a8
+msgid "Scheduled Backup Reminders"
+msgstr "Geplande reservekopieherinneringen"
+
+# en-hash: 569765c561deb9a749be470435a5ca6e
+msgid "Scheduled backup canceled."
+msgstr "Geplande reservekopie geannuleerd."
+
+# en-hash: 46c97957fef3f812e375709b9e6ef8ee
+msgid "Scheduled backup created and uploaded to %s!\n\nFile: %s\nSize: %s"
+msgstr "Geplande reservekopie gemaakt en geüpload naar %s!\n\nBestand: %s\nGrootte: %s"
+
+# en-hash: 71479a5067d91bdba4c588c5eabb496d
+msgid "Scheduled backup failed:\n%s"
+msgstr "Geplande reservekopie mislukt:\n%s"
+
 # en-hash: cb95f5f307c64043351b5125571b350a
 msgid "Screensavers"
 msgstr "Schermbeveiligingen"
@@ -1053,6 +1161,10 @@ msgstr "Test Cloud Verbinding"
 msgid "Test Connection"
 msgstr "Test Verbinding"
 
+# en-hash: 3cf8f715e7de6b4ee25d44d94c470e9c
+msgid "Test Reminder Now"
+msgstr "Herinnering nu testen"
+
 # en-hash: 1657047945cd79b1052a6d3a761e1347
 msgid "Testing %s connection..."
 msgstr "Verbinding met %s testen..."
@@ -1109,6 +1221,26 @@ msgstr "Uploaden naar %s"
 msgid "Upload to Cloud"
 msgstr "Uploaden naar Cloud"
 
+# en-hash: aa53fd74baab34f6679ac8269a9f8dc4
+msgid "Upload to Cloud on Completion"
+msgstr "Uploaden naar cloud bij voltooiing"
+
+# en-hash: 0a94e726b85475b873afad771c04e4e8
+msgid "Upload to Cloud on Creation"
+msgstr "Bij aanmaken uploaden naar cloud"
+
+# en-hash: 5718c95a96738cd9c74c474de1f27d16
+msgid "Upload to Cloud on Creation: No"
+msgstr "Bij aanmaken uploaden naar cloud: Nee"
+
+# en-hash: b74869af01e4e561569b5a13e049b618
+msgid "Upload to Cloud on Creation: Not Configured"
+msgstr "Bij aanmaken uploaden naar cloud: Niet ingesteld"
+
+# en-hash: 023a8772362b3af15fb85f247a9d2ec2
+msgid "Upload to Cloud on Creation: Yes (%s)"
+msgstr "Bij aanmaken uploaden naar cloud: Ja (%s)"
+
 # en-hash: 55c11e4b0000b4cf083ae1ff648d5946
 msgid "Uploading backup archive..."
 msgstr "Back-uparchief uploaden..."
@@ -1157,39 +1289,15 @@ msgstr "WebDAV-instellingen opgeslagen."
 msgid "WebDAV upload failed (HTTP %s): %s"
 msgstr "WebDAV-upload mislukt (HTTP %s): %s"
 
-# en-hash: 9c749cd3cef0c54f9d7c018b5df6720a
-msgid "Upload to Cloud (%s)"
-msgstr "Uploaden naar cloud (%s)"
+# en-hash: 29dc8630e447e3bfa2d29bdd8a61382c
+msgid "Weekly (Every 7 Days)"
+msgstr "Wekelijks (elke 7 dagen)"
 
-# en-hash: f16e7b27ab2bcc26c2370547638298f5
-msgid "Upload to Cloud (Not Configured)"
-msgstr "Uploaden naar cloud (Niet ingesteld)"
+# en-hash: ebfe9ce86e6e9fb953aa7a25b59c1956
+msgid "Yesterday"
+msgstr "Gisteren"
 
-# en-hash: 0a94e726b85475b873afad771c04e4e8
-msgid "Upload to Cloud on Creation"
-msgstr "Bij aanmaken uploaden naar cloud"
-
-# en-hash: 9fbd7684e309a55750f504ddf2cffee1
-msgid "Create & Upload"
-msgstr "Maken & uploaden"
-
-# en-hash: f1206f9fadc5ce41694f69129aecac26
-msgid "Configure"
-msgstr "Configureren"
-
-# en-hash: 5215066261b2a2bbd6c57e276eeae4ca
-msgid "Cloud storage is not configured.\nWould you like to configure a cloud provider now?"
-msgstr "Cloudopslag is niet geconfigureerd.\nWilt u nu een cloudprovider instellen?"
-
-# en-hash: 023a8772362b3af15fb85f247a9d2ec2
-msgid "Upload to Cloud on Creation: Yes (%s)"
-msgstr "Bij aanmaken uploaden naar cloud: Ja (%s)"
-
-# en-hash: 5718c95a96738cd9c74c474de1f27d16
-msgid "Upload to Cloud on Creation: No"
-msgstr "Bij aanmaken uploaden naar cloud: Nee"
-
-# en-hash: b74869af01e4e561569b5a13e049b618
-msgid "Upload to Cloud on Creation: Not Configured"
-msgstr "Bij aanmaken uploaden naar cloud: Niet ingesteld"
+# en-hash: cb2366668a7ed160fd6231fdba1e7aae
+msgid "Your scheduled backup is due.\nLast backup: %s\n\nWould you like to back up your device now?"
+msgstr "Het is tijd voor uw geplande reservekopie.\nLaatste reservekopie: %s\n\nWilt u nu een reservekopie van uw apparaat maken?"
 

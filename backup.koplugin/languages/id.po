@@ -13,6 +13,14 @@ msgstr "\n\nMembersihkan %d kunci perangkat keras untuk kompatibilitas perangkat
 msgid "%d backups found in this folder"
 msgstr "%d cadangan ditemukan di folder ini"
 
+# en-hash: 2ed6918e891e1ae6e39f871102dabe5b
+msgid "%d days ago"
+msgstr "%d hari yang lalu"
+
+# en-hash: 56508e677862d0e47343c53005e417c6
+msgid "%d hours ago"
+msgstr "%d jam yang lalu"
+
 # en-hash: eb15c8258912980aa6eebaf6c597a474
 msgid "%s Account"
 msgstr "Akun %s"
@@ -52,6 +60,10 @@ msgstr ".TAR.GZ (Kompresi padat)"
 # en-hash: 716407a6f5f5cb15c3d727b48bc29f98
 msgid ".ZIP (Standard compatibility)"
 msgstr ".ZIP (Kompatibilitas standar)"
+
+# en-hash: d33d790d61ffbc685da62153a8676e0c
+msgid "1 hour ago"
+msgstr "1 jam yang lalu"
 
 # en-hash: 336f879eec1bf390db4fa65586734c78
 msgid "And enter this code:"
@@ -93,6 +105,10 @@ msgstr "Autentikasi gagal. Harap verifikasi nama pengguna dan kata sandi Anda."
 msgid "Authorization code expired. Please try again."
 msgstr "Kode otorisasi kedaluwarsa. Silakan coba lagi."
 
+# en-hash: f3d43b87673d9cb64d35a7b6353912fb
+msgid "Auto-Backup Components"
+msgstr "Komponen Cadangan Otomatis"
+
 # en-hash: 0557fa923dcee4d0f86b1409f5c2167f
 msgid "Back"
 msgstr "Kembali"
@@ -109,9 +125,21 @@ msgstr "Folder Cadangan: %s"
 msgid "Backup Name"
 msgstr "Nama Cadangan"
 
+# en-hash: 9a9852432e1a7055c64fef6ff8f6dd65
+msgid "Backup Now"
+msgstr "Cadangkan Sekarang"
+
+# en-hash: dfab58c0344afcf52b564cef6dca89a0
+msgid "Backup Reminder"
+msgstr "Pengingat Cadangan"
+
 # en-hash: 5e9f37fad626c515ba7b36e74c42e17d
 msgid "Backup created successfully!\n\nFile: %s\nSize: %s\nArchived files: %d"
 msgstr "Cadangan berhasil dibuat!\n\nFile: %s\nUkuran: %s\nFile diarsipkan: %d"
+
+# en-hash: dd33f6fa143463147da8f6a8c54108a6
+msgid "Backup created successfully!\n\nFile: %s\nSize: %s\nArchived files: %d\n\n(Cloud upload skipped: Wi-Fi offline)"
+msgstr "Cadangan berhasil dibuat!\n\nBerkas: %s\nUkuran: %s\nBerkas diarsipkan: %d\n\n(Unggahan cloud dilewati: Wi-Fi offline)"
 
 # en-hash: df35262c72a71cb296f0130fe9dc8652
 msgid "Backup creation canceled."
@@ -237,6 +265,10 @@ msgstr "Penyimpanan Cloud (%s)"
 msgid "Cloud download canceled."
 msgstr "Unduhan cloud dibatalkan."
 
+# en-hash: 5215066261b2a2bbd6c57e276eeae4ca
+msgid "Cloud storage is not configured.\nWould you like to configure a cloud provider now?"
+msgstr "Penyimpanan cloud belum dikonfigurasi.\nApakah Anda ingin mengonfigurasi penyedia cloud sekarang?"
+
 # en-hash: 340178bde18e06cde46fbf21d6796158
 msgid "Cloud upload canceled."
 msgstr "Unggahan cloud dibatalkan."
@@ -249,6 +281,10 @@ msgstr "Unggah cloud gagal:\n%s"
 msgid "Code expires in 15 minutes\nSingle-use end-to-end encrypted"
 msgstr "Kode kedaluwarsa dalam 15 menit\nTerenkripsi ujung-ke-ujung (sekali pakai)"
 
+# en-hash: 8860a6c003ccf6287569e240aebe7c2f
+msgid "Components to Back Up ▸"
+msgstr "Komponen untuk Dicadangkan ▸"
+
 # en-hash: 86aac18111beed926d7ba20edf59b7ce
 msgid "Components to Restore: %s ▸"
 msgstr "Komponen untuk dipulihkan: %s ▸"
@@ -256,6 +292,10 @@ msgstr "Komponen untuk dipulihkan: %s ▸"
 # en-hash: 8019b3bf9614191cdcd24f143bbaafa0
 msgid "Components: %s ▸"
 msgstr "Komponen: %s ▸"
+
+# en-hash: f1206f9fadc5ce41694f69129aecac26
+msgid "Configure"
+msgstr "Konfigurasi"
 
 # en-hash: 66fe5475a73859a22a0ae5700bef42bc
 msgid "Configure %s..."
@@ -349,6 +389,10 @@ msgstr "Tidak dapat menulis file: %s"
 msgid "Create"
 msgstr "Buat"
 
+# en-hash: 9fbd7684e309a55750f504ddf2cffee1
+msgid "Create & Upload"
+msgstr "Buat & Unggah"
+
 # en-hash: c14ce86aeadca087a22896b2a64a5c58
 msgid "Create Backup"
 msgstr "Buat Cadangan"
@@ -368,6 +412,10 @@ msgstr "Berhasil membuat '%s'"
 # en-hash: 19e21238e20af336ede460df8cf776a6
 msgid "Creating Backup Archive"
 msgstr "Membuat Arsip Cadangan"
+
+# en-hash: 3ac3ffb090f61ce4998cfc21ce6d20e6
+msgid "Creating Scheduled Backup"
+msgstr "Membuat Cadangan Terjadwal"
 
 # en-hash: 744989ee31aa7ce02b0a1dbbcad2a3c1
 msgid "Creating safety rollback snapshot..."
@@ -489,6 +537,10 @@ msgstr "Mengunduh: %s..."
 msgid "Dropbox"
 msgstr "Dropbox"
 
+# en-hash: f1f0f012997827445c2daabb3cf2b1af
+msgid "Enable Scheduled Reminders"
+msgstr "Aktifkan Pengingat Terjadwal"
+
 # en-hash: f7a124dce93e38381ea3023a4f0aa14e
 msgid "Encrypting backup archive..."
 msgstr "Mengenkripsi arsip cadangan..."
@@ -504,6 +556,14 @@ msgstr "Masukkan nama file (tanpa ekstensi):"
 # en-hash: 54e8a9f101fc87da7d8cd250dadae2ef
 msgid "Enter the 6-digit Beam code from the sending device:"
 msgstr "Masukkan kode Beam 6 digit dari perangkat pengirim:"
+
+# en-hash: 8c4fb2dbe62c8c19f1b5879922810ae0
+msgid "Every 2 Weeks"
+msgstr "Setiap 2 Minggu"
+
+# en-hash: ec935f96416c04cdcb54cd29c1931e62
+msgid "Every 3 Days"
+msgstr "Setiap 3 Hari"
 
 # en-hash: 12dc9c172dcbbddbdd606695f1cbd15f
 msgid "Extracting backup files to staging..."
@@ -673,6 +733,18 @@ msgstr "Simpan 3 cadangan terbaru"
 msgid "Keep newest 5 backups (Default)"
 msgstr "Simpan 5 cadangan terbaru (Bawaan)"
 
+# en-hash: 829a77d749701631a26f26ad5c0b035a
+msgid "Last Backup: %s"
+msgstr "Cadangan Terakhir: %s"
+
+# en-hash: 61057a0c84605444201929bdd72014f0
+msgid "Later"
+msgstr "Nanti"
+
+# en-hash: d30ca914f4a8a87fc0d6810df4e1e106
+msgid "Less than an hour ago"
+msgstr "Kurang dari sejam yang lalu"
+
 # en-hash: 79429c7a4f1314ebbe4b2a8455a09ba8
 msgid "Manage %s Backups"
 msgstr "Kelola Cadangan %s"
@@ -685,6 +757,10 @@ msgstr "Kelola Cadangan"
 msgid "Microsoft OneDrive"
 msgstr "Microsoft OneDrive"
 
+# en-hash: 1a84a1dfd3ba5be9c1a688954057e9be
+msgid "Monthly (Every 30 Days)"
+msgstr "Bulanan (Setiap 30 Hari)"
+
 # en-hash: 57df334530fbba0549520ad80fc4dd2f
 msgid "Name of folder on remote storage:"
 msgstr "Nama folder di penyimpanan jarak jauh:"
@@ -692,6 +768,10 @@ msgstr "Nama folder di penyimpanan jarak jauh:"
 # en-hash: d178b09cacd82f290b2077ecb350ef81
 msgid "Network transfer interrupted."
 msgstr "Transfer jaringan terganggu."
+
+# en-hash: 6e7b34fa59e1bd229b207892956dc41c
+msgid "Never"
+msgstr "Tidak Pernah"
 
 # en-hash: 5148905edb46ca87df979cbb369c403d
 msgid "New Folder"
@@ -769,6 +849,10 @@ msgstr "Pencatatan OneDrive gagal (HTTP %s)"
 msgid "OneDrive upload session creation failed (HTTP %s): %s"
 msgstr "Pembuatan sesi unggah OneDrive gagal (HTTP %s): %s"
 
+# en-hash: 638c05f4f159a403e04aebe94b46a2a8
+msgid "Open Settings"
+msgstr "Buka Pengaturan"
+
 # en-hash: d11334638cf7c636a72da22cae9d6373
 msgid "Operation in Progress"
 msgstr "Operasi Sedang Berlangsung"
@@ -817,6 +901,10 @@ msgstr "Pemeriksaan awal gagal: %s"
 msgid "Preparing backup payload..."
 msgstr "Mempersiapkan muatan cadangan..."
 
+# en-hash: b6a89b7a8e777e46adb05dea8d16fa84
+msgid "Preparing payload..."
+msgstr "Menyiapkan muatan..."
+
 # en-hash: cfb13f78d52700e6873ec2adadb1ebae
 msgid "Preparing restore..."
 msgstr "Menyiapkan pemulihan..."
@@ -860,6 +948,10 @@ msgstr "Mendaftarkan kode ke relai Beam..."
 # en-hash: eade8417c0d25ef9ac1b42feeed7cea5
 msgid "Relay Server: %s"
 msgstr "Server Relay: %s"
+
+# en-hash: 99e7b2be4325d95b34cd6174bd427f4d
+msgid "Reminder Frequency: %s"
+msgstr "Frekuensi Pengingat: %s"
 
 # en-hash: 2d5e099b29563da5e67db51a71438c04
 msgid "Remote Backup Folder"
@@ -973,6 +1065,22 @@ msgstr "Bersihkan Pengaturan Perangkat Keras"
 msgid "Save"
 msgstr "Simpan"
 
+# en-hash: db3b3b390772b2e502f5a7f4b00175a8
+msgid "Scheduled Backup Reminders"
+msgstr "Pengingat Cadangan Terjadwal"
+
+# en-hash: 569765c561deb9a749be470435a5ca6e
+msgid "Scheduled backup canceled."
+msgstr "Cadangan terjadwal dibatalkan."
+
+# en-hash: 46c97957fef3f812e375709b9e6ef8ee
+msgid "Scheduled backup created and uploaded to %s!\n\nFile: %s\nSize: %s"
+msgstr "Cadangan terjadwal berhasil dibuat dan diunggah ke %s!\n\nBerkas: %s\nUkuran: %s"
+
+# en-hash: 71479a5067d91bdba4c588c5eabb496d
+msgid "Scheduled backup failed:\n%s"
+msgstr "Cadangan terjadwal gagal:\n%s"
+
 # en-hash: cb95f5f307c64043351b5125571b350a
 msgid "Screensavers"
 msgstr "Screensaver"
@@ -1053,6 +1161,10 @@ msgstr "Uji Koneksi Cloud"
 msgid "Test Connection"
 msgstr "Uji Koneksi"
 
+# en-hash: 3cf8f715e7de6b4ee25d44d94c470e9c
+msgid "Test Reminder Now"
+msgstr "Uji Pengingat Sekarang"
+
 # en-hash: 1657047945cd79b1052a6d3a761e1347
 msgid "Testing %s connection..."
 msgstr "Menguji koneksi %s..."
@@ -1109,6 +1221,26 @@ msgstr "Unggah ke %s"
 msgid "Upload to Cloud"
 msgstr "Unggah ke Cloud"
 
+# en-hash: aa53fd74baab34f6679ac8269a9f8dc4
+msgid "Upload to Cloud on Completion"
+msgstr "Unggah ke Cloud saat Selesai"
+
+# en-hash: 0a94e726b85475b873afad771c04e4e8
+msgid "Upload to Cloud on Creation"
+msgstr "Unggah ke Cloud saat Dibuat"
+
+# en-hash: 5718c95a96738cd9c74c474de1f27d16
+msgid "Upload to Cloud on Creation: No"
+msgstr "Unggah ke Cloud saat Dibuat: Tidak"
+
+# en-hash: b74869af01e4e561569b5a13e049b618
+msgid "Upload to Cloud on Creation: Not Configured"
+msgstr "Unggah ke Cloud saat Dibuat: Belum Dikonfigurasi"
+
+# en-hash: 023a8772362b3af15fb85f247a9d2ec2
+msgid "Upload to Cloud on Creation: Yes (%s)"
+msgstr "Unggah ke Cloud saat Dibuat: Ya (%s)"
+
 # en-hash: 55c11e4b0000b4cf083ae1ff648d5946
 msgid "Uploading backup archive..."
 msgstr "Mengunggah arsip cadangan..."
@@ -1157,39 +1289,15 @@ msgstr "Pengaturan WebDAV disimpan."
 msgid "WebDAV upload failed (HTTP %s): %s"
 msgstr "Unggahan WebDAV gagal (HTTP %s): %s"
 
-# en-hash: 9c749cd3cef0c54f9d7c018b5df6720a
-msgid "Upload to Cloud (%s)"
-msgstr "Unggah ke Cloud (%s)"
+# en-hash: 29dc8630e447e3bfa2d29bdd8a61382c
+msgid "Weekly (Every 7 Days)"
+msgstr "Mingguan (Setiap 7 Hari)"
 
-# en-hash: f16e7b27ab2bcc26c2370547638298f5
-msgid "Upload to Cloud (Not Configured)"
-msgstr "Unggah ke Cloud (Belum Dikonfigurasi)"
+# en-hash: ebfe9ce86e6e9fb953aa7a25b59c1956
+msgid "Yesterday"
+msgstr "Kemarin"
 
-# en-hash: 0a94e726b85475b873afad771c04e4e8
-msgid "Upload to Cloud on Creation"
-msgstr "Unggah ke Cloud saat Dibuat"
-
-# en-hash: 9fbd7684e309a55750f504ddf2cffee1
-msgid "Create & Upload"
-msgstr "Buat & Unggah"
-
-# en-hash: f1206f9fadc5ce41694f69129aecac26
-msgid "Configure"
-msgstr "Konfigurasi"
-
-# en-hash: 5215066261b2a2bbd6c57e276eeae4ca
-msgid "Cloud storage is not configured.\nWould you like to configure a cloud provider now?"
-msgstr "Penyimpanan cloud belum dikonfigurasi.\nApakah Anda ingin mengonfigurasi penyedia cloud sekarang?"
-
-# en-hash: 023a8772362b3af15fb85f247a9d2ec2
-msgid "Upload to Cloud on Creation: Yes (%s)"
-msgstr "Unggah ke Cloud saat Dibuat: Ya (%s)"
-
-# en-hash: 5718c95a96738cd9c74c474de1f27d16
-msgid "Upload to Cloud on Creation: No"
-msgstr "Unggah ke Cloud saat Dibuat: Tidak"
-
-# en-hash: b74869af01e4e561569b5a13e049b618
-msgid "Upload to Cloud on Creation: Not Configured"
-msgstr "Unggah ke Cloud saat Dibuat: Belum Dikonfigurasi"
+# en-hash: cb2366668a7ed160fd6231fdba1e7aae
+msgid "Your scheduled backup is due.\nLast backup: %s\n\nWould you like to back up your device now?"
+msgstr "Waktu cadangan terjadwal Anda telah tiba.\nCadangan terakhir: %s\n\nApakah Anda ingin mencadangkan perangkat sekarang?"
 

@@ -352,6 +352,21 @@ local function getPluginSettings()
     if _settings_cache.upload_to_cloud == nil then
         _settings_cache.upload_to_cloud = true
     end
+    if _settings_cache.auto_backup_enabled == nil then
+        _settings_cache.auto_backup_enabled = false
+    end
+    if not _settings_cache.auto_backup_interval then
+        _settings_cache.auto_backup_interval = (Constants.AUTO_BACKUP_INTERVALS and Constants.AUTO_BACKUP_INTERVALS.WEEKLY) or 604800
+    end
+    if not _settings_cache.auto_backup_grace_period then
+        _settings_cache.auto_backup_grace_period = 150
+    end
+    if _settings_cache.auto_backup_cloud_upload == nil then
+        _settings_cache.auto_backup_cloud_upload = false
+    end
+    if not _settings_cache.auto_backup_last_time then
+        _settings_cache.auto_backup_last_time = 0
+    end
     return _settings_cache
 end
 BackupUI.getPluginSettings = getPluginSettings
@@ -368,6 +383,7 @@ local function savePluginSettings()
         f:close()
     end
 end
+BackupUI.savePluginSettings = savePluginSettings
 
 local function getEffectiveBackupDir()
     local s = getPluginSettings()
@@ -376,6 +392,7 @@ local function getEffectiveBackupDir()
     end
     return Retention.getDefaultBackupDir()
 end
+BackupUI.getEffectiveBackupDir = getEffectiveBackupDir
 
 --- Prompts the user to cleanly restart KOReader.
 function BackupUI.showRestartConfirmation(message)
@@ -917,7 +934,17 @@ function BackupUI.showCreateDialog(wizard_state)
         }
         progress_dlg:show()
 
+        local last_pbar_update = 0
+        local last_pbar_file = nil
         local function setPbarProgress(curr_files, total_files, curr_bytes, total_bytes, current_path)
+            local now_t = os.clock()
+            local is_done = (curr_files >= total_files and total_files > 0) or (curr_bytes >= total_bytes and total_bytes > 0)
+            if not is_done and current_path == last_pbar_file and (now_t - last_pbar_update) < 0.1 then
+                return
+            end
+            last_pbar_update = now_t
+            last_pbar_file = current_path
+
             local pct = (total_bytes > 0) and math.min(100, math.floor((curr_bytes / total_bytes) * 100)) or 0
             progress_dlg:setProgress(pct)
             local file_disp = current_path and current_path:match("([^/\\]+)$") or current_path or ""
@@ -969,7 +996,9 @@ function BackupUI.showCreateDialog(wizard_state)
                 local sz_str = Retention.formatSize(res.size or 0)
                 local file_count = res.file_count or 0
                 if state.upload_to_cloud then
-                    BackupUI.showCloudUploadDialog(full_archive_path)
+                    UIManager:nextTick(function()
+                        BackupUI.showCloudUploadDialog(full_archive_path)
+                    end)
                 else
                     showResultInfo(string.format(_("Backup created successfully!\n\nFile: %s\nSize: %s\nArchived files: %d"),
                         filename, sz_str, file_count), 5)
@@ -2234,7 +2263,222 @@ function BackupUI.getBeamSettingsSubmenu(refresh_cb)
     }
 end
 
---- Returns the 4-category root settings menu table for KOReader native menus.
+--- Shows the multi-component selection dialog specifically for scheduled backups.
+function BackupUI.showAutoBackupComponentsDialog(on_done_cb)
+    local s = getPluginSettings()
+    local data_dir = getDataDir()
+    local comps = {}
+    local src_comps = s.auto_backup_components or Constants.DEFAULT_COMPONENT_SELECTION
+    for k, v in pairs(src_comps) do
+        comps[k] = v
+    end
+
+    local avail_plugins = ArchiverMgr.getAvailablePlugins(data_dir)
+    local sel_plugins = {}
+    if s.auto_backup_selected_plugins then
+        for k, v in pairs(s.auto_backup_selected_plugins) do sel_plugins[k] = v end
+    else
+        for _, p in ipairs(avail_plugins) do sel_plugins[p] = true end
+    end
+
+    local avail_patches = ArchiverMgr.getAvailablePatches(data_dir)
+    local sel_patches = {}
+    if s.auto_backup_selected_patches then
+        for k, v in pairs(s.auto_backup_selected_patches) do sel_patches[k] = v end
+    else
+        for _, pt in ipairs(avail_patches) do sel_patches[pt] = true end
+    end
+
+    local avail_fonts = ArchiverMgr.getAvailableFonts(data_dir)
+    local sel_fonts = {}
+    if s.auto_backup_selected_fonts then
+        for k, v in pairs(s.auto_backup_selected_fonts) do sel_fonts[k] = v end
+    else
+        for _, f in ipairs(avail_fonts) do sel_fonts[f] = true end
+    end
+
+    local avail_dicts = ArchiverMgr.getAvailableDictionaries(data_dir)
+    local sel_dicts = {}
+    if s.auto_backup_selected_dicts then
+        for k, v in pairs(s.auto_backup_selected_dicts) do sel_dicts[k] = v end
+    else
+        for _, d in ipairs(avail_dicts) do sel_dicts[d] = true end
+    end
+
+    showComponentsSelectionDialog{
+        title = _("Auto-Backup Components"),
+        components = comps,
+        available_plugins = avail_plugins,
+        selected_plugins = sel_plugins,
+        available_patches = avail_patches,
+        selected_patches = sel_patches,
+        available_fonts = avail_fonts,
+        selected_fonts = sel_fonts,
+        available_dicts = avail_dicts,
+        selected_dicts = sel_dicts,
+        on_done = function(chosen_components)
+            s.auto_backup_components = chosen_components
+            s.auto_backup_selected_plugins = sel_plugins
+            s.auto_backup_selected_patches = sel_patches
+            s.auto_backup_selected_fonts = sel_fonts
+            s.auto_backup_selected_dicts = sel_dicts
+            savePluginSettings()
+            if on_done_cb then
+                UIManager:nextTick(on_done_cb)
+            end
+        end,
+    }
+end
+
+--- Returns the submenu items for Scheduled Backup Reminders.
+function BackupUI.getScheduledBackupSettingsSubmenu(refresh_cb)
+    local s = getPluginSettings()
+    local BackupScheduler = require("backup_scheduler")
+
+    local interval_list = {
+        { text = _("Every 3 Days"), value = Constants.AUTO_BACKUP_INTERVALS.THREE_DAYS },
+        { text = _("Weekly (Every 7 Days)"), value = Constants.AUTO_BACKUP_INTERVALS.WEEKLY },
+        { text = _("Every 2 Weeks"), value = Constants.AUTO_BACKUP_INTERVALS.TWO_WEEKS },
+        { text = _("Monthly (Every 30 Days)"), value = Constants.AUTO_BACKUP_INTERVALS.MONTHLY },
+    }
+
+    local interval_subitems = {}
+    for _, item in ipairs(interval_list) do
+        table.insert(interval_subitems, {
+            text = item.text,
+            radio = true,
+            keep_menu_open = true,
+            checked_func = function()
+                return (s.auto_backup_interval or Constants.AUTO_BACKUP_INTERVALS.WEEKLY) == item.value
+            end,
+            callback = function(touch_menu)
+                s.auto_backup_interval = item.value
+                savePluginSettings()
+                refreshMenuState(refresh_cb, touch_menu)
+            end,
+        })
+    end
+
+    local items = {
+        {
+            text = _("Enable Scheduled Reminders"),
+            keep_menu_open = true,
+            checked_func = function()
+                return s.auto_backup_enabled == true
+            end,
+            callback = function(touch_menu)
+                s.auto_backup_enabled = not s.auto_backup_enabled
+                savePluginSettings()
+                if s.auto_backup_enabled then
+                    BackupScheduler.startGracePeriodTimer()
+                else
+                    BackupScheduler.cancelGracePeriodTimer()
+                end
+                refreshMenuState(refresh_cb, touch_menu)
+            end,
+        },
+        {
+            text_func = function()
+                local cur_interval = s.auto_backup_interval or Constants.AUTO_BACKUP_INTERVALS.WEEKLY
+                local label = _("Weekly (Every 7 Days)")
+                for _, it in ipairs(interval_list) do
+                    if it.value == cur_interval then
+                        label = it.text
+                        break
+                    end
+                end
+                return string.format(_("Reminder Frequency: %s"), label)
+            end,
+            keep_menu_open = true,
+            enabled_func = function()
+                return s.auto_backup_enabled == true
+            end,
+            sub_item_table = interval_subitems,
+        },
+        {
+            text = _("Components to Back Up ▸"),
+            keep_menu_open = true,
+            enabled_func = function()
+                return s.auto_backup_enabled == true
+            end,
+            callback = function(touch_menu)
+                BackupUI.showAutoBackupComponentsDialog(function()
+                    refreshMenuState(refresh_cb, touch_menu)
+                end)
+            end,
+        },
+        {
+            text = _("Upload to Cloud on Completion"),
+            keep_menu_open = true,
+            enabled_func = function()
+                return s.auto_backup_enabled == true and Cloud.isConfigured(s.cloud_provider)
+            end,
+            checked_func = function()
+                return s.auto_backup_cloud_upload == true
+            end,
+            callback = function(touch_menu)
+                s.auto_backup_cloud_upload = not s.auto_backup_cloud_upload
+                savePluginSettings()
+                refreshMenuState(refresh_cb, touch_menu)
+            end,
+        },
+        {
+            text_func = function()
+                return string.format(_("Last Backup: %s"), BackupScheduler.formatLastBackupTime(s.auto_backup_last_time))
+            end,
+            keep_menu_open = true,
+            enabled_func = function()
+                return false
+            end,
+        },
+        {
+            text = _("Test Reminder Now"),
+            keep_menu_open = true,
+            callback = function(touch_menu)
+                BackupScheduler.showReminderDialog(function()
+                    BackupUI.showScheduledBackupSettingsDialog()
+                end)
+            end,
+        },
+    }
+
+    return items
+end
+
+--- Shows the Scheduled Backup Reminders menu as a standalone fullscreen widget.
+function BackupUI.showScheduledBackupSettingsDialog(on_finish_cb)
+    local menu
+    local function closeMenu()
+        if menu then
+            local m = menu
+            menu = nil
+            UIManager:close(m)
+            if on_finish_cb then
+                UIManager:nextTick(on_finish_cb)
+            end
+        end
+    end
+
+    local function refreshMenu()
+        if menu and menu.updateItems then
+            menu:updateItems()
+        end
+    end
+
+    if Menu then
+        menu = Menu:new{
+            title = _("Scheduled Backup Reminders"),
+            item_table = BackupUI.getScheduledBackupSettingsSubmenu(refreshMenu),
+            covers_fullscreen = true,
+        }
+        menu.close_callback = function()
+            closeMenu()
+        end
+        UIManager:show(menu)
+    end
+end
+
+--- Returns the 5-category root settings menu table for KOReader native menus.
 function BackupUI.getSettingsMenuTable(refresh_cb)
     local s = getPluginSettings()
 
@@ -2251,6 +2495,13 @@ function BackupUI.getSettingsMenuTable(refresh_cb)
             keep_menu_open = true,
             sub_item_table_func = function()
                 return BackupUI.getArchiveSettingsSubmenu(refresh_cb)
+            end,
+        },
+        {
+            text = _("Scheduled Backup Reminders"),
+            keep_menu_open = true,
+            sub_item_table_func = function()
+                return BackupUI.getScheduledBackupSettingsSubmenu(refresh_cb)
             end,
         },
         {
@@ -3446,6 +3697,9 @@ function BackupUI.showCloudUploadDialog(filepath, on_finish_cb)
                     UIManager:show(InfoMessage:new{
                         text = string.format(_("Backup uploaded to %s successfully!\n\nFile: %s"), Cloud.getProviderLabel(provider), filename),
                         timeout = 4,
+                        dismiss_callback = function()
+                            UIManager:setDirty("all", "ui")
+                        end,
                     })
                     if on_finish_cb then UIManager:nextTick(on_finish_cb) end
                 else

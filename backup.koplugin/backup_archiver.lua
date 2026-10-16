@@ -915,13 +915,13 @@ function ArchiverMgr.createBackup(options)
             end
 
             if on_progress then
-                on_progress(current_files, total_files, current_bytes, total_bytes, item.archive_path)
+                pcall(on_progress, current_files, total_files, current_bytes, total_bytes, item.archive_path)
             end
 
             local function on_chunk(chunk_size)
                 current_bytes = current_bytes + chunk_size
                 if on_progress then
-                    on_progress(current_files, total_files, current_bytes, total_bytes, item.archive_path)
+                    pcall(on_progress, current_files, total_files, current_bytes, total_bytes, item.archive_path)
                 end
             end
 

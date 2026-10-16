@@ -13,6 +13,14 @@ msgstr "\n\n已为设备兼容性清理 %d 个硬件相关键值。"
 msgid "%d backups found in this folder"
 msgstr "在此文件夹中找到 %d 个备份"
 
+# en-hash: 2ed6918e891e1ae6e39f871102dabe5b
+msgid "%d days ago"
+msgstr "%d 天前"
+
+# en-hash: 56508e677862d0e47343c53005e417c6
+msgid "%d hours ago"
+msgstr "%d 小时前"
+
 # en-hash: eb15c8258912980aa6eebaf6c597a474
 msgid "%s Account"
 msgstr "%s 账户"
@@ -52,6 +60,10 @@ msgstr ".TAR.GZ (高压缩比)"
 # en-hash: 716407a6f5f5cb15c3d727b48bc29f98
 msgid ".ZIP (Standard compatibility)"
 msgstr ".ZIP (标准兼容)"
+
+# en-hash: d33d790d61ffbc685da62153a8676e0c
+msgid "1 hour ago"
+msgstr "1 小时前"
 
 # en-hash: 336f879eec1bf390db4fa65586734c78
 msgid "And enter this code:"
@@ -93,6 +105,10 @@ msgstr "验证失败。请检查用户名和密码。"
 msgid "Authorization code expired. Please try again."
 msgstr "授权码已过期，请重试。"
 
+# en-hash: f3d43b87673d9cb64d35a7b6353912fb
+msgid "Auto-Backup Components"
+msgstr "自动备份组件"
+
 # en-hash: 0557fa923dcee4d0f86b1409f5c2167f
 msgid "Back"
 msgstr "返回"
@@ -109,9 +125,21 @@ msgstr "备份文件夹：%s"
 msgid "Backup Name"
 msgstr "备份名称"
 
+# en-hash: 9a9852432e1a7055c64fef6ff8f6dd65
+msgid "Backup Now"
+msgstr "立即备份"
+
+# en-hash: dfab58c0344afcf52b564cef6dca89a0
+msgid "Backup Reminder"
+msgstr "备份提醒"
+
 # en-hash: 5e9f37fad626c515ba7b36e74c42e17d
 msgid "Backup created successfully!\n\nFile: %s\nSize: %s\nArchived files: %d"
 msgstr "备份创建成功！\n\n文件: %s\n大小: %s\n归档文件数: %d"
+
+# en-hash: dd33f6fa143463147da8f6a8c54108a6
+msgid "Backup created successfully!\n\nFile: %s\nSize: %s\nArchived files: %d\n\n(Cloud upload skipped: Wi-Fi offline)"
+msgstr "备份创建成功！\n\n文件：%s\n大小：%s\n存档文件：%d\n\n（已跳过云端上传：Wi-Fi 未连接）"
 
 # en-hash: df35262c72a71cb296f0130fe9dc8652
 msgid "Backup creation canceled."
@@ -237,6 +265,10 @@ msgstr "云存储 (%s)"
 msgid "Cloud download canceled."
 msgstr "已取消云端下载。"
 
+# en-hash: 5215066261b2a2bbd6c57e276eeae4ca
+msgid "Cloud storage is not configured.\nWould you like to configure a cloud provider now?"
+msgstr "云存储尚未配置。\n您现在要配置云存储提供商吗？"
+
 # en-hash: 340178bde18e06cde46fbf21d6796158
 msgid "Cloud upload canceled."
 msgstr "已取消云端上传。"
@@ -249,6 +281,10 @@ msgstr "云端上传失败：\n%s"
 msgid "Code expires in 15 minutes\nSingle-use end-to-end encrypted"
 msgstr "验证码 15 分钟内有效\n端到端加密，一次性使用"
 
+# en-hash: 8860a6c003ccf6287569e240aebe7c2f
+msgid "Components to Back Up ▸"
+msgstr "要备份的组件 ▸"
+
 # en-hash: 86aac18111beed926d7ba20edf59b7ce
 msgid "Components to Restore: %s ▸"
 msgstr "要恢复的组件：%s ▸"
@@ -256,6 +292,10 @@ msgstr "要恢复的组件：%s ▸"
 # en-hash: 8019b3bf9614191cdcd24f143bbaafa0
 msgid "Components: %s ▸"
 msgstr "组件：%s ▸"
+
+# en-hash: f1206f9fadc5ce41694f69129aecac26
+msgid "Configure"
+msgstr "配置"
 
 # en-hash: 66fe5475a73859a22a0ae5700bef42bc
 msgid "Configure %s..."
@@ -349,6 +389,10 @@ msgstr "无法写入文件: %s"
 msgid "Create"
 msgstr "创建"
 
+# en-hash: 9fbd7684e309a55750f504ddf2cffee1
+msgid "Create & Upload"
+msgstr "创建并上传"
+
 # en-hash: c14ce86aeadca087a22896b2a64a5c58
 msgid "Create Backup"
 msgstr "创建备份"
@@ -368,6 +412,10 @@ msgstr "已创建“%s”"
 # en-hash: 19e21238e20af336ede460df8cf776a6
 msgid "Creating Backup Archive"
 msgstr "正在创建备份存档"
+
+# en-hash: 3ac3ffb090f61ce4998cfc21ce6d20e6
+msgid "Creating Scheduled Backup"
+msgstr "正在创建定时备份"
 
 # en-hash: 744989ee31aa7ce02b0a1dbbcad2a3c1
 msgid "Creating safety rollback snapshot..."
@@ -489,6 +537,10 @@ msgstr "下载中：%s..."
 msgid "Dropbox"
 msgstr "Dropbox"
 
+# en-hash: f1f0f012997827445c2daabb3cf2b1af
+msgid "Enable Scheduled Reminders"
+msgstr "启用定时提醒"
+
 # en-hash: f7a124dce93e38381ea3023a4f0aa14e
 msgid "Encrypting backup archive..."
 msgstr "正在加密备份文件..."
@@ -504,6 +556,14 @@ msgstr "输入自定义文件名 (无需后缀):"
 # en-hash: 54e8a9f101fc87da7d8cd250dadae2ef
 msgid "Enter the 6-digit Beam code from the sending device:"
 msgstr "输入发送端设备显示的 6 位 Beam 取件码:"
+
+# en-hash: 8c4fb2dbe62c8c19f1b5879922810ae0
+msgid "Every 2 Weeks"
+msgstr "每 2 周"
+
+# en-hash: ec935f96416c04cdcb54cd29c1931e62
+msgid "Every 3 Days"
+msgstr "每 3 天"
 
 # en-hash: 12dc9c172dcbbddbdd606695f1cbd15f
 msgid "Extracting backup files to staging..."
@@ -673,6 +733,18 @@ msgstr "保留最近 3 个备份"
 msgid "Keep newest 5 backups (Default)"
 msgstr "保留最近 5 个备份（默认）"
 
+# en-hash: 829a77d749701631a26f26ad5c0b035a
+msgid "Last Backup: %s"
+msgstr "上次备份：%s"
+
+# en-hash: 61057a0c84605444201929bdd72014f0
+msgid "Later"
+msgstr "稍后"
+
+# en-hash: d30ca914f4a8a87fc0d6810df4e1e106
+msgid "Less than an hour ago"
+msgstr "不到 1 小时前"
+
 # en-hash: 79429c7a4f1314ebbe4b2a8455a09ba8
 msgid "Manage %s Backups"
 msgstr "管理 %s 备份"
@@ -685,6 +757,10 @@ msgstr "管理备份"
 msgid "Microsoft OneDrive"
 msgstr "Microsoft OneDrive"
 
+# en-hash: 1a84a1dfd3ba5be9c1a688954057e9be
+msgid "Monthly (Every 30 Days)"
+msgstr "每月（每 30 天）"
+
 # en-hash: 57df334530fbba0549520ad80fc4dd2f
 msgid "Name of folder on remote storage:"
 msgstr "远程存储上的文件夹名称："
@@ -692,6 +768,10 @@ msgstr "远程存储上的文件夹名称："
 # en-hash: d178b09cacd82f290b2077ecb350ef81
 msgid "Network transfer interrupted."
 msgstr "网络传输已中断。"
+
+# en-hash: 6e7b34fa59e1bd229b207892956dc41c
+msgid "Never"
+msgstr "从不"
 
 # en-hash: 5148905edb46ca87df979cbb369c403d
 msgid "New Folder"
@@ -769,6 +849,10 @@ msgstr "OneDrive 列表获取失败 (HTTP %s)"
 msgid "OneDrive upload session creation failed (HTTP %s): %s"
 msgstr "OneDrive 上传会话创建失败 (HTTP %s): %s"
 
+# en-hash: 638c05f4f159a403e04aebe94b46a2a8
+msgid "Open Settings"
+msgstr "打开设置"
+
 # en-hash: d11334638cf7c636a72da22cae9d6373
 msgid "Operation in Progress"
 msgstr "正在进行操作"
@@ -817,6 +901,10 @@ msgstr "预检失败: %s"
 msgid "Preparing backup payload..."
 msgstr "正在准备备份数据..."
 
+# en-hash: b6a89b7a8e777e46adb05dea8d16fa84
+msgid "Preparing payload..."
+msgstr "正在准备有效负载..."
+
 # en-hash: cfb13f78d52700e6873ec2adadb1ebae
 msgid "Preparing restore..."
 msgstr "正在准备恢复..."
@@ -860,6 +948,10 @@ msgstr "正在向 Beam 中继注册取件码..."
 # en-hash: eade8417c0d25ef9ac1b42feeed7cea5
 msgid "Relay Server: %s"
 msgstr "中继服务器：%s"
+
+# en-hash: 99e7b2be4325d95b34cd6174bd427f4d
+msgid "Reminder Frequency: %s"
+msgstr "提醒频率：%s"
 
 # en-hash: 2d5e099b29563da5e67db51a71438c04
 msgid "Remote Backup Folder"
@@ -973,6 +1065,22 @@ msgstr "净化硬件配置"
 msgid "Save"
 msgstr "保存"
 
+# en-hash: db3b3b390772b2e502f5a7f4b00175a8
+msgid "Scheduled Backup Reminders"
+msgstr "定时备份提醒"
+
+# en-hash: 569765c561deb9a749be470435a5ca6e
+msgid "Scheduled backup canceled."
+msgstr "定时备份已取消。"
+
+# en-hash: 46c97957fef3f812e375709b9e6ef8ee
+msgid "Scheduled backup created and uploaded to %s!\n\nFile: %s\nSize: %s"
+msgstr "定时备份已创建并上传至 %s！\n\n文件：%s\n大小：%s"
+
+# en-hash: 71479a5067d91bdba4c588c5eabb496d
+msgid "Scheduled backup failed:\n%s"
+msgstr "定时备份失败：\n%s"
+
 # en-hash: cb95f5f307c64043351b5125571b350a
 msgid "Screensavers"
 msgstr "屏保壁纸"
@@ -1053,6 +1161,10 @@ msgstr "测试云端连接"
 msgid "Test Connection"
 msgstr "测试连接"
 
+# en-hash: 3cf8f715e7de6b4ee25d44d94c470e9c
+msgid "Test Reminder Now"
+msgstr "立即测试提醒"
+
 # en-hash: 1657047945cd79b1052a6d3a761e1347
 msgid "Testing %s connection..."
 msgstr "正在测试 %s 连接..."
@@ -1109,6 +1221,26 @@ msgstr "上传到 %s"
 msgid "Upload to Cloud"
 msgstr "上传到云端"
 
+# en-hash: aa53fd74baab34f6679ac8269a9f8dc4
+msgid "Upload to Cloud on Completion"
+msgstr "完成时上传至云端"
+
+# en-hash: 0a94e726b85475b873afad771c04e4e8
+msgid "Upload to Cloud on Creation"
+msgstr "创建时上传至云端"
+
+# en-hash: 5718c95a96738cd9c74c474de1f27d16
+msgid "Upload to Cloud on Creation: No"
+msgstr "创建时上传至云端: 否"
+
+# en-hash: b74869af01e4e561569b5a13e049b618
+msgid "Upload to Cloud on Creation: Not Configured"
+msgstr "创建时上传至云端: 未配置"
+
+# en-hash: 023a8772362b3af15fb85f247a9d2ec2
+msgid "Upload to Cloud on Creation: Yes (%s)"
+msgstr "创建时上传至云端: 是 (%s)"
+
 # en-hash: 55c11e4b0000b4cf083ae1ff648d5946
 msgid "Uploading backup archive..."
 msgstr "正在上传备份文件..."
@@ -1157,39 +1289,15 @@ msgstr "WebDAV 设置已保存。"
 msgid "WebDAV upload failed (HTTP %s): %s"
 msgstr "WebDAV 上传失败（HTTP %s）：%s"
 
-# en-hash: 9c749cd3cef0c54f9d7c018b5df6720a
-msgid "Upload to Cloud (%s)"
-msgstr "上传至云端 (%s)"
+# en-hash: 29dc8630e447e3bfa2d29bdd8a61382c
+msgid "Weekly (Every 7 Days)"
+msgstr "每周（每 7 天）"
 
-# en-hash: f16e7b27ab2bcc26c2370547638298f5
-msgid "Upload to Cloud (Not Configured)"
-msgstr "上传至云端 (未配置)"
+# en-hash: ebfe9ce86e6e9fb953aa7a25b59c1956
+msgid "Yesterday"
+msgstr "昨天"
 
-# en-hash: 0a94e726b85475b873afad771c04e4e8
-msgid "Upload to Cloud on Creation"
-msgstr "创建时上传至云端"
-
-# en-hash: 9fbd7684e309a55750f504ddf2cffee1
-msgid "Create & Upload"
-msgstr "创建并上传"
-
-# en-hash: f1206f9fadc5ce41694f69129aecac26
-msgid "Configure"
-msgstr "配置"
-
-# en-hash: 5215066261b2a2bbd6c57e276eeae4ca
-msgid "Cloud storage is not configured.\nWould you like to configure a cloud provider now?"
-msgstr "云存储尚未配置。\n您现在要配置云存储提供商吗？"
-
-# en-hash: 023a8772362b3af15fb85f247a9d2ec2
-msgid "Upload to Cloud on Creation: Yes (%s)"
-msgstr "创建时上传至云端: 是 (%s)"
-
-# en-hash: 5718c95a96738cd9c74c474de1f27d16
-msgid "Upload to Cloud on Creation: No"
-msgstr "创建时上传至云端: 否"
-
-# en-hash: b74869af01e4e561569b5a13e049b618
-msgid "Upload to Cloud on Creation: Not Configured"
-msgstr "创建时上传至云端: 未配置"
+# en-hash: cb2366668a7ed160fd6231fdba1e7aae
+msgid "Your scheduled backup is due.\nLast backup: %s\n\nWould you like to back up your device now?"
+msgstr "您的定时备份已到期。\n上次备份：%s\n\n您现在要备份设备吗？"
 

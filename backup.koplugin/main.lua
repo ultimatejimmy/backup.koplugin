@@ -12,6 +12,7 @@ local _ = Localization:getHelper()
 local BackupUI = require("backup_ui")
 local RestoreEngine = require("backup_restore")
 local Beam = require("backup_beam")
+local BackupScheduler = require("backup_scheduler")
 
 -- Rotate beam diagnostics log on startup (keeps last 500 lines)
 pcall(function() Beam.getLogger().rotate(500) end)
@@ -77,6 +78,7 @@ function Backup:init()
     if self.ui and self.ui.menu then
         self.ui.menu:registerToMainMenu(self)
     end
+    pcall(function() BackupScheduler.startGracePeriodTimer() end)
 end
 
 function Backup:onDispatcherRegisterActions()
@@ -215,6 +217,19 @@ end
 -- Re-enforce ordering when reader opens a document
 function Backup:onReaderReady()
     injectIntoToolsMenu()
+    pcall(function() BackupScheduler.startGracePeriodTimer() end)
+end
+
+function Backup:onResume()
+    pcall(function() BackupScheduler.startGracePeriodTimer() end)
+end
+
+function Backup:onSuspend()
+    pcall(function() BackupScheduler.cancelGracePeriodTimer() end)
+end
+
+function Backup:onCloseWidget()
+    pcall(function() BackupScheduler.cancelGracePeriodTimer() end)
 end
 
 return Backup

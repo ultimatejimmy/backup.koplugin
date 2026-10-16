@@ -265,15 +265,22 @@ end
 --- Dispatches pending input events (e.g. Cancel button tap) during long-running operations.
 function BackupProgress:pumpEvents()
     if self.is_closed or self._pumping then return end
+    local now_clock = os.clock()
+    if (now_clock - (self._last_pump_time or 0)) < 0.1 then
+        return
+    end
+    self._last_pump_time = now_clock
     self._pumping = true
     if UIManager and Device and Device.input and type(Device.input.waitEvent) == "function" and type(UIManager.getTime) == "function" and type(UIManager.handleInputEvent) == "function" then
-        local now = UIManager:getTime()
-        local input_events = Device.input:waitEvent(now, now)
-        if input_events then
-            for __, ev in ipairs(input_events) do
-                UIManager:handleInputEvent(ev)
+        pcall(function()
+            local now = UIManager:getTime()
+            local input_events = Device.input:waitEvent(now, now)
+            if input_events then
+                for __, ev in ipairs(input_events) do
+                    UIManager:handleInputEvent(ev)
+                end
             end
-        end
+        end)
     end
     self._pumping = false
 end
@@ -306,7 +313,6 @@ end
 --- Updates the subtitle text.
 function BackupProgress:setSubtitle(text)
     if self.is_closed or not text then return end
-    self:pumpEvents()
     self.subtitle = text
     if self.subtitle_widget and type(self.subtitle_widget.setText) == "function" then
         self.subtitle_widget:setText(text)
@@ -326,7 +332,6 @@ end
 --- Updates the detail line (e.g. current filename or phase).
 function BackupProgress:setDetail(text)
     if self.is_closed then return end
-    self:pumpEvents()
     self.detail = text or ""
     if self.detail_widget and type(self.detail_widget.setText) == "function" then
         self.detail_widget:setText(self.detail)
@@ -411,7 +416,10 @@ function BackupProgress:close()
     if self.is_closed then return end
     self.is_closed = true
     if UIManager and UIManager.close then
-        UIManager:close(self)
+        UIManager:close(self, "ui")
+        if UIManager.setDirty then
+            UIManager:setDirty("all", "ui")
+        end
     end
 end
 
