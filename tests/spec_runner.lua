@@ -217,6 +217,8 @@ local test_files = {
     "backup_archiver_test.lua",
     "backup_beam_test.lua",
     "backup_cloud_oauth_test.lua",
+    "backup_cloud_gdrive_test.lua",
+    "backup_cloud_onedrive_test.lua",
     "backup_cloud_webdav_test.lua",
     "backup_cloud_ftp_test.lua",
     "backup_cloud_sftp_test.lua",

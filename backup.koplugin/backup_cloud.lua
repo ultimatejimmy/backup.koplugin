@@ -87,6 +87,10 @@ function Cloud.clearCredentials(provider)
     all[provider] = nil
     saveAllCredentials(all)
     OAuth.clearTokens(provider)
+    local driver = Cloud.getDriver(provider)
+    if driver and driver.clearFolderCache then
+        driver.clearFolderCache()
+    end
     return true
 end
 

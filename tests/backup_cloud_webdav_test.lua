@@ -71,6 +71,14 @@ describe("backup_cloud_webdav", function()
             assert.equals("http://192.168.1.50/webdav/backups/koreader", folder_url)
         end)
 
+        it("handles backslashes, spaces, and multi-level paths in remote directory", function()
+            local folder_url = WebDAV._getRemoteFolderUrl({
+                url = "http://192.168.1.50/webdav/",
+                remote_dir = [[\mine\koreader kindle\backup\]],
+            })
+            assert.equals("http://192.168.1.50/webdav/mine/koreader%20kindle/backup", folder_url)
+        end)
+
         it("returns base URL preserving trailing slash when remote directory is empty", function()
             local folder_url = WebDAV._getRemoteFolderUrl({
                 url = "http://192.168.1.50/webdav/",

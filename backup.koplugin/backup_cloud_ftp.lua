@@ -195,7 +195,7 @@ end
 --- Ensures the remote directory exists and navigates into it.
 local function ensureAndCwdDir(ctrl, remote_dir)
     remote_dir = remote_dir or Constants.CLOUD_DEFAULT_REMOTE_DIR or "koreader_backups"
-    remote_dir = remote_dir:gsub("^/+", ""):gsub("/+$", "")
+    remote_dir = remote_dir:gsub("\\", "/"):gsub("^/+", ""):gsub("/+$", ""):gsub("/+", "/")
     if remote_dir == "" then
         return true
     end
@@ -206,8 +206,7 @@ local function ensureAndCwdDir(ctrl, remote_dir)
         return true
     end
 
-    -- Directory may not exist; navigate or create segment by segment
-    sendCmd(ctrl, "CWD", "/")
+    -- Directory may not exist; navigate or create segment by segment from current directory
     for seg in remote_dir:gmatch("[^/]+") do
         local code_seg = sendCmd(ctrl, "CWD", seg)
         if not code_seg or code_seg ~= 250 then
@@ -220,6 +219,7 @@ local function ensureAndCwdDir(ctrl, remote_dir)
     end
     return true
 end
+FTP._ensureAndCwdDir = ensureAndCwdDir
 
 --- Tests connectivity and credentials with the FTP server.
 -- @param opts table: { host, port, username, password, remote_dir, use_ftps }

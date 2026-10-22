@@ -106,9 +106,24 @@ end
 --- Normalizes the remote directory path.
 local function getRemoteDir(opts)
     local dir = opts.remote_dir or Constants.CLOUD_DEFAULT_REMOTE_DIR or "koreader_backups"
-    dir = dir:gsub("^/+", ""):gsub("/+$", "")
+    dir = dir:gsub("\\", "/"):gsub("^/+", ""):gsub("/+$", ""):gsub("/+", "/")
     return dir ~= "" and dir or "koreader_backups"
 end
+
+--- Builds SFTP batch commands to navigate or create directory segments.
+local function buildDirCommands(dir, create_missing)
+    dir = dir or ""
+    dir = dir:gsub("\\", "/"):gsub("^/+", ""):gsub("/+$", ""):gsub("/+", "/")
+    local cmds = {}
+    for seg in dir:gmatch("[^/]+") do
+        if create_missing then
+            table.insert(cmds, string.format("-mkdir %q", seg))
+        end
+        table.insert(cmds, string.format("cd %q", seg))
+    end
+    return cmds
+end
+SFTP._buildDirCommands = buildDirCommands
 
 --- Tests SFTP connectivity.
 function SFTP.testConnection(opts, callback)
@@ -120,12 +135,9 @@ function SFTP.testConnection(opts, callback)
     end
 
     local dir = getRemoteDir(opts)
-    local cmds = {
-        "-mkdir " .. dir,
-        "cd " .. dir,
-        "pwd",
-        "bye",
-    }
+    local cmds = buildDirCommands(dir, true)
+    table.insert(cmds, "pwd")
+    table.insert(cmds, "bye")
 
     local ok, out = runSftpBatch(opts, cmds)
     if ok then
@@ -140,12 +152,9 @@ end
 function SFTP.upload(local_path, opts, callback)
     local dir = getRemoteDir(opts)
     local filename = local_path:match("([^/\\]+)$") or "backup.zip"
-    local cmds = {
-        "-mkdir " .. dir,
-        "cd " .. dir,
-        string.format("put %q %q", local_path, filename),
-        "bye",
-    }
+    local cmds = buildDirCommands(dir, true)
+    table.insert(cmds, string.format("put %q %q", local_path, filename))
+    table.insert(cmds, "bye")
 
     if opts.on_progress then
         opts.on_progress(10, 100, "uploading")
@@ -165,11 +174,9 @@ end
 --- Downloads a remote backup archive via SFTP.
 function SFTP.download(remote_filename, local_path, opts, callback)
     local dir = getRemoteDir(opts)
-    local cmds = {
-        "cd " .. dir,
-        string.format("get %q %q", remote_filename, local_path),
-        "bye",
-    }
+    local cmds = buildDirCommands(dir, false)
+    table.insert(cmds, string.format("get %q %q", remote_filename, local_path))
+    table.insert(cmds, "bye")
 
     if opts.on_progress then
         opts.on_progress(10, 100, "downloading")
@@ -197,11 +204,9 @@ function SFTP.list(opts, callback)
     end
 
     local dir = getRemoteDir(opts)
-    local cmds = {
-        "cd " .. dir,
-        "ls -l",
-        "bye",
-    }
+    local cmds = buildDirCommands(dir, false)
+    table.insert(cmds, "ls -l")
+    table.insert(cmds, "bye")
 
     local ok, out = runSftpBatch(opts, cmds)
     if not ok then
@@ -234,11 +239,9 @@ end
 --- Deletes a remote backup file on the SFTP server.
 function SFTP.delete(remote_filename, opts, callback)
     local dir = getRemoteDir(opts)
-    local cmds = {
-        "cd " .. dir,
-        string.format("rm %q", remote_filename),
-        "bye",
-    }
+    local cmds = buildDirCommands(dir, false)
+    table.insert(cmds, string.format("rm %q", remote_filename))
+    table.insert(cmds, "bye")
 
     local ok, out = runSftpBatch(opts, cmds)
     if ok or out:find("No such file") then

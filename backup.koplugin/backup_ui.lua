@@ -2162,8 +2162,11 @@ function BackupUI.getCloudSettingsSubmenu(refresh_cb)
                                     local new_val = folder_dlg:getInputText()
                                     UIManager:close(folder_dlg)
                                     if new_val and new_val ~= "" then
-                                        s.cloud_remote_dir = new_val:gsub("^/+", ""):gsub("/+$", "")
-                                        savePluginSettings()
+                                        local cleaned = new_val:gsub("\\", "/"):gsub("^/+", ""):gsub("/+$", ""):gsub("/+", "/")
+                                        if cleaned ~= "" then
+                                            s.cloud_remote_dir = cleaned
+                                            savePluginSettings()
+                                        end
                                     end
                                     UIManager:nextTick(function() refreshMenuState(refresh_cb, touch_menu) end)
                                 end,

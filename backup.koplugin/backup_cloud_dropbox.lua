@@ -30,15 +30,16 @@ local DROPBOX_CONTENT_BASE = "https://content.dropboxapi.com/2"
 
 --- Resolves remote folder path for Dropbox API v2.
 -- In App Folder mode, root is "" (empty string).
--- Subfolders are represented as "/subfolder".
+-- Subfolders are represented as "/subfolder" or "/subfolder/nested".
 local function resolveFolderPath(folder_name)
-    if not folder_name or folder_name == "" or folder_name == "/" then
+    if not folder_name or folder_name == "" or folder_name == "/" or folder_name == "\\" then
         return ""
     end
-    local clean = folder_name:gsub("^/+", ""):gsub("/+$", "")
+    local clean = folder_name:gsub("\\", "/"):gsub("^/+", ""):gsub("/+$", ""):gsub("/+", "/")
     if clean == "" then return "" end
     return "/" .. clean
 end
+Dropbox._resolveFolderPath = resolveFolderPath
 
 --- Resolves remote file path for Dropbox API v2.
 -- Must always start with a forward slash.
@@ -51,6 +52,7 @@ local function resolveFilePath(folder_name, filename)
         return folder_path .. "/" .. filename
     end
 end
+Dropbox._resolveFilePath = resolveFilePath
 
 --- Creates a progress-tracking sink for file downloads.
 local function makeFileProgressSink(target_sink, on_progress, total_expected, is_canceled)

@@ -54,7 +54,8 @@ local function doOneDriveRequest(req)
     if not ok_ltn or not ltn12 then
         return nil, "ltn12 module not available"
     end
-    if not ok_https then
+    local https_client = (ok_https and https) or package.loaded["ssl.https"]
+    if not https_client then
         return nil, "ssl.https module not available for HTTPS connection"
     end
 
@@ -99,7 +100,7 @@ local function doOneDriveRequest(req)
 
     local url = req.url
     local is_ssl = url:match("^https://")
-    local client = is_ssl and https or http
+    local client = is_ssl and https_client or http
 
     local ok_call, r, code, resp_headers, status = pcall(client.request, {
         url = url,
@@ -171,21 +172,71 @@ end
 
 local _folder_id_cache = nil
 local _folder_name_cache = nil
+local _folder_token_cache = nil
 
---- Resolves or creates the remote folder in OneDrive.
+--- Clears the cached remote folder ID.
+function OneDrive.clearFolderCache()
+    _folder_id_cache = nil
+    _folder_name_cache = nil
+    _folder_token_cache = nil
+end
+
+--- Normalizes a remote path and splits into hierarchical segments.
+local function normalizeAndSplitPath(folder_name)
+    if not folder_name or folder_name == "" then
+        folder_name = Constants.CLOUD_DEFAULT_REMOTE_DIR or "koreader_backups"
+    end
+    folder_name = folder_name:gsub("\\", "/"):gsub("^/+", ""):gsub("/+$", ""):gsub("/+", "/")
+    if folder_name == "" then
+        folder_name = Constants.CLOUD_DEFAULT_REMOTE_DIR or "koreader_backups"
+    end
+    local segments = {}
+    for seg in folder_name:gmatch("[^/]+") do
+        table.insert(segments, seg)
+    end
+    if #segments == 0 then
+        table.insert(segments, Constants.CLOUD_DEFAULT_REMOTE_DIR or "koreader_backups")
+    end
+    return folder_name, segments
+end
+OneDrive._normalizeAndSplitPath = normalizeAndSplitPath
+
+--- Percent-encodes an individual path segment for Microsoft Graph API.
+local function encodeGraphSegment(seg)
+    if not seg then return "" end
+    local res = tostring(seg):gsub("([^%w%-%_%.%~])", function(c)
+        return string.format("%%%02X", string.byte(c))
+    end)
+    return res
+end
+OneDrive._encodeGraphSegment = encodeGraphSegment
+
+--- Encodes a multi-level folder path for Microsoft Graph URI paths.
+local function encodeGraphPath(folder_name)
+    local _, segments = normalizeAndSplitPath(folder_name)
+    local encoded = {}
+    for _, seg in ipairs(segments) do
+        table.insert(encoded, encodeGraphSegment(seg))
+    end
+    return table.concat(encoded, "/")
+end
+OneDrive._encodeGraphPath = encodeGraphPath
+
+--- Resolves or creates the remote folder hierarchy in OneDrive.
+-- Supports multi-level paths (e.g. "mine/koreader kindle/backup") segment by segment.
 -- @param token string: OAuth2 access token
--- @param folder_name string: e.g. "koreader_backups"
+-- @param folder_name string: e.g. "mine/koreader kindle/backup"
 -- @param callback function(ok, folder_id_or_err)
 local function ensureFolder(token, folder_name, callback)
-    folder_name = folder_name or Constants.CLOUD_DEFAULT_REMOTE_DIR or "koreader_backups"
-    folder_name = folder_name:gsub("^/+", ""):gsub("/+$", "")
+    local normalized_path, segments = normalizeAndSplitPath(folder_name)
 
-    if _folder_id_cache and _folder_name_cache == folder_name then
+    if _folder_id_cache and _folder_name_cache == normalized_path and _folder_token_cache == token then
         if callback then callback(true, _folder_id_cache) end
         return
     end
 
-    local check_url = GRAPH_API_BASE .. "/me/drive/root:/" .. OAuth.urlEncode(folder_name)
+    local full_encoded_path = encodeGraphPath(normalized_path)
+    local check_url = GRAPH_API_BASE .. "/me/drive/root:/" .. full_encoded_path
     local r, code, headers, status, body = doOneDriveRequest{
         url = check_url,
         method = "GET",
@@ -200,45 +251,93 @@ local function ensureFolder(token, folder_name, callback)
         if json and json.decode then pcall(function() data = json.decode(body) end) end
         if data and data.id then
             _folder_id_cache = data.id
-            _folder_name_cache = folder_name
+            _folder_name_cache = normalized_path
+            _folder_token_cache = token
             if callback then callback(true, _folder_id_cache) end
             return
         end
     end
 
-    -- Folder not found; create it under root
-    local create_url = GRAPH_API_BASE .. "/me/drive/root/children"
-    local meta = {
-        name = folder_name,
-        folder = {},
-        ["@microsoft.graph.conflictBehavior"] = "fail",
-    }
-    local meta_json = (json and json.encode and json.encode(meta))
-        or string.format('{"name":%q,"folder":{},"@microsoft.graph.conflictBehavior":"fail"}', folder_name)
-
-    local r_c, code_c, h_c, s_c, body_c = doOneDriveRequest{
-        url = create_url,
-        method = "POST",
-        headers = {
-            ["Authorization"] = "Bearer " .. token,
-            ["Content-Type"] = "application/json; charset=UTF-8",
-        },
-        body = meta_json,
-    }
-
-    if (code_c == 200 or code_c == 201) and body_c and body_c ~= "" then
-        local data_c = nil
-        if json and json.decode then pcall(function() data_c = json.decode(body_c) end) end
-        if data_c and data_c.id then
-            _folder_id_cache = data_c.id
-            _folder_name_cache = folder_name
-            if callback then callback(true, _folder_id_cache) end
+    -- Target path not found as a whole; resolve or create segment by segment
+    local parent_id = "root"
+    local function resolveNextSegment(idx)
+        if idx > #segments then
+            _folder_id_cache = parent_id
+            _folder_name_cache = normalized_path
+            _folder_token_cache = token
+            if callback then callback(true, parent_id) end
             return
         end
+
+        local seg = segments[idx]
+        local seg_encoded = encodeGraphSegment(seg)
+        local seg_url
+        if parent_id == "root" then
+            seg_url = GRAPH_API_BASE .. "/me/drive/root:/" .. seg_encoded
+        else
+            seg_url = GRAPH_API_BASE .. "/me/drive/items/" .. parent_id .. ":/" .. seg_encoded
+        end
+
+        local r_s, code_s, h_s, s_s, body_s = doOneDriveRequest{
+            url = seg_url,
+            method = "GET",
+            headers = {
+                ["Authorization"] = "Bearer " .. token,
+                ["Accept"] = "application/json",
+            },
+        }
+
+        if (code_s == 200 or code_s == 201) and body_s and body_s ~= "" then
+            local data_s = nil
+            if json and json.decode then pcall(function() data_s = json.decode(body_s) end) end
+            if data_s and data_s.id then
+                parent_id = data_s.id
+                resolveNextSegment(idx + 1)
+                return
+            end
+        end
+
+        -- Segment not found; create it under parent_id
+        local create_url
+        if parent_id == "root" then
+            create_url = GRAPH_API_BASE .. "/me/drive/root/children"
+        else
+            create_url = GRAPH_API_BASE .. "/me/drive/items/" .. parent_id .. "/children"
+        end
+
+        local meta = {
+            name = seg,
+            folder = {},
+            ["@microsoft.graph.conflictBehavior"] = "fail",
+        }
+        local meta_json = (json and json.encode and json.encode(meta))
+            or string.format('{"name":%q,"folder":{},"@microsoft.graph.conflictBehavior":"fail"}', seg)
+
+        local r_c, code_c, h_c, s_c, body_c = doOneDriveRequest{
+            url = create_url,
+            method = "POST",
+            headers = {
+                ["Authorization"] = "Bearer " .. token,
+                ["Content-Type"] = "application/json; charset=UTF-8",
+            },
+            body = meta_json,
+        }
+
+        if (code_c == 200 or code_c == 201) and body_c and body_c ~= "" then
+            local data_c = nil
+            if json and json.decode then pcall(function() data_c = json.decode(body_c) end) end
+            if data_c and data_c.id then
+                parent_id = data_c.id
+                resolveNextSegment(idx + 1)
+                return
+            end
+        end
+
+        local err_msg = string.format(_("Could not create OneDrive folder '%s' (HTTP %s): %s"), seg, tostring(code_c), tostring(body_c))
+        if callback then callback(false, err_msg) end
     end
 
-    local err_msg = string.format(_("Could not create OneDrive folder '%s' (HTTP %s): %s"), folder_name, tostring(code_c), tostring(body_c))
-    if callback then callback(false, err_msg) end
+    resolveNextSegment(1)
 end
 OneDrive.ensureFolder = ensureFolder
 
@@ -497,9 +596,8 @@ function OneDrive.list(opts, callback)
 
         local token = token_or_err
         local folder_name = opts.remote_dir or Constants.CLOUD_DEFAULT_REMOTE_DIR or "koreader_backups"
-        folder_name = folder_name:gsub("^/+", ""):gsub("/+$", "")
 
-        local list_url = GRAPH_API_BASE .. "/me/drive/root:/" .. OAuth.urlEncode(folder_name)
+        local list_url = GRAPH_API_BASE .. "/me/drive/root:/" .. encodeGraphPath(folder_name)
             .. ":/children?$select=id,name,size,lastModifiedDateTime&$top=100"
 
         local r, code, headers, status, body = doOneDriveRequest{

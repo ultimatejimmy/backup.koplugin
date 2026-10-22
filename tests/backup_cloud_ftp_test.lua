@@ -65,6 +65,48 @@ describe("backup_cloud_ftp unit tests", function()
             assert.is_truthy(result_msg:find("Connection successful"))
         end)
 
+        it("navigates and creates multi-level directory with backslashes and spaces segment-by-segment", function()
+            local mock_sock = createMockSocket({
+                "220 FTP Server Ready\r\n",
+                "331 User okay, password required\r\n",
+                "230 User logged in\r\n",
+                "200 Type set to I\r\n",
+                "550 Directory not found\r\n", -- CWD mine/koreader kindle/backup fails directly
+                "250 CWD mine ok\r\n",        -- CWD mine succeeds
+                "550 CWD koreader kindle not found\r\n",
+                "257 MKD koreader kindle created\r\n",
+                "250 CWD koreader kindle ok\r\n",
+                "550 CWD backup not found\r\n",
+                "257 MKD backup created\r\n",
+                "250 CWD backup ok\r\n",
+                "221 Goodbye\r\n",
+            })
+
+            socket.tcp = function() return mock_sock end
+
+            local called = false
+            local result_ok = false
+
+            FTP.testConnection({
+                host = "ftp.example.com",
+                port = 21,
+                username = "testuser",
+                password = "testpass",
+                remote_dir = [[\mine\koreader kindle\backup\]],
+            }, function(ok, msg)
+                called = true
+                result_ok = ok
+            end)
+
+            assert.is_true(called)
+            assert.is_true(result_ok)
+            -- Verify sent commands include CWD/MKD for segments
+            local all_sent = table.concat(mock_sock.sent, "")
+            assert.is_truthy(all_sent:find("CWD mine"))
+            assert.is_truthy(all_sent:find("MKD koreader kindle"))
+            assert.is_truthy(all_sent:find("MKD backup"))
+        end)
+
         it("fails gracefully if server connection is refused", function()
             socket.tcp = function()
                 return {

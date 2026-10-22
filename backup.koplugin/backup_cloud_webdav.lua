@@ -344,15 +344,46 @@ local function doRequest(req)
 end
 WebDAV._doRequest = doRequest
 
+--- Percent-encodes a path segment for HTTP URI requests.
+local function encodeUrlSegment(seg)
+    if not seg then return "" end
+    local res = tostring(seg):gsub("([^%w%-%_%.%~])", function(c)
+        return string.format("%%%02X", string.byte(c))
+    end)
+    return res
+end
+WebDAV._encodeUrlSegment = encodeUrlSegment
+
+--- Normalizes a remote directory path and splits into segments.
+local function normalizeAndSplitDir(dir)
+    if not dir or dir == "" then
+        return "", {}
+    end
+    dir = dir:gsub("\\", "/"):gsub("^/+", ""):gsub("/+$", ""):gsub("/+", "/")
+    if dir == "" then
+        return "", {}
+    end
+    local segments = {}
+    for seg in dir:gmatch("[^/]+") do
+        table.insert(segments, seg)
+    end
+    return dir, segments
+end
+WebDAV._normalizeAndSplitDir = normalizeAndSplitDir
+
 --- Builds full remote folder URL from server url and remote_dir.
 local function getRemoteFolderUrl(opts)
     local base = normalizeUrl(opts.url)
     local dir = opts.remote_dir or Constants.CLOUD_DEFAULT_REMOTE_DIR or "koreader_backups"
-    dir = dir:gsub("^/+", ""):gsub("/+$", "")
-    if dir == "" then
+    local clean_dir, segments = normalizeAndSplitDir(dir)
+    if #segments == 0 then
         return base
     end
-    return base:gsub("/+$", "") .. "/" .. dir
+    local encoded_parts = {}
+    for _, seg in ipairs(segments) do
+        table.insert(encoded_parts, encodeUrlSegment(seg))
+    end
+    return base:gsub("/+$", "") .. "/" .. table.concat(encoded_parts, "/")
 end
 WebDAV._getRemoteFolderUrl = getRemoteFolderUrl
 
@@ -422,25 +453,20 @@ end
 function WebDAV.ensureFolder(opts, callback)
     local base_url = normalizeUrl(opts.url)
     local dir = opts.remote_dir or Constants.CLOUD_DEFAULT_REMOTE_DIR or "koreader_backups"
-    dir = dir:gsub("^/+", ""):gsub("/+$", "")
-    if dir == "" then
+    local clean_dir, segments = normalizeAndSplitDir(dir)
+    if #segments == 0 then
         if callback then callback(true) end
         return
     end
 
     local auth = buildAuthHeader(opts.username, opts.password)
-    local segments = {}
-    for seg in dir:gmatch("[^/]+") do
-        table.insert(segments, seg)
-    end
-
     local current_url = base_url:gsub("/+$", "")
     local function createNext(idx)
         if idx > #segments then
             if callback then callback(true) end
             return
         end
-        current_url = current_url .. "/" .. segments[idx]
+        current_url = current_url .. "/" .. encodeUrlSegment(segments[idx])
 
         local headers = { ["Depth"] = "0" }
         if auth then headers["Authorization"] = auth end

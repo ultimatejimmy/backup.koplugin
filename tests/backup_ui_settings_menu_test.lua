@@ -216,6 +216,39 @@ describe("backup_ui native settings submenus", function()
             local webdav_items = BackupUI.getCloudSettingsSubmenu(refresh_cb)
             assert.is_true(#webdav_items >= 4) -- Provider, Connect/Configure, Test, Remote Folder
         end)
+
+        it("normalizes multi-level paths and backslashes in Remote Folder dialog", function()
+            local s = BackupUI.getPluginSettings()
+            s.cloud_provider = Constants.CLOUD_PROVIDERS.GDRIVE
+
+            local items = BackupUI.getCloudSettingsSubmenu(refresh_cb)
+            local remote_folder_item = nil
+            for _, item in ipairs(items) do
+                if item.text_func and item.text_func():find("Remote Folder:") then
+                    remote_folder_item = item
+                    break
+                end
+            end
+            assert.is_not_nil(remote_folder_item)
+
+            -- Mock InputDialog to supply backslash path
+            local InputDialog = require("ui/widget/inputdialog")
+            local orig_new = InputDialog.new
+            local save_btn = nil
+            InputDialog.new = function(self, args)
+                local dlg = orig_new(self, args)
+                dlg.getInputText = function() return [[\mine\koreader kindle\backup\]] end
+                save_btn = args.buttons[1][2]
+                return dlg
+            end
+
+            remote_folder_item.callback()
+            assert.is_not_nil(save_btn)
+            save_btn.callback()
+
+            assert.equals("mine/koreader kindle/backup", s.cloud_remote_dir)
+            InputDialog.new = orig_new
+        end)
     end)
 
     describe("Beam Wireless Relay Submenu", function()

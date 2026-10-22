@@ -87,7 +87,8 @@ local function doDriveRequest(req)
     if not ok_ltn or not ltn12 then
         return nil, "ltn12 module not available"
     end
-    if not ok_https then
+    local https_client = (ok_https and https) or package.loaded["ssl.https"]
+    if not https_client then
         return nil, "ssl.https module not available for HTTPS connection"
     end
 
@@ -147,7 +148,7 @@ local function doDriveRequest(req)
         end)
     end
 
-    local ok_call, r, code, resp_headers, status = pcall(https.request, {
+    local ok_call, r, code, resp_headers, status = pcall(https_client.request, {
         url = req.url,
         method = req.method or "GET",
         headers = headers,
@@ -190,72 +191,116 @@ local function doDriveRequest(req)
 end
 
 local _folder_id_cache = nil
+local _folder_name_cache = nil
+local _folder_token_cache = nil
 
---- Resolves or creates the remote folder in Google Drive.
+--- Clears the cached remote folder ID.
+function GDrive.clearFolderCache()
+    _folder_id_cache = nil
+    _folder_name_cache = nil
+    _folder_token_cache = nil
+end
+
+--- Normalizes a remote path and splits into hierarchical segments.
+local function normalizeAndSplitPath(folder_name)
+    if not folder_name or folder_name == "" then
+        folder_name = Constants.CLOUD_DEFAULT_REMOTE_DIR or "koreader_backups"
+    end
+    folder_name = folder_name:gsub("\\", "/"):gsub("^/+", ""):gsub("/+$", ""):gsub("/+", "/")
+    if folder_name == "" then
+        folder_name = Constants.CLOUD_DEFAULT_REMOTE_DIR or "koreader_backups"
+    end
+    local segments = {}
+    for seg in folder_name:gmatch("[^/]+") do
+        table.insert(segments, seg)
+    end
+    if #segments == 0 then
+        table.insert(segments, Constants.CLOUD_DEFAULT_REMOTE_DIR or "koreader_backups")
+    end
+    return folder_name, segments
+end
+GDrive._normalizeAndSplitPath = normalizeAndSplitPath
+
+--- Resolves or creates the remote folder hierarchy in Google Drive.
+-- Supports multi-level paths (e.g. "mine/koreader kindle/backup") segment by segment.
 -- @param token string: OAuth2 access token
--- @param folder_name string: e.g. "koreader_backups"
+-- @param folder_name string: e.g. "mine/koreader kindle/backup"
 -- @param callback function(ok, folder_id_or_err)
 local function ensureFolder(token, folder_name, callback)
-    if _folder_id_cache then
+    local normalized_path, segments = normalizeAndSplitPath(folder_name)
+    if _folder_id_cache and _folder_name_cache == normalized_path and _folder_token_cache == token then
         if callback then callback(true, _folder_id_cache) end
         return
     end
 
-    folder_name = folder_name or Constants.CLOUD_DEFAULT_REMOTE_DIR or "koreader_backups"
-    folder_name = folder_name:gsub("^/+", ""):gsub("/+$", "")
-
-    -- Search for existing folder
-    local query = string.format("name='%s' and mimeType='application/vnd.google-apps.folder' and trashed=false", folder_name)
-    local search_url = DRIVE_API_BASE .. "/files?q=" .. OAuth.urlEncode(query) .. "&fields=" .. OAuth.urlEncode("files(id,name)")
-
-    local r, code, headers, status, body = doDriveRequest{
-        url = search_url,
-        method = "GET",
-        headers = {
-            ["Authorization"] = "Bearer " .. token,
-        },
-    }
-
-    if (code == 200 or code == 201) and body and body ~= "" then
-        local data = nil
-        if json and json.decode then pcall(function() data = json.decode(body) end) end
-        if data and data.files and #data.files > 0 then
-            _folder_id_cache = data.files[1].id
-            if callback then callback(true, _folder_id_cache) end
+    local parent_id = "root"
+    local function resolveNextSegment(idx)
+        if idx > #segments then
+            _folder_id_cache = parent_id
+            _folder_name_cache = normalized_path
+            _folder_token_cache = token
+            if callback then callback(true, parent_id) end
             return
         end
-    end
 
-    -- Folder not found; create it
-    local create_url = DRIVE_API_BASE .. "/files"
-    local meta = {
-        name = folder_name,
-        mimeType = "application/vnd.google-apps.folder",
-    }
-    local meta_json = json and json.encode and json.encode(meta) or string.format('{"name":%q,"mimeType":"application/vnd.google-apps.folder"}', folder_name)
+        local seg = segments[idx]
+        local escaped_seg = seg:gsub("\\", "\\\\"):gsub("'", "\\'")
+        local query = string.format("name='%s' and '%s' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false", escaped_seg, parent_id)
+        local search_url = DRIVE_API_BASE .. "/files?q=" .. OAuth.urlEncode(query) .. "&fields=" .. OAuth.urlEncode("files(id,name)")
 
-    local r_c, code_c, h_c, s_c, body_c = doDriveRequest{
-        url = create_url,
-        method = "POST",
-        headers = {
-            ["Authorization"] = "Bearer " .. token,
-            ["Content-Type"] = "application/json; charset=UTF-8",
-        },
-        body = meta_json,
-    }
+        local r, code, headers, status, body = doDriveRequest{
+            url = search_url,
+            method = "GET",
+            headers = {
+                ["Authorization"] = "Bearer " .. token,
+            },
+        }
 
-    if (code_c == 200 or code_c == 201) and body_c and body_c ~= "" then
-        local data_c = nil
-        if json and json.decode then pcall(function() data_c = json.decode(body_c) end) end
-        if data_c and data_c.id then
-            _folder_id_cache = data_c.id
-            if callback then callback(true, _folder_id_cache) end
-            return
+        if (code == 200 or code == 201) and body and body ~= "" then
+            local data = nil
+            if json and json.decode then pcall(function() data = json.decode(body) end) end
+            if data and data.files and #data.files > 0 then
+                parent_id = data.files[1].id
+                resolveNextSegment(idx + 1)
+                return
+            end
         end
+
+        -- Folder not found; create it under parent_id
+        local create_url = DRIVE_API_BASE .. "/files"
+        local meta = {
+            name = seg,
+            mimeType = "application/vnd.google-apps.folder",
+            parents = { parent_id },
+        }
+        local meta_json = (json and json.encode and json.encode(meta))
+            or string.format('{"name":%q,"mimeType":"application/vnd.google-apps.folder","parents":[%q]}', seg, parent_id)
+
+        local r_c, code_c, h_c, s_c, body_c = doDriveRequest{
+            url = create_url,
+            method = "POST",
+            headers = {
+                ["Authorization"] = "Bearer " .. token,
+                ["Content-Type"] = "application/json; charset=UTF-8",
+            },
+            body = meta_json,
+        }
+
+        if (code_c == 200 or code_c == 201) and body_c and body_c ~= "" then
+            local data_c = nil
+            if json and json.decode then pcall(function() data_c = json.decode(body_c) end) end
+            if data_c and data_c.id then
+                parent_id = data_c.id
+                resolveNextSegment(idx + 1)
+                return
+            end
+        end
+
+        local err_msg = string.format(_("Could not create Google Drive folder '%s' (HTTP %s): %s"), seg, tostring(code_c), tostring(body_c))
+        if callback then callback(false, err_msg) end
     end
 
-    local err_msg = string.format(_("Could not create Google Drive folder '%s' (HTTP %s): %s"), folder_name, tostring(code_c), tostring(body_c))
-    if callback then callback(false, err_msg) end
+    resolveNextSegment(1)
 end
 GDrive.ensureFolder = ensureFolder
 
