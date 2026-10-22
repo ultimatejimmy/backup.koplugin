@@ -46,6 +46,9 @@ end
 local ok_time, time = pcall(require, "ui/time")
 if not ok_time or not time then time = nil end
 
+local ok_geom, Geom = pcall(require, "ui/geometry")
+if not ok_geom or not Geom then Geom = nil end
+
 local Localization = require("localization_backup")
 local _ = Localization:getHelper()
 
@@ -113,7 +116,12 @@ function BackupProgress:init()
     self.progress = self.progress or 0
     self.is_closed = false
     self.is_canceled = false
+    self.redraw_interval_ms = self.redraw_interval_ms or 1000
     self.last_redraw_time_ms = 0
+    self._applied_progress = nil
+    self._applied_subtitle = nil
+    self._applied_detail = nil
+    self._pending_dirty = false
 
     if TextWidget then
         self.title_widget = TextWidget:new{
@@ -285,25 +293,141 @@ function BackupProgress:pumpEvents()
     self._pumping = false
 end
 
+--- Returns the screen bounding rectangle (Geom) of the dialog frame box.
+function BackupProgress:getDialogDimen()
+    if self.frame and self.frame.dimen and self.frame.dimen.x and self.frame.dimen.w and self.frame.dimen.w > 0 then
+        return self.frame.dimen
+    end
+    if self._dialog_dimen then
+        return self._dialog_dimen
+    end
+    local Screen = Device and Device.screen
+    local sw = (Screen and Screen.getWidth and Screen:getWidth()) or (self.dimen and self.dimen.w) or 600
+    local sh = (Screen and Screen.getHeight and Screen:getHeight()) or (self.dimen and self.dimen.h) or 800
+    local frame_size = (self.frame and self.frame.getSize and self.frame:getSize()) or { w = self.dialog_width, h = sc(220) }
+    local fw = (self.frame and self.frame.width) or frame_size.w or self.dialog_width
+    local fh = (self.frame and self.frame.height) or frame_size.h or sc(220)
+    local fx = math.max(0, math.floor((sw - fw) / 2))
+    local fy = math.max(0, math.floor((sh - fh) / 2))
+    if Geom and Geom.new then
+        self._dialog_dimen = Geom:new{ x = fx, y = fy, w = fw, h = fh }
+    else
+        self._dialog_dimen = { x = fx, y = fy, w = fw, h = fh }
+    end
+    return self._dialog_dimen
+end
+
+--- Applies pending progress, subtitle, and detail values to child widgets right before painting.
+function BackupProgress:applyPendingUpdates()
+    if self.is_closed then return end
+
+    if self.pbar_widget and self.pbar_widget.setPercentage and self.progress ~= self._applied_progress then
+        self.pbar_widget:setPercentage(math.max(0, math.min(1, (self.progress or 0) / 100)))
+        self._applied_progress = self.progress
+    end
+
+    local text_changed = false
+    if self.subtitle_widget and type(self.subtitle_widget.setText) == "function" and self.subtitle ~= self._applied_subtitle then
+        self.subtitle_widget:setText(self.subtitle or "")
+        if self.subtitle_container and self.subtitle_widget.getSize then
+            local s_size = self.subtitle_widget:getSize()
+            if self.subtitle_container.dimen and s_size and s_size.h and s_size.h > 0 then
+                self.subtitle_container.dimen.h = s_size.h
+            end
+        end
+        self._applied_subtitle = self.subtitle
+        text_changed = true
+    end
+
+    if self.detail_widget and type(self.detail_widget.setText) == "function" and self.detail ~= self._applied_detail then
+        self.detail_widget:setText(self.detail or "")
+        if self.detail_container and self.detail_widget.getSize then
+            local d_size = self.detail_widget:getSize()
+            if self.detail_container.dimen and d_size and d_size.h and d_size.h > 0 then
+                self.detail_container.dimen.h = d_size.h
+            end
+        end
+        self._applied_detail = self.detail
+        text_changed = true
+    end
+
+    if text_changed and self.content_group and self.content_group.resetLayout then
+        self.content_group:resetLayout()
+    end
+    self._pending_dirty = false
+end
+
+--- Returns true if any visible field differs from what is currently painted.
+function BackupProgress:hasVisibleChanges()
+    if self._pending_dirty then return true end
+    if self.progress ~= self._applied_progress then return true end
+    if self.subtitle ~= self._applied_subtitle then return true end
+    if self.detail ~= self._applied_detail then return true end
+    return false
+end
+
 --- Shows the dialog on screen.
 function BackupProgress:show()
     if self.is_closed then return end
-    if UIManager and UIManager.show then
-        UIManager:show(self)
+    local now_us
+    if time and time.now then
+        now_us = time.now()
+    else
+        now_us = os.clock() * 1000000
     end
-    self:redraw()
+    self.last_redraw_time_ms = now_us
+    self._applied_progress = self.progress
+    self._applied_subtitle = self.subtitle
+    self._applied_detail = self.detail
+    self._pending_dirty = false
+
+    if UIManager and UIManager.show then
+        UIManager:show(self, "ui")
+    end
+end
+
+--- Atomically updates progress bar, subtitle, detail text, and/or cancelable state in a single call.
+-- @param opts table with optional keys: progress (number), subtitle (string), detail (string), cancelable (boolean), disabled_text (string), force (boolean)
+function BackupProgress:update(opts)
+    if self.is_closed or not opts then return end
+    self:pumpEvents()
+
+    if opts.progress ~= nil then
+        local p = math.min(100, math.max(0, math.floor(opts.progress)))
+        if p ~= self.progress then
+            self.progress = p
+            self._pending_dirty = true
+        end
+    end
+    if opts.subtitle ~= nil and opts.subtitle ~= self.subtitle then
+        self.subtitle = opts.subtitle
+        self._pending_dirty = true
+    end
+    if opts.detail ~= nil and opts.detail ~= self.detail then
+        self.detail = opts.detail
+        self._pending_dirty = true
+    end
+    if opts.cancelable ~= nil and opts.cancelable ~= self.cancelable then
+        self:setCancelable(opts.cancelable, opts.disabled_text)
+    end
+
+    if opts.force then
+        self:redraw()
+    else
+        self:redrawIfNeeded()
+    end
 end
 
 --- Updates the progress bar percentage (0 - 100).
 function BackupProgress:setProgress(val, force_redraw)
     if self.is_closed then return end
     self:pumpEvents()
-    val = math.min(100, math.max(0, math.floor(val or 0)))
-    self.progress = val
-    if self.pbar_widget and self.pbar_widget.setPercentage then
-        self.pbar_widget:setPercentage(val / 100)
+    local p = math.min(100, math.max(0, math.floor(val or 0)))
+    if p ~= self.progress then
+        self.progress = p
+        self._pending_dirty = true
     end
-    if force_redraw or val >= 100 then
+    if force_redraw then
         self:redraw()
     else
         self:redrawIfNeeded()
@@ -313,45 +437,29 @@ end
 --- Updates the subtitle text.
 function BackupProgress:setSubtitle(text)
     if self.is_closed or not text then return end
-    self.subtitle = text
-    if self.subtitle_widget and type(self.subtitle_widget.setText) == "function" then
-        self.subtitle_widget:setText(text)
-        if self.subtitle_container and self.subtitle_widget.getSize then
-            local s_size = self.subtitle_widget:getSize()
-            if self.subtitle_container.dimen and s_size and s_size.h and s_size.h > 0 then
-                self.subtitle_container.dimen.h = s_size.h
-            end
-        end
-        if self.content_group and self.content_group.resetLayout then
-            self.content_group:resetLayout()
-        end
-        self:redrawIfNeeded()
+    if self.subtitle ~= text then
+        self.subtitle = text
+        self._pending_dirty = true
     end
+    self:redrawIfNeeded()
 end
 
 --- Updates the detail line (e.g. current filename or phase).
 function BackupProgress:setDetail(text)
     if self.is_closed then return end
-    self.detail = text or ""
-    if self.detail_widget and type(self.detail_widget.setText) == "function" then
-        self.detail_widget:setText(self.detail)
-        if self.detail_container and self.detail_widget.getSize then
-            local d_size = self.detail_widget:getSize()
-            if self.detail_container.dimen and d_size and d_size.h and d_size.h > 0 then
-                self.detail_container.dimen.h = d_size.h
-            end
-        end
-        if self.content_group and self.content_group.resetLayout then
-            self.content_group:resetLayout()
-        end
-        self:redrawIfNeeded()
+    local d = text or ""
+    if self.detail ~= d then
+        self.detail = d
+        self._pending_dirty = true
     end
+    self:redrawIfNeeded()
 end
 
 --- Enables or disables the Cancel button (e.g. during non-cancelable critical stages).
 function BackupProgress:setCancelable(enabled, disabled_text)
     if self.is_closed then return end
     self.cancelable = (enabled == true)
+    local changed = false
     if self.button_table and type(self.button_table.getButtonById) == "function" then
         local btn = self.button_table:getButtonById("cancel")
         if btn then
@@ -362,7 +470,7 @@ function BackupProgress:setCancelable(enabled, disabled_text)
                 if btn.setText then btn:setText(disabled_text or _("Finalizing...")) end
                 if btn.disable then btn:disable() end
             end
-            self:redraw()
+            changed = true
         end
     elseif self.cancel_button then
         if self.cancelable then
@@ -372,6 +480,9 @@ function BackupProgress:setCancelable(enabled, disabled_text)
             if self.cancel_button.setText then self.cancel_button:setText(disabled_text or _("Finalizing...")) end
             if self.cancel_button.disable then self.cancel_button:disable() end
         end
+        changed = true
+    end
+    if changed then
         self:redraw()
     end
 end
@@ -387,7 +498,9 @@ function BackupProgress:triggerCancel()
         pcall(self.on_cancel)
     end
     if UIManager and UIManager.setDirty then
-        UIManager:setDirty(self, function() return "fast", self.dimen end)
+        UIManager:setDirty(self, function()
+            return "ui", self:getDialogDimen()
+        end)
         if UIManager.forceRePaint then
             UIManager:forceRePaint()
         end
@@ -411,19 +524,18 @@ function BackupProgress:onClose()
     return true
 end
 
---- Closes and dismisses the dialog.
+--- Closes and dismisses the dialog with a clean regional refresh.
 function BackupProgress:close()
     if self.is_closed then return end
     self.is_closed = true
+    local dirty_region = self:getDialogDimen()
     if UIManager and UIManager.close then
-        UIManager:close(self, "ui")
-        if UIManager.setDirty then
-            UIManager:setDirty("all", "ui")
-        end
+        UIManager:close(self, "flashui", dirty_region)
     end
 end
 
---- Internal throttled redraw (at most once every 100ms) to ensure smooth transfer performance.
+--- Internal throttled redraw (at most once every redraw_interval_ms, default 1000ms / 1s)
+--- to keep E-Ink refreshes crisp, readable, and ghosting-free.
 function BackupProgress:redrawIfNeeded()
     if self.is_closed then return end
     local now_us
@@ -432,20 +544,31 @@ function BackupProgress:redrawIfNeeded()
     else
         now_us = os.clock() * 1000000
     end
-    if (now_us - self.last_redraw_time_ms) >= 100000 then
-        self.last_redraw_time_ms = now_us
-        self:redraw()
+    local interval_us = (self.redraw_interval_ms or 1000) * 1000
+    if (now_us - self.last_redraw_time_ms) >= interval_us then
+        if self:hasVisibleChanges() then
+            self:redraw()
+        end
     end
 end
 
---- Forces a redraw of the progress dialog.
+--- Forces a redraw of the progress dialog using clean regional E-Ink refresh.
 function BackupProgress:redraw()
     if self.is_closed then return end
-    if self.content_group and self.content_group.resetLayout then
-        self.content_group:resetLayout()
+    local now_us
+    if time and time.now then
+        now_us = time.now()
+    else
+        now_us = os.clock() * 1000000
     end
+    self.last_redraw_time_ms = now_us
+
+    self:applyPendingUpdates()
+
     if UIManager and UIManager.setDirty then
-        UIManager:setDirty(self, function() return "fast", self.dimen end)
+        UIManager:setDirty(self, function()
+            return "ui", self:getDialogDimen()
+        end)
         if UIManager.forceRePaint then
             UIManager:forceRePaint()
         end

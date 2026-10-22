@@ -935,23 +935,24 @@ function BackupUI.showCreateDialog(wizard_state)
         progress_dlg:show()
 
         local last_pbar_update = 0
-        local last_pbar_file = nil
         local function setPbarProgress(curr_files, total_files, curr_bytes, total_bytes, current_path)
+            if not progress_dlg or progress_dlg.is_closed then return end
             local now_t = os.clock()
             local is_done = (curr_files >= total_files and total_files > 0) or (curr_bytes >= total_bytes and total_bytes > 0)
-            if not is_done and current_path == last_pbar_file and (now_t - last_pbar_update) < 0.1 then
+            if not is_done and (now_t - last_pbar_update) < 1.0 then
                 return
             end
             last_pbar_update = now_t
-            last_pbar_file = current_path
 
             local pct = (total_bytes > 0) and math.min(100, math.floor((curr_bytes / total_bytes) * 100)) or 0
-            progress_dlg:setProgress(pct)
             local file_disp = current_path and current_path:match("([^/\\]+)$") or current_path or ""
             local sub = string.format(_("Archiving (%d/%d - %s)"),
                 curr_files, math.max(total_files, 1), (util and util.getFriendlySize and util.getFriendlySize(curr_bytes) or tostring(curr_bytes)))
-            progress_dlg:setSubtitle(sub)
-            progress_dlg:setDetail(file_disp)
+            progress_dlg:update{
+                progress = pct,
+                subtitle = sub,
+                detail = file_disp,
+            }
         end
 
         UIManager:nextTick(function()
@@ -1440,13 +1441,20 @@ function BackupUI.showArchiveDetailSheet(filepath, on_back_cb)
                         end,
                         on_progress = function(current, total, file_name)
                             local pct = (total and total > 0) and math.min(100, math.floor((current / total) * 100)) or 0
-                            progress_dlg:setProgress(pct)
-                            progress_dlg:setDetail(file_name and file_name:match("([^/\\]+)$") or file_name or "")
+                            progress_dlg:update{
+                                progress = pct,
+                                detail = file_name and file_name:match("([^/\\]+)$") or file_name or "",
+                            }
                         end,
                         on_applying_phase = function()
                             -- Once files are being applied to system directories, cancel must be disabled for safety
-                            progress_dlg:setCancelable(false, _("Applying changes..."))
-                            progress_dlg:setProgress(95)
+                            progress_dlg:update{
+                                progress = 95,
+                                subtitle = _("Applying changes..."),
+                                cancelable = false,
+                                disabled_text = _("Applying changes..."),
+                                force = true,
+                            }
                         end,
                     })
 
@@ -2707,29 +2715,41 @@ function BackupUI.showBeamSendDialog(filepath, on_finish_cb)
                 on_progress = function(sent, total, stage)
                     if progress_dlg:isCanceled() then return end
                     if stage == "encrypting" then
-                        progress_dlg:setSubtitle(_("Encrypting backup archive..."))
-                        progress_dlg:setProgress(5)
+                        progress_dlg:update{
+                            progress = 5,
+                            subtitle = _("Encrypting backup archive..."),
+                        }
                     elseif stage == "connecting" then
-                        progress_dlg:setSubtitle(_("Connecting to Beam relay..."))
-                        progress_dlg:setProgress(10)
+                        progress_dlg:update{
+                            progress = 10,
+                            subtitle = _("Connecting to Beam relay..."),
+                        }
                     elseif stage == "finalizing" then
-                        progress_dlg:setSubtitle(_("Registering code with Beam relay..."))
-                        progress_dlg:setProgress(90)
+                        progress_dlg:update{
+                            progress = 90,
+                            subtitle = _("Registering code with Beam relay..."),
+                        }
                     elseif stage == "complete" then
-                        progress_dlg:setSubtitle(_("Beam code ready!"))
-                        progress_dlg:setProgress(100)
+                        progress_dlg:update{
+                            progress = 100,
+                            subtitle = _("Beam code ready!"),
+                        }
                     else
                         local ratio = (total and total > 0) and (sent / total) or 0
                         ratio = math.min(1.0, math.max(0.0, ratio))
                         local pct = math.floor(10 + ratio * 75)
                         pct = math.min(85, math.max(10, pct))
+                        local sub
                         if util and util.getFriendlySize and total and total > 0 then
-                            progress_dlg:setSubtitle(string.format(_("Uploading: %s / %s (%d%%)"),
-                                util.getFriendlySize(sent), util.getFriendlySize(total), pct))
+                            sub = string.format(_("Uploading: %s / %s (%d%%)"),
+                                util.getFriendlySize(sent), util.getFriendlySize(total), pct)
                         else
-                            progress_dlg:setSubtitle(_("Uploading backup archive..."))
+                            sub = _("Uploading backup archive...")
                         end
-                        progress_dlg:setProgress(pct)
+                        progress_dlg:update{
+                            progress = pct,
+                            subtitle = sub,
+                        }
                     end
                 end,
             }
@@ -2987,29 +3007,37 @@ function BackupUI.showBeamReceiveDialog()
                                         if total and total > 0 then
                                             local pct = math.min(100, math.max(highest_pct, math.floor((received / total) * 100)))
                                             highest_pct = pct
-                                            progress_dlg:setProgress(pct)
+                                            local sub
                                             if util and util.getFriendlySize then
-                                                progress_dlg:setSubtitle(string.format(_("Downloading: %s / %s (%d%%)"),
-                                                    util.getFriendlySize(received), util.getFriendlySize(total), pct))
+                                                sub = string.format(_("Downloading: %s / %s (%d%%)"),
+                                                    util.getFriendlySize(received), util.getFriendlySize(total), pct)
                                             end
+                                            progress_dlg:update{
+                                                progress = pct,
+                                                subtitle = sub,
+                                            }
                                         else
                                             -- Total size unknown fallback: strictly monotonic estimation toward 90%
                                             local est_pct = math.min(90, math.floor(10 + 80 * (1 - 1 / (1 + received / 2097152))))
                                             if est_pct > highest_pct then
                                                 highest_pct = est_pct
                                             end
-                                            progress_dlg:setProgress(highest_pct)
+                                            local sub
                                             if util and util.getFriendlySize then
-                                                progress_dlg:setSubtitle(string.format(_("Downloading: %s..."), util.getFriendlySize(received)))
+                                                sub = string.format(_("Downloading: %s..."), util.getFriendlySize(received))
                                             end
+                                            progress_dlg:update{
+                                                progress = highest_pct,
+                                                subtitle = sub,
+                                            }
                                         end
                                     end,
                                     on_decrypt_progress = function(pct, phase_msg)
                                         if progress_dlg:isCanceled() then return end
-                                        progress_dlg:setProgress(pct)
-                                        if phase_msg then
-                                            progress_dlg:setSubtitle(phase_msg)
-                                        end
+                                        progress_dlg:update{
+                                            progress = pct,
+                                            subtitle = phase_msg,
+                                        }
                                     end,
                                 }
                                 Beam.download(clean_pin, dest_dir, dl_opts, function(ok, target_path, filename)
@@ -3661,20 +3689,28 @@ function BackupUI.showCloudUploadDialog(filepath, on_finish_cb)
                 on_progress = function(sent, total, stage)
                     if progress_dlg:isCanceled() then return end
                     if stage == "connecting" then
-                        progress_dlg:setSubtitle(_("Connecting to cloud..."))
-                        progress_dlg:setProgress(5)
+                        progress_dlg:update{
+                            progress = 5,
+                            subtitle = _("Connecting to cloud..."),
+                        }
                     elseif stage == "finalizing" then
-                        progress_dlg:setSubtitle(_("Finalizing upload..."))
-                        progress_dlg:setProgress(95)
+                        progress_dlg:update{
+                            progress = 95,
+                            subtitle = _("Finalizing upload..."),
+                        }
                     else
                         local pct = (total and total > 0) and math.floor((sent / total) * 100) or 0
-                        progress_dlg:setProgress(pct)
+                        local sub
                         if total and total > 0 and util and util.getFriendlySize then
-                            progress_dlg:setSubtitle(string.format(_("Uploading: %s / %s (%d%%)"),
-                                util.getFriendlySize(sent), util.getFriendlySize(total), pct))
+                            sub = string.format(_("Uploading: %s / %s (%d%%)"),
+                                util.getFriendlySize(sent), util.getFriendlySize(total), pct)
                         else
-                            progress_dlg:setSubtitle(_("Uploading backup archive..."))
+                            sub = _("Uploading backup archive...")
                         end
+                        progress_dlg:update{
+                            progress = pct,
+                            subtitle = sub,
+                        }
                     end
                 end,
             }
@@ -3801,11 +3837,13 @@ function BackupUI.showCloudDownloadDialog(on_finish_cb)
                                 on_progress = function(recv, total)
                                     if progress_dlg:isCanceled() then return end
                                     local pct = (total and total > 0) and math.floor((recv / total) * 100) or 0
-                                    progress_dlg:setProgress(pct)
                                     local text = (total and total > 0 and util and util.getFriendlySize)
                                         and string.format(_("Downloading: %s / %s (%d%%)"), util.getFriendlySize(recv), util.getFriendlySize(total), pct)
                                         or string.format(_("Downloading: %s..."), (util and util.getFriendlySize and util.getFriendlySize(recv) or tostring(recv)))
-                                    progress_dlg:setSubtitle(text)
+                                    progress_dlg:update{
+                                        progress = pct,
+                                        subtitle = text,
+                                    }
                                 end,
                             }
 
@@ -3952,11 +3990,13 @@ function BackupUI.showManageCloudBackupsDialog(on_finish_cb)
                                                 on_progress = function(recv, total)
                                                     if progress_dlg:isCanceled() then return end
                                                     local pct = (total and total > 0) and math.floor((recv / total) * 100) or 0
-                                                    progress_dlg:setProgress(pct)
                                                     local text = (total and total > 0 and util and util.getFriendlySize)
                                                         and string.format(_("Downloading: %s / %s (%d%%)"), util.getFriendlySize(recv), util.getFriendlySize(total), pct)
                                                         or string.format(_("Downloading: %s..."), (util and util.getFriendlySize and util.getFriendlySize(recv) or tostring(recv)))
-                                                    progress_dlg:setSubtitle(text)
+                                                    progress_dlg:update{
+                                                        progress = pct,
+                                                        subtitle = text,
+                                                    }
                                                 end,
                                             }
 

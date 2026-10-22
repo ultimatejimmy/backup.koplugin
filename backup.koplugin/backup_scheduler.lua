@@ -236,24 +236,24 @@ function BackupScheduler.executeQuickBackup(opts, on_finish_cb)
     end
 
     local last_pbar_update = 0
-    local last_pbar_file = nil
     local function setPbarProgress(curr_files, total_files, curr_bytes, total_bytes, current_path)
-        if not progress_dlg then return end
+        if not progress_dlg or progress_dlg.is_closed then return end
         local now_t = os.clock()
         local is_done = (curr_files >= total_files and total_files > 0) or (curr_bytes >= total_bytes and total_bytes > 0)
-        if not is_done and current_path == last_pbar_file and (now_t - last_pbar_update) < 0.1 then
+        if not is_done and (now_t - last_pbar_update) < 1.0 then
             return
         end
         last_pbar_update = now_t
-        last_pbar_file = current_path
 
         local pct = (total_bytes > 0) and math.min(100, math.floor((curr_bytes / total_bytes) * 100)) or 0
-        progress_dlg:setProgress(pct)
         local file_disp = current_path and current_path:match("([^/\\]+)$") or current_path or ""
         local sub = string.format(_("Archiving (%d/%d - %s)"),
             curr_files, math.max(total_files, 1), (util and util.getFriendlySize and util.getFriendlySize(curr_bytes) or tostring(curr_bytes)))
-        progress_dlg:setSubtitle(sub)
-        progress_dlg:setDetail(file_disp)
+        progress_dlg:update{
+            progress = pct,
+            subtitle = sub,
+            detail = file_disp,
+        }
     end
 
     local function runArchiving()

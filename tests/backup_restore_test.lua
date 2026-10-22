@@ -587,5 +587,77 @@ describe("backup_restore", function()
             dlg:close()
             assert.is_true(dlg.is_closed)
         end)
+
+        it("throttles rapid redraws and supports atomic update()", function()
+            local BackupProgress = require("backup_progress")
+            local UIManager = require("ui/uimanager")
+            local orig_setDirty = UIManager.setDirty
+            local orig_forceRePaint = UIManager.forceRePaint
+            local orig_close = UIManager.close
+
+            local dirty_calls = {}
+            local repaint_count = 0
+            local close_args = nil
+
+            UIManager.setDirty = function(self, widget, func_or_type)
+                local wtype, region
+                if type(func_or_type) == "function" then
+                    wtype, region = func_or_type()
+                else
+                    wtype = func_or_type
+                end
+                table.insert(dirty_calls, { widget = widget, wtype = wtype, region = region })
+            end
+            UIManager.forceRePaint = function()
+                repaint_count = repaint_count + 1
+            end
+            UIManager.close = function(self, widget, refreshtype, refreshregion)
+                close_args = { widget = widget, refreshtype = refreshtype, refreshregion = refreshregion }
+            end
+
+            local dlg = BackupProgress:new{
+                title = "Throttling Test",
+                redraw_interval_ms = 1000,
+            }
+            dlg:show()
+            repaint_count = 0
+            dirty_calls = {}
+
+            -- Multiple rapid updates within the 1000ms window
+            for i = 1, 50 do
+                dlg:update{
+                    progress = i,
+                    subtitle = "Step " .. i,
+                    detail = "file_" .. i .. ".txt",
+                }
+            end
+
+            -- Should NOT have triggered 50 repaints due to 1000ms throttle
+            assert.is_true(repaint_count <= 1)
+
+            -- Forced redraw should execute immediately and update last_redraw_time_ms
+            dlg:update{
+                progress = 100,
+                subtitle = "Complete",
+                force = true,
+            }
+            assert.is_true(repaint_count >= 1)
+            local last_dirty = dirty_calls[#dirty_calls]
+            assert.is_not_nil(last_dirty)
+            assert.are.equal("ui", last_dirty.wtype)
+            assert.is_not_nil(last_dirty.region)
+            assert.are.same(dlg:getDialogDimen(), last_dirty.region)
+
+            -- Dialog close should invoke UIManager:close with "flashui" and dialog bounds
+            dlg:close()
+            assert.is_not_nil(close_args)
+            assert.are.equal("flashui", close_args.refreshtype)
+            assert.are.same(dlg:getDialogDimen(), close_args.refreshregion)
+
+            -- Restore original UIManager methods
+            UIManager.setDirty = orig_setDirty
+            UIManager.forceRePaint = orig_forceRePaint
+            UIManager.close = orig_close
+        end)
     end)
 end)

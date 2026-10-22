@@ -914,7 +914,7 @@ function ArchiverMgr.createBackup(options)
                 error("canceled")
             end
 
-            if on_progress then
+            if on_progress and (item.size == 0 or idx == 1) then
                 pcall(on_progress, current_files, total_files, current_bytes, total_bytes, item.archive_path)
             end
 
