@@ -65,6 +65,10 @@ msgstr ".ZIP (標準互換)"
 msgid "1 hour ago"
 msgstr "1時間前"
 
+# en-hash: 29597da70ef3d7d4826c6be85e7c529d
+msgid "Add Book Folder..."
+msgstr "ブックフォルダーを追加..."
+
 # en-hash: 336f879eec1bf390db4fa65586734c78
 msgid "And enter this code:"
 msgstr "そして、このコードを入力してください:"
@@ -208,6 +212,10 @@ msgstr "Beam アップロード失敗:\n%s"
 # en-hash: a71eb14f4ac46cebafbd6098c789bf6a
 msgid "Books Folder: %s"
 msgstr "書籍フォルダ: %s"
+
+# en-hash: 29e9c929456b1c6cb74923876840707a
+msgid "Books Folder: %s (+%d more)"
+msgstr "ブックフォルダー: %s (他 %d 件)"
 
 # en-hash: dd221263f507d0afb75318382497db4e
 msgid "Browse Cloud Backups (%s) ▸"
@@ -429,6 +437,10 @@ msgstr "カスタム制限..."
 msgid "Decrypting files..."
 msgstr "ファイルを復号化しています..."
 
+# en-hash: 59fa7b3a1726cf550f938af26599c91d
+msgid "Default home folder cannot be removed. Add another folder first."
+msgstr "デフォルトのホームフォルダーは削除できません。先に別のフォルダーを追加してください。"
+
 # en-hash: f2a6c498fb90ee345d997f888fce3b18
 msgid "Delete"
 msgstr "削除"
@@ -648,6 +660,10 @@ msgstr "仕上げ処理中..."
 # en-hash: b0f2b97dc5d2b76b26e040408bb1d8af
 msgid "Folder"
 msgstr "フォルダ"
+
+# en-hash: dd1a67a9684f0d0715c56ac995113bba
+msgid "Folder #%d: %s"
+msgstr "フォルダー #%d: %s"
 
 # en-hash: 59c4ad3f3cb3d812d68fab7a354d4a63
 msgid "Fonts"
@@ -913,6 +929,10 @@ msgstr "復元を準備しています..."
 msgid "Preparing upload..."
 msgstr "アップロード準備中..."
 
+# en-hash: 27214e3415befed96dc2aa3c66436f33
+msgid "Primary: %s"
+msgstr "プライマリ: %s"
+
 # en-hash: f262fae0a2f17e8c1eb4e9eddb0160e4
 msgid "Proceed"
 msgstr "続行"
@@ -961,6 +981,14 @@ msgstr "リモートバックアップフォルダ"
 msgid "Remote Folder: %s"
 msgstr "リモートフォルダ: %s"
 
+# en-hash: 1063e38cb53d94d386f21227fcd84717
+msgid "Remove"
+msgstr "削除"
+
+# en-hash: e513f16b1cbfa6f21c2447c5aac5eb82
+msgid "Remove this book folder from backup?\n\n%s"
+msgstr "バックアップからこの書籍フォルダーを削除しますか？\n\n%s"
+
 # en-hash: d6ed253ff449bbd9606eff83124f1f2e
 msgid "Reset Default"
 msgstr "初期値に戻す"
@@ -968,6 +996,10 @@ msgstr "初期値に戻す"
 # en-hash: ff5bcc0096b8c3ceb34137c7082a3fbf
 msgid "Reset Relay to Default"
 msgstr "リレーをデフォルトにリセット"
+
+# en-hash: 5920e2c262b126e82e3665b475b89060
+msgid "Reset to Default (Home Directory)"
+msgstr "デフォルトにリセット (ホームディレクトリ)"
 
 # en-hash: 51cfbcff36da74a9fc47f3a5140f99f2
 msgid "Restart"
@@ -1093,6 +1125,10 @@ msgstr "すべて選択"
 msgid "Select Backup Folder"
 msgstr "バックアップフォルダを選択"
 
+# en-hash: 5f0e9acb2c1630beb06bcf301ce2e2b2
+msgid "Select Book Folder to Add"
+msgstr "追加する書籍フォルダーを選択"
+
 # en-hash: a7fad80dbd7a0ee23639d348f1dbd4a5
 msgid "Select Books Folder"
 msgstr "書籍フォルダを選択"
@@ -1192,6 +1228,10 @@ msgstr "このバックアップは %s であり、100MB の Beam 転送制限�
 # en-hash: 74f11079fa87c6f76b2c6fdaa74aab3f
 msgid "This backup is %s. Large wireless transfers on Kindle can take several minutes.\n\nDo you want to proceed with Beaming?"
 msgstr "このバックアップは%sです。Kindleでの大規模な無線転送には数分かかる場合があります。\n\nBeamで続行しますか？"
+
+# en-hash: 399f3490da464aa270fa7efd91d9e7f2
+msgid "This folder is already in the book folders list."
+msgstr "このフォルダーはすでに書籍フォルダーリストに存在します。"
 
 # en-hash: c7fcadfb9d8d33e697f394cf22598623
 msgid "Undo Last Restore"

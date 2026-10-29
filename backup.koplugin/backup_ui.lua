@@ -367,6 +367,9 @@ local function getPluginSettings()
     if not _settings_cache.auto_backup_last_time then
         _settings_cache.auto_backup_last_time = 0
     end
+    if _settings_cache.custom_books_dirs == nil and _settings_cache.custom_books_dir and _settings_cache.custom_books_dir ~= "" then
+        _settings_cache.custom_books_dirs = { _settings_cache.custom_books_dir }
+    end
     return _settings_cache
 end
 BackupUI.getPluginSettings = getPluginSettings
@@ -864,24 +867,42 @@ function BackupUI.showCreateDialog(wizard_state)
     local state = wizard_state
     if not state then
         local initial_components = {}
-        for k, v in pairs(Constants.DEFAULT_COMPONENT_SELECTION) do
+        local src_comps = s.manual_backup_components or Constants.DEFAULT_COMPONENT_SELECTION
+        for k, v in pairs(src_comps) do
             initial_components[k] = v
         end
+        -- Fallback to default selection if newer components were added to Constants
+        for k, v in pairs(Constants.DEFAULT_COMPONENT_SELECTION) do
+            if initial_components[k] == nil then
+                initial_components[k] = v
+            end
+        end
+
+        local function loadSubSelection(saved, available)
+            local sel = {}
+            if saved then
+                for _, name in ipairs(available) do
+                    sel[name] = (saved[name] == true)
+                end
+            else
+                for _, name in ipairs(available) do
+                    sel[name] = true
+                end
+            end
+            return sel
+        end
+
         local avail_plugins = ArchiverMgr.getAvailablePlugins(data_dir)
-        local sel_plugins = {}
-        for _, p in ipairs(avail_plugins) do sel_plugins[p] = true end
+        local sel_plugins = loadSubSelection(s.manual_backup_selected_plugins, avail_plugins)
 
         local avail_patches = ArchiverMgr.getAvailablePatches(data_dir)
-        local sel_patches = {}
-        for _, pt in ipairs(avail_patches) do sel_patches[pt] = true end
+        local sel_patches = loadSubSelection(s.manual_backup_selected_patches, avail_patches)
 
         local avail_fonts = ArchiverMgr.getAvailableFonts(data_dir)
-        local sel_fonts = {}
-        for _, f in ipairs(avail_fonts) do sel_fonts[f] = true end
+        local sel_fonts = loadSubSelection(s.manual_backup_selected_fonts, avail_fonts)
 
         local avail_dicts = ArchiverMgr.getAvailableDictionaries(data_dir)
-        local sel_dicts = {}
-        for _, d in ipairs(avail_dicts) do sel_dicts[d] = true end
+        local sel_dicts = loadSubSelection(s.manual_backup_selected_dicts, avail_dicts)
 
         local is_configured = Cloud.isConfigured(s.cloud_provider)
         state = {
@@ -921,6 +942,23 @@ function BackupUI.showCreateDialog(wizard_state)
 
     local function startBackupCreation(name_input)
         closeDialog(true)
+
+        -- Persist manual backup selections so future manual backups remember them
+        local comps_save = {}
+        for k, v in pairs(state.components) do comps_save[k] = v end
+        s.manual_backup_components = comps_save
+
+        local function copySubSel(src)
+            local res = {}
+            for k, v in pairs(src) do res[k] = v end
+            return res
+        end
+        s.manual_backup_selected_plugins = copySubSel(state.selected_plugins)
+        s.manual_backup_selected_patches = copySubSel(state.selected_patches)
+        s.manual_backup_selected_fonts = copySubSel(state.selected_fonts)
+        s.manual_backup_selected_dicts = copySubSel(state.selected_dicts)
+        savePluginSettings()
+
         local backup_dir = getEffectiveBackupDir()
         local archive_name = (name_input and name_input ~= "") and name_input or state.current_name
         local filename = archive_name .. "." .. state.chosen_format
@@ -966,7 +1004,8 @@ function BackupUI.showCreateDialog(wizard_state)
                 selected_dictionaries = state.selected_dicts,
                 backup_name = archive_name,
                 data_dir = data_dir,
-                books_dir = s.custom_books_dir or ArchiverMgr.getEffectiveBooksDir(),
+                books_dirs = s.custom_books_dirs or ArchiverMgr.getEffectiveBooksDirs(),
+                books_dir = (s.custom_books_dirs and s.custom_books_dirs[1]) or s.custom_books_dir or ArchiverMgr.getEffectiveBooksDir(),
                 is_canceled = function() return progress_dlg:isCanceled() end,
                 on_progress = function(curr_files, total_files, curr_bytes, total_bytes, current_path)
                     setPbarProgress(curr_files, total_files, curr_bytes, total_bytes, current_path)
@@ -1429,7 +1468,8 @@ function BackupUI.showArchiveDetailSheet(filepath, on_back_cb)
                     local ok, msg, details = RestoreEngine.executeRestore(filepath, {
                         mode = mode,
                         clean_slate = clean_slate_toggle,
-                        books_dir = s.custom_books_dir or ArchiverMgr.getEffectiveBooksDir(),
+                        books_dirs = s.custom_books_dirs or ArchiverMgr.getEffectiveBooksDirs(),
+                books_dir = (s.custom_books_dirs and s.custom_books_dirs[1]) or s.custom_books_dir or ArchiverMgr.getEffectiveBooksDir(),
                         selected_components = selected_components,
                         selected_plugins = sel_plugins,
                         selected_patches = sel_patches,
@@ -1871,17 +1911,26 @@ function BackupUI.getStorageSettingsSubmenu(refresh_cb)
         },
         {
             text_func = function()
-                local books_dir = s.custom_books_dir or ArchiverMgr.getEffectiveBooksDir()
-                return string.format(_("Books Folder: %s"), books_dir)
+                local dirs = ArchiverMgr.getEffectiveBooksDirs(s.custom_books_dirs)
+                if #dirs <= 1 then
+                    return string.format(_("Books Folder: %s"), dirs[1] or "")
+                else
+                    return string.format(_("Books Folder: %s (+%d more)"), dirs[1], #dirs - 1)
+                end
             end,
             keep_menu_open = true,
+            sub_item_table_func = function()
+                return BackupUI.getBookFoldersSubmenu(refresh_cb)
+            end,
             callback = function(touch_menu)
-                local books_dir = s.custom_books_dir or ArchiverMgr.getEffectiveBooksDir()
+                local dirs = ArchiverMgr.getEffectiveBooksDirs(s.custom_books_dirs)
+                local books_dir = dirs[1] or ArchiverMgr.getEffectiveBooksDir()
                 FolderPicker.show{
                     title = _("Select Books Folder"),
                     initial_path = books_dir,
                     on_confirm = function(chosen)
                         if chosen and chosen ~= "" then
+                            s.custom_books_dirs = { chosen }
                             s.custom_books_dir = chosen
                             savePluginSettings()
                         end
@@ -1894,6 +1943,162 @@ function BackupUI.getStorageSettingsSubmenu(refresh_cb)
             end,
         },
     }
+end
+
+local function refreshBookFoldersMenu(touch_menu, refresh_cb)
+    local new_items = BackupUI.getBookFoldersSubmenu(refresh_cb)
+    if touch_menu then
+        if type(touch_menu.switchItemTable) == "function" then
+            touch_menu:switchItemTable(nil, new_items)
+        else
+            if type(touch_menu.item_table) == "table" then
+                for i = #touch_menu.item_table, 1, -1 do
+                    touch_menu.item_table[i] = nil
+                end
+                for i, item in ipairs(new_items) do
+                    touch_menu.item_table[i] = item
+                end
+            end
+            touch_menu.item_table = new_items
+            if type(touch_menu.updateItems) == "function" then
+                touch_menu:updateItems(1)
+            end
+        end
+    end
+    if refresh_cb then
+        refresh_cb()
+    end
+    UIManager:setDirty(nil, "ui")
+end
+BackupUI.refreshBookFoldersSubmenu = refreshBookFoldersMenu
+
+--- Returns the submenu items for managing multiple book folders.
+function BackupUI.getBookFoldersSubmenu(refresh_cb)
+    local s = getPluginSettings()
+    local dirs = ArchiverMgr.getEffectiveBooksDirs(s.custom_books_dirs)
+    local items = {}
+
+    -- 1. Add Book Folder...
+    table.insert(items, {
+        text = _("Add Book Folder..."),
+        keep_menu_open = true,
+        callback = function(touch_menu)
+            local initial = (dirs and dirs[1]) or getEffectiveBackupDir()
+            FolderPicker.show{
+                title = _("Select Book Folder to Add"),
+                initial_path = initial,
+                on_confirm = function(chosen)
+                    if chosen and chosen ~= "" then
+                        local norm = chosen:gsub("\\", "/"):gsub("/+$", "")
+                        if norm == "" then norm = "/" end
+                        s.custom_books_dirs = s.custom_books_dirs or ArchiverMgr.getEffectiveBooksDirs(s.custom_books_dirs)
+                        -- Check for exact duplicate
+                        local exists = false
+                        for _, existing in ipairs(s.custom_books_dirs) do
+                            if existing == norm then
+                                exists = true
+                                break
+                            end
+                        end
+                        if exists then
+                            UIManager:show(InfoMessage:new{
+                                text = _("This folder is already in the book folders list."),
+                                timeout = 3,
+                            })
+                        else
+                            table.insert(s.custom_books_dirs, norm)
+                            s.custom_books_dir = s.custom_books_dirs[1]
+                            savePluginSettings()
+                        end
+                    end
+                    refreshBookFoldersMenu(touch_menu, refresh_cb)
+                    if UIManager and type(UIManager.nextTick) == "function" then
+                        UIManager:nextTick(function()
+                            refreshBookFoldersMenu(touch_menu, refresh_cb)
+                        end)
+                    end
+                end,
+                on_cancel = function()
+                    refreshBookFoldersMenu(touch_menu, refresh_cb)
+                    if UIManager and type(UIManager.nextTick) == "function" then
+                        UIManager:nextTick(function()
+                            refreshBookFoldersMenu(touch_menu, refresh_cb)
+                        end)
+                    end
+                end,
+            }
+        end,
+    })
+
+    -- 2. List each configured folder with option to remove
+    for idx, folder_path in ipairs(dirs) do
+        local is_custom = (type(s.custom_books_dirs) == "table" and s.custom_books_dirs[idx] ~= nil)
+        local label = (idx == 1) and string.format(_("Primary: %s"), folder_path)
+                                 or string.format(_("Folder #%d: %s"), idx, folder_path)
+        table.insert(items, {
+            text = label,
+            keep_menu_open = true,
+            callback = function(touch_menu)
+                if #dirs <= 1 and not is_custom then
+                    UIManager:show(InfoMessage:new{
+                        text = _("Default home folder cannot be removed. Add another folder first."),
+                        timeout = 3,
+                    })
+                    return
+                end
+                local confirm
+                confirm = ConfirmBox:new{
+                    text = string.format(_("Remove this book folder from backup?\n\n%s"), folder_path),
+                    ok_text = _("Remove"),
+                    ok_callback = function()
+                        s.custom_books_dirs = s.custom_books_dirs or ArchiverMgr.getEffectiveBooksDirs(s.custom_books_dirs)
+                        for i = #s.custom_books_dirs, 1, -1 do
+                            if s.custom_books_dirs[i] == folder_path then
+                                table.remove(s.custom_books_dirs, i)
+                                break
+                            end
+                        end
+                        if #s.custom_books_dirs == 0 then
+                            s.custom_books_dirs = nil
+                            s.custom_books_dir = nil
+                        else
+                            s.custom_books_dir = s.custom_books_dirs[1]
+                        end
+                        savePluginSettings()
+                        refreshBookFoldersMenu(touch_menu, refresh_cb)
+                        if UIManager and type(UIManager.nextTick) == "function" then
+                            UIManager:nextTick(function()
+                                refreshBookFoldersMenu(touch_menu, refresh_cb)
+                            end)
+                        end
+                    end,
+                }
+                UIManager:show(confirm)
+            end,
+        })
+    end
+
+    -- 3. Reset to default
+    table.insert(items, {
+        text = _("Reset to Default (Home Directory)"),
+        keep_menu_open = true,
+        enabled_func = function()
+            return (s.custom_books_dirs ~= nil and #s.custom_books_dirs > 0) or (s.custom_books_dir ~= nil)
+        end,
+        callback = function(touch_menu)
+            s.custom_books_dirs = nil
+            s.custom_books_dir = nil
+            savePluginSettings()
+            refreshBookFoldersMenu(touch_menu, refresh_cb)
+            if UIManager and type(UIManager.nextTick) == "function" then
+                UIManager:nextTick(function()
+                    refreshBookFoldersMenu(touch_menu, refresh_cb)
+                end)
+            end
+        end,
+    })
+
+    return items
 end
 
 --- Returns the submenu items for archive format, retention, and restore policies.

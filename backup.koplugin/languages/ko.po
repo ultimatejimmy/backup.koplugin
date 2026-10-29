@@ -65,6 +65,10 @@ msgstr ".ZIP (표준 호환성)"
 msgid "1 hour ago"
 msgstr "1시간 전"
 
+# en-hash: 29597da70ef3d7d4826c6be85e7c529d
+msgid "Add Book Folder..."
+msgstr "도서 폴더 추가..."
+
 # en-hash: 336f879eec1bf390db4fa65586734c78
 msgid "And enter this code:"
 msgstr "그리고 이 코드를 입력하세요:"
@@ -208,6 +212,10 @@ msgstr "Beam 업로드 실패:\n%s"
 # en-hash: a71eb14f4ac46cebafbd6098c789bf6a
 msgid "Books Folder: %s"
 msgstr "도서 폴더: %s"
+
+# en-hash: 29e9c929456b1c6cb74923876840707a
+msgid "Books Folder: %s (+%d more)"
+msgstr "도서 폴더: %s (외 %d개)"
 
 # en-hash: dd221263f507d0afb75318382497db4e
 msgid "Browse Cloud Backups (%s) ▸"
@@ -429,6 +437,10 @@ msgstr "사용자 지정 제한..."
 msgid "Decrypting files..."
 msgstr "파일 복호화 중..."
 
+# en-hash: 59fa7b3a1726cf550f938af26599c91d
+msgid "Default home folder cannot be removed. Add another folder first."
+msgstr "기본 홈 폴더는 삭제할 수 없습니다. 먼저 다른 폴더를 추가하세요."
+
 # en-hash: f2a6c498fb90ee345d997f888fce3b18
 msgid "Delete"
 msgstr "삭제"
@@ -648,6 +660,10 @@ msgstr "마무리 중..."
 # en-hash: b0f2b97dc5d2b76b26e040408bb1d8af
 msgid "Folder"
 msgstr "폴더"
+
+# en-hash: dd1a67a9684f0d0715c56ac995113bba
+msgid "Folder #%d: %s"
+msgstr "폴더 #%d: %s"
 
 # en-hash: 59c4ad3f3cb3d812d68fab7a354d4a63
 msgid "Fonts"
@@ -913,6 +929,10 @@ msgstr "복원 준비 중..."
 msgid "Preparing upload..."
 msgstr "업로드 준비 중..."
 
+# en-hash: 27214e3415befed96dc2aa3c66436f33
+msgid "Primary: %s"
+msgstr "기본: %s"
+
 # en-hash: f262fae0a2f17e8c1eb4e9eddb0160e4
 msgid "Proceed"
 msgstr "진행"
@@ -961,6 +981,14 @@ msgstr "원격 백업 폴더"
 msgid "Remote Folder: %s"
 msgstr "원격 폴더: %s"
 
+# en-hash: 1063e38cb53d94d386f21227fcd84717
+msgid "Remove"
+msgstr "제거"
+
+# en-hash: e513f16b1cbfa6f21c2447c5aac5eb82
+msgid "Remove this book folder from backup?\n\n%s"
+msgstr "백업에서 이 도서 폴더를 제거하시겠습니까?\n\n%s"
+
 # en-hash: d6ed253ff449bbd9606eff83124f1f2e
 msgid "Reset Default"
 msgstr "기본값 복원"
@@ -968,6 +996,10 @@ msgstr "기본값 복원"
 # en-hash: ff5bcc0096b8c3ceb34137c7082a3fbf
 msgid "Reset Relay to Default"
 msgstr "릴레이를 기본값으로 재설정"
+
+# en-hash: 5920e2c262b126e82e3665b475b89060
+msgid "Reset to Default (Home Directory)"
+msgstr "기본값으로 초기화 (홈 디렉터리)"
 
 # en-hash: 51cfbcff36da74a9fc47f3a5140f99f2
 msgid "Restart"
@@ -1093,6 +1125,10 @@ msgstr "모두 선택"
 msgid "Select Backup Folder"
 msgstr "백업 폴더 선택"
 
+# en-hash: 5f0e9acb2c1630beb06bcf301ce2e2b2
+msgid "Select Book Folder to Add"
+msgstr "추가할 도서 폴더 선택"
+
 # en-hash: a7fad80dbd7a0ee23639d348f1dbd4a5
 msgid "Select Books Folder"
 msgstr "도서 폴더 선택"
@@ -1192,6 +1228,10 @@ msgstr "이 백업은 %s이며 100MB Beam 전송 제한을 초과합니다.\n\nB
 # en-hash: 74f11079fa87c6f76b2c6fdaa74aab3f
 msgid "This backup is %s. Large wireless transfers on Kindle can take several minutes.\n\nDo you want to proceed with Beaming?"
 msgstr "이 백업은 %s입니다. Kindle에서 대용량 무선 전송은 몇 분이 걸릴 수 있습니다.\n\nBeam으로 계속하시겠습니까?"
+
+# en-hash: 399f3490da464aa270fa7efd91d9e7f2
+msgid "This folder is already in the book folders list."
+msgstr "이 폴더는 이미 도서 더 목록에 있습니다."
 
 # en-hash: c7fcadfb9d8d33e697f394cf22598623
 msgid "Undo Last Restore"

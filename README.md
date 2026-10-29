@@ -15,11 +15,11 @@ Save your reading settings, custom fonts, icons, plugins, sleep screens, and boo
 
 ## Key Highlights
 
-- **Pick What to Save**: Choose exactly what to include in your backup—reading settings, custom Profiles, QuickMenus, UI gestures, user plugins, custom fonts, icons, screensavers, style tweaks, or reading history.
+- **Pick What to Save**: Choose exactly what to include in your backup—reading settings, custom Profiles, QuickMenus, UI gestures, user plugins, custom fonts, icons, screensavers, style tweaks, or reading history. Your custom component selections are remembered automatically across manual backups.
 - **Safe Device Switching**: Moving from Kindle to Kobo, or Android to an e-ink reader? The plugin automatically adapts screen and hardware settings so your new device starts up cleanly without display glitches.
 - **Wireless Device Beaming & Web Download**: Transfer backups directly between e-readers without cables—or download and decrypt your ready-to-use `.zip` backup on your computer or phone via the web portal or QR code.
 - **One-Tap Undo Safety Net**: A safety rollback snapshot is automatically created before any restore, so you can revert back anytime if you ever change your mind.
-- **Built-in Folder Picker**: Easily browse your device's storage and pick your favorite folder for backups.
+- **Built-in Folder Picker & Multiple Book Folders**: Easily browse your device's storage to pick your backup destination, and add multiple book directories (like papers, articles, or secondary libraries) to ensure all your reading progress and annotations are preserved.
 - **Automatic Multi-Language Support**: Fully translated into 18 languages, automatically matching your KOReader language.
 
 ---

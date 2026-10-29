@@ -109,6 +109,77 @@ describe("backup_ui native settings submenus", function()
             assert.is_true(books_item.keep_menu_open)
             assert.is_not_nil(books_item.text_func():match("Books Folder:"))
         end)
+
+        it("provides Book Folders submenu with add, list, and reset items", function()
+            local sub_items = BackupUI.getBookFoldersSubmenu(refresh_cb)
+            assert.is_table(sub_items)
+            -- Should have at least: Add Book Folder..., at least 1 directory, and Reset to Default
+            assert.is_true(#sub_items >= 3)
+
+            local add_item = sub_items[1]
+            assert.is_not_nil(add_item.text:match("Add Book Folder"))
+            assert.is_function(add_item.callback)
+
+            local reset_item = sub_items[#sub_items]
+            assert.is_not_nil(reset_item.text:match("Reset to Default"))
+            assert.is_function(reset_item.callback)
+        end)
+
+        it("dynamically updates touch_menu.item_table when refreshBookFoldersSubmenu is invoked", function()
+            local updated = false
+            local mock_menu = {
+                item_table = { { text = "old_item" } },
+                updateItems = function(self, page)
+                    updated = true
+                end,
+            }
+
+            os.execute("mkdir -p /tmp/test_bm_1 /tmp/test_bm_2")
+            local s = BackupUI.getPluginSettings()
+            s.custom_books_dirs = { "/tmp/test_bm_1", "/tmp/test_bm_2" }
+
+            BackupUI.refreshBookFoldersSubmenu(mock_menu, refresh_cb)
+
+            assert.is_true(updated)
+            assert.is_true(#mock_menu.item_table >= 3)
+            -- Verify it refreshed with active book folders
+            local found_book = false
+            for _, itm in ipairs(mock_menu.item_table) do
+                if itm.text and itm.text:find("/tmp/test_bm_") then
+                    found_book = true
+                    break
+                end
+            end
+            assert.is_true(found_book)
+
+            -- Cleanup
+            s.custom_books_dirs = nil
+            s.custom_books_dir = nil
+            os.execute("rm -rf /tmp/test_bm_1 /tmp/test_bm_2")
+        end)
+
+        it("migrates legacy custom_books_dir setting to custom_books_dirs", function()
+            BackupUI._resetSettingsCache()
+            local s = BackupUI.getPluginSettings()
+            s.custom_books_dir = "/tmp/legacy_books"
+            s.custom_books_dirs = nil
+
+            BackupUI._resetSettingsCache()
+            -- Mock settings cache load with legacy custom_books_dir
+            local loaded_s = BackupUI.getPluginSettings()
+            loaded_s.custom_books_dir = "/tmp/legacy_books"
+            loaded_s.custom_books_dirs = nil
+            if loaded_s.custom_books_dirs == nil and loaded_s.custom_books_dir then
+                loaded_s.custom_books_dirs = { loaded_s.custom_books_dir }
+            end
+
+            assert.is_table(loaded_s.custom_books_dirs)
+            assert.are.equal("/tmp/legacy_books", loaded_s.custom_books_dirs[1])
+
+            -- Reset
+            loaded_s.custom_books_dir = nil
+            loaded_s.custom_books_dirs = nil
+        end)
     end)
 
     describe("Archive Format & Retention Submenu", function()

@@ -65,6 +65,10 @@ msgstr ".ZIP (توافق قياسي)"
 msgid "1 hour ago"
 msgstr "منذ ساعة واحدة"
 
+# en-hash: 29597da70ef3d7d4826c6be85e7c529d
+msgid "Add Book Folder..."
+msgstr "إضافة مجلد الكتب..."
+
 # en-hash: 336f879eec1bf390db4fa65586734c78
 msgid "And enter this code:"
 msgstr "وأدخل هذا الرمز:"
@@ -208,6 +212,10 @@ msgstr "فشل رفع Beam:\n%s"
 # en-hash: a71eb14f4ac46cebafbd6098c789bf6a
 msgid "Books Folder: %s"
 msgstr "مجلد الكتب: %s"
+
+# en-hash: 29e9c929456b1c6cb74923876840707a
+msgid "Books Folder: %s (+%d more)"
+msgstr "مجلد الكتب: %s (+%d أخرى)"
 
 # en-hash: dd221263f507d0afb75318382497db4e
 msgid "Browse Cloud Backups (%s) ▸"
@@ -429,6 +437,10 @@ msgstr "حد مخصص..."
 msgid "Decrypting files..."
 msgstr "جارٍ فك تشفير الملفات..."
 
+# en-hash: 59fa7b3a1726cf550f938af26599c91d
+msgid "Default home folder cannot be removed. Add another folder first."
+msgstr "لا يمكن إزالة مجلد الرئيسية الافتراضي. أضف مجلداً آخر أولاً."
+
 # en-hash: f2a6c498fb90ee345d997f888fce3b18
 msgid "Delete"
 msgstr "حذف"
@@ -648,6 +660,10 @@ msgstr "جارٍ الانتهاء..."
 # en-hash: b0f2b97dc5d2b76b26e040408bb1d8af
 msgid "Folder"
 msgstr "مجلد"
+
+# en-hash: dd1a67a9684f0d0715c56ac995113bba
+msgid "Folder #%d: %s"
+msgstr "المجلد #%d: %s"
 
 # en-hash: 59c4ad3f3cb3d812d68fab7a354d4a63
 msgid "Fonts"
@@ -913,6 +929,10 @@ msgstr "جارٍ إعداد الاستعادة..."
 msgid "Preparing upload..."
 msgstr "جاري إعداد التحميل..."
 
+# en-hash: 27214e3415befed96dc2aa3c66436f33
+msgid "Primary: %s"
+msgstr "الأساسي: %s"
+
 # en-hash: f262fae0a2f17e8c1eb4e9eddb0160e4
 msgid "Proceed"
 msgstr "متابعة"
@@ -961,6 +981,14 @@ msgstr "مجلد النسخ الاحتياطي عن بعد"
 msgid "Remote Folder: %s"
 msgstr "المجلد عن بعد: %s"
 
+# en-hash: 1063e38cb53d94d386f21227fcd84717
+msgid "Remove"
+msgstr "إزالة"
+
+# en-hash: e513f16b1cbfa6f21c2447c5aac5eb82
+msgid "Remove this book folder from backup?\n\n%s"
+msgstr "هل تريد إزالة مجلد الكتب هذا من النسخة الاحتياطية؟\n\n%s"
+
 # en-hash: d6ed253ff449bbd9606eff83124f1f2e
 msgid "Reset Default"
 msgstr "استعادة الافتراضي"
@@ -968,6 +996,10 @@ msgstr "استعادة الافتراضي"
 # en-hash: ff5bcc0096b8c3ceb34137c7082a3fbf
 msgid "Reset Relay to Default"
 msgstr "إعادة تعيين خادم الوساطة للافتراضي"
+
+# en-hash: 5920e2c262b126e82e3665b475b89060
+msgid "Reset to Default (Home Directory)"
+msgstr "إعادة التعيين إلى الافتراضي (مجلد الرئيسية)"
 
 # en-hash: 51cfbcff36da74a9fc47f3a5140f99f2
 msgid "Restart"
@@ -1093,6 +1125,10 @@ msgstr "تحديد الكل"
 msgid "Select Backup Folder"
 msgstr "اختيار مجلد النسخ"
 
+# en-hash: 5f0e9acb2c1630beb06bcf301ce2e2b2
+msgid "Select Book Folder to Add"
+msgstr "تحديد مجلد الكتب لإضافته"
+
 # en-hash: a7fad80dbd7a0ee23639d348f1dbd4a5
 msgid "Select Books Folder"
 msgstr "حدد مجلد الكتب"
@@ -1192,6 +1228,10 @@ msgstr "هذا النسخ الاحتياطي هو %s، ويتجاوز حد نق�
 # en-hash: 74f11079fa87c6f76b2c6fdaa74aab3f
 msgid "This backup is %s. Large wireless transfers on Kindle can take several minutes.\n\nDo you want to proceed with Beaming?"
 msgstr "هذا النسخ الاحتياطي بحجم %s. قد تستغرق عمليات النقل اللاسلكي الكبيرة على Kindle عدة دقائق.\n\nهل تريد المتابعة مع Beam؟"
+
+# en-hash: 399f3490da464aa270fa7efd91d9e7f2
+msgid "This folder is already in the book folders list."
+msgstr "هذا المجلد موجود بالفعل في قاىمة مجلدات الكتب."
 
 # en-hash: c7fcadfb9d8d33e697f394cf22598623
 msgid "Undo Last Restore"

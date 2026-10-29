@@ -368,34 +368,120 @@ function ArchiverMgr.getAvailableDictionaries(data_dir)
     return list
 end
 
---- Resolves the effective books/library directory.
--- Priority: custom_dir -> custom_books_dir in settings -> home_dir in G_reader_settings -> Device.home_dir -> data_dir -> "."
-function ArchiverMgr.getEffectiveBooksDir(custom_dir)
-    if custom_dir and custom_dir ~= "" and lfs and lfs.attributes and lfs.attributes(custom_dir, "mode") == "directory" then
-        return custom_dir
-    end
-    if _G.G_reader_settings and type(_G.G_reader_settings.readSetting) == "function" then
-        local plugin_settings = _G.G_reader_settings:readSetting("backup_settings")
-        if type(plugin_settings) == "table" and plugin_settings.custom_books_dir and plugin_settings.custom_books_dir ~= "" then
-            if lfs and lfs.attributes and lfs.attributes(plugin_settings.custom_books_dir, "mode") == "directory" then
-                return plugin_settings.custom_books_dir
+--- Resolves the list of effective books/library directories.
+-- Priority: custom_dirs -> custom_books_dirs/custom_books_dir in settings -> home_dir in G_reader_settings -> Device.home_dir -> data_dir -> "."
+-- Validates that directories exist, deduplicates identical paths, and prunes sub-paths of already included roots.
+-- @param custom_dirs string|table: optional custom directory or array of directories
+-- @return table: array of valid, normalized directory paths (at least 1 entry)
+function ArchiverMgr.getEffectiveBooksDirs(custom_dirs)
+    local raw_candidates = {}
+
+    if type(custom_dirs) == "string" and custom_dirs ~= "" then
+        table.insert(raw_candidates, custom_dirs)
+    elseif type(custom_dirs) == "table" and #custom_dirs > 0 then
+        for _, d in ipairs(custom_dirs) do
+            if type(d) == "string" and d ~= "" then
+                table.insert(raw_candidates, d)
             end
         end
+    else
+        -- Check G_reader_settings
+        if _G.G_reader_settings and type(_G.G_reader_settings.readSetting) == "function" then
+            local plugin_settings = _G.G_reader_settings:readSetting("backup_settings")
+            if type(plugin_settings) == "table" then
+                if type(plugin_settings.custom_books_dirs) == "table" and #plugin_settings.custom_books_dirs > 0 then
+                    for _, d in ipairs(plugin_settings.custom_books_dirs) do
+                        if type(d) == "string" and d ~= "" then
+                            table.insert(raw_candidates, d)
+                        end
+                    end
+                elseif plugin_settings.custom_books_dir and plugin_settings.custom_books_dir ~= "" then
+                    table.insert(raw_candidates, plugin_settings.custom_books_dir)
+                end
+            end
+        end
+
+        -- Check settings/backup.lua if raw_candidates still empty
+        if #raw_candidates == 0 and ok_ds and DataStorage and type(DataStorage.getDataDir) == "function" then
+            local bfile = DataStorage:getDataDir() .. "/settings/backup.lua"
+            if lfs and lfs.attributes and lfs.attributes(bfile, "mode") == "file" then
+                local ok, bdata = pcall(dofile, bfile)
+                if ok and type(bdata) == "table" then
+                    if type(bdata.custom_books_dirs) == "table" and #bdata.custom_books_dirs > 0 then
+                        for _, d in ipairs(bdata.custom_books_dirs) do
+                            if type(d) == "string" and d ~= "" then
+                                table.insert(raw_candidates, d)
+                            end
+                        end
+                    elseif bdata.custom_books_dir and bdata.custom_books_dir ~= "" then
+                        table.insert(raw_candidates, bdata.custom_books_dir)
+                    end
+                end
+            end
+        end
+    end
+
+    -- Filter existing directories and normalize
+    local valid_dirs = {}
+    local seen = {}
+    for _, path in ipairs(raw_candidates) do
+        local norm = path:gsub("\\", "/"):gsub("/+$", "")
+        if norm == "" then norm = "/" end
+        if not seen[norm] then
+            if lfs and lfs.attributes and lfs.attributes(norm, "mode") == "directory" then
+                seen[norm] = true
+                table.insert(valid_dirs, norm)
+            end
+        end
+    end
+
+    -- Prune nested folders (e.g. skip /books/papers if /books is already present)
+    local pruned_dirs = {}
+    for i, dir in ipairs(valid_dirs) do
+        local is_nested = false
+        for j, other in ipairs(valid_dirs) do
+            if i ~= j then
+                local prefix = (other == "/") and "/" or (other .. "/")
+                if dir:sub(1, #prefix) == prefix then
+                    -- dir is a subfolder of other
+                    is_nested = true
+                    break
+                end
+            end
+        end
+        if not is_nested then
+            table.insert(pruned_dirs, dir)
+        end
+    end
+
+    if #pruned_dirs > 0 then
+        return pruned_dirs
+    end
+
+    -- Fallback to default single folder
+    if _G.G_reader_settings and type(_G.G_reader_settings.readSetting) == "function" then
         local home_dir = _G.G_reader_settings:readSetting("home_dir")
         if home_dir and home_dir ~= "" and lfs and lfs.attributes and lfs.attributes(home_dir, "mode") == "directory" then
-            return home_dir
+            return { home_dir:gsub("\\", "/"):gsub("/+$", "") }
         end
     end
     local ok_dev, Device = pcall(require, "device")
     if ok_dev and Device and Device.home_dir and Device.home_dir ~= "" then
         if lfs and lfs.attributes and lfs.attributes(Device.home_dir, "mode") == "directory" then
-            return Device.home_dir
+            return { Device.home_dir:gsub("\\", "/"):gsub("/+$", "") }
         end
     end
     if ok_ds and DataStorage and type(DataStorage.getDataDir) == "function" then
-        return DataStorage:getDataDir()
+        return { DataStorage:getDataDir():gsub("\\", "/"):gsub("/+$", "") }
     end
-    return "."
+    return { "." }
+end
+
+--- Resolves the effective primary books/library directory.
+-- Priority: custom_dir -> custom_books_dirs[1] / custom_books_dir in settings -> home_dir in G_reader_settings -> Device.home_dir -> data_dir -> "."
+function ArchiverMgr.getEffectiveBooksDir(custom_dir)
+    local dirs = ArchiverMgr.getEffectiveBooksDirs(custom_dir)
+    return dirs[1] or "."
 end
 
 --- Recursively scans a books directory for *.sdr sidecar directories.
@@ -403,10 +489,12 @@ end
 -- @param books_dir string: root library directory
 -- @param seen_paths table: map of disk_path -> true for deduplication
 -- @param exclude_dir string: optional directory to exclude (e.g. data_dir)
+-- @param archive_prefix string: optional prefix for archive paths (defaults to Constants.ARCHIVE_SIDECARS_PREFIX)
 -- @return table: array of { disk_path = "...", archive_path = "..." }
-function ArchiverMgr.scanSdrDirectories(books_dir, seen_paths, exclude_dir)
+function ArchiverMgr.scanSdrDirectories(books_dir, seen_paths, exclude_dir, archive_prefix)
     local files = {}
     seen_paths = seen_paths or {}
+    archive_prefix = archive_prefix or Constants.ARCHIVE_SIDECARS_PREFIX
     if not books_dir or books_dir == "" then return files end
     if not lfs or not lfs.attributes or lfs.attributes(books_dir, "mode") ~= "directory" then return files end
 
@@ -432,7 +520,7 @@ function ArchiverMgr.scanSdrDirectories(books_dir, seen_paths, exclude_dir)
                                     seen_paths[sdr_file] = true
                                     table.insert(files, {
                                         disk_path = sdr_file,
-                                        archive_path = Constants.ARCHIVE_SIDECARS_PREFIX .. "/" .. rel_sdr .. "/" .. sdr_item,
+                                        archive_path = archive_prefix .. "/" .. rel_sdr .. "/" .. sdr_item,
                                     })
                                 end
                             end
@@ -454,13 +542,25 @@ end
 --- Collects .sdr sidecar folders referenced in history.lua or ReadHistory in memory.
 -- Ensures that opened books located outside books_dir (e.g. secondary storage) are also captured.
 -- @param data_dir string: KOReader data directory
--- @param books_dir string: primary books directory
+-- @param books_dirs string|table: primary books directory or array of books directories
 -- @param seen_paths table: map of disk_path -> true for deduplication
 -- @return table: array of { disk_path = "...", archive_path = "..." }
-function ArchiverMgr.collectHistorySidecars(data_dir, books_dir, seen_paths)
+function ArchiverMgr.collectHistorySidecars(data_dir, books_dirs, seen_paths)
     local files = {}
     seen_paths = seen_paths or {}
     local book_files = {}
+
+    -- Normalize books_dirs to table
+    local bdirs = {}
+    if type(books_dirs) == "table" then
+        for _, d in ipairs(books_dirs) do
+            if type(d) == "string" and d ~= "" then
+                table.insert(bdirs, (d:gsub("[/\\]+$", "")))
+            end
+        end
+    elseif type(books_dirs) == "string" and books_dirs ~= "" then
+        table.insert(bdirs, (books_dirs:gsub("[/\\]+$", "")))
+    end
 
     -- Check runtime ReadHistory if loaded
     if package.loaded["readhistory"] and type(package.loaded["readhistory"].hist) == "table" then
@@ -486,8 +586,6 @@ function ArchiverMgr.collectHistorySidecars(data_dir, books_dir, seen_paths)
         end
     end
 
-    local norm_books_dir = books_dir and books_dir:gsub("[/\\]+$", "")
-
     for _, doc_path in ipairs(book_files) do
         local doc_base = doc_path:match("^(.*)%.[^./\\]+$") or doc_path
         local sdr_dir = doc_base .. ".sdr"
@@ -497,14 +595,27 @@ function ArchiverMgr.collectHistorySidecars(data_dir, books_dir, seen_paths)
                     local sdr_file = sdr_dir .. "/" .. sdr_item
                     if lfs.attributes(sdr_file, "mode") == "file" and not seen_paths[sdr_file] then
                         seen_paths[sdr_file] = true
-                        local archive_path
-                        if norm_books_dir and sdr_file:sub(1, #norm_books_dir) == norm_books_dir then
-                            local rel = sdr_file:sub(#norm_books_dir + 1):gsub("^[/\\]+", "")
-                            archive_path = Constants.ARCHIVE_SIDECARS_PREFIX .. "/" .. rel
-                        else
+                        local archive_path = nil
+
+                        for idx, norm_books_dir in ipairs(bdirs) do
+                            if sdr_file:sub(1, #norm_books_dir) == norm_books_dir and
+                               (sdr_file:sub(#norm_books_dir + 1, #norm_books_dir + 1) == "/" or
+                                sdr_file:sub(#norm_books_dir + 1, #norm_books_dir + 1) == "\\") then
+                                local rel = sdr_file:sub(#norm_books_dir + 1):gsub("^[/\\]+", "")
+                                if idx == 1 then
+                                    archive_path = Constants.ARCHIVE_SIDECARS_PREFIX .. "/" .. rel
+                                else
+                                    archive_path = Constants.ARCHIVE_SIDECARS_ROOTS_PREFIX .. "/" .. idx .. "/" .. rel
+                                end
+                                break
+                            end
+                        end
+
+                        if not archive_path then
                             local clean_abs = sdr_file:gsub("^[/\\]+", ""):gsub("^[A-Za-z]:[/\\]", "")
                             archive_path = Constants.ARCHIVE_SIDECARS_ABS_PREFIX .. "/" .. clean_abs
                         end
+
                         table.insert(files, {
                             disk_path = sdr_file,
                             archive_path = archive_path,
@@ -733,7 +844,8 @@ function ArchiverMgr.createBackup(options)
     local components = options.components or Constants.DEFAULT_COMPONENT_SELECTION
     local backup_name = options.backup_name or "backup"
     local data_dir = options.data_dir or (ok_ds and DataStorage and DataStorage.getDataDir and DataStorage:getDataDir()) or "."
-    local books_dir = options.books_dir or ArchiverMgr.getEffectiveBooksDir()
+    local books_dirs = options.books_dirs or (options.books_dir and { options.books_dir }) or ArchiverMgr.getEffectiveBooksDirs()
+    local books_dir = books_dirs[1] or ArchiverMgr.getEffectiveBooksDir()
     local on_progress = options.on_progress
     local is_canceled = options.is_canceled
 
@@ -842,12 +954,16 @@ function ArchiverMgr.createBackup(options)
         -- 7. Docsettings (Reading Progress & Notes)
         if components[Constants.COMPONENTS.DOCSETTINGS] then
             local seen_sdr_paths = {}
-            -- 7a. Scan books directory for *.sdr sidecars
-            if books_dir and lfs and lfs.attributes and lfs.attributes(books_dir, "mode") == "directory" then
-                collectFiles(ArchiverMgr.scanSdrDirectories(books_dir, seen_sdr_paths, data_dir))
+            -- 7a. Scan all books directories for *.sdr sidecars
+            for idx, bdir in ipairs(books_dirs) do
+                if bdir and lfs and lfs.attributes and lfs.attributes(bdir, "mode") == "directory" then
+                    local prefix = (idx == 1) and Constants.ARCHIVE_SIDECARS_PREFIX
+                        or (Constants.ARCHIVE_SIDECARS_ROOTS_PREFIX .. "/" .. idx)
+                    collectFiles(ArchiverMgr.scanSdrDirectories(bdir, seen_sdr_paths, data_dir, prefix))
+                end
             end
             -- 7b. Collect any .sdr sidecars referenced in reading history
-            collectFiles(ArchiverMgr.collectHistorySidecars(data_dir, books_dir, seen_sdr_paths))
+            collectFiles(ArchiverMgr.collectHistorySidecars(data_dir, books_dirs, seen_sdr_paths))
             -- 7c. Centralized and hash docsettings
             local ds_dir = data_dir .. "/docsettings"
             if lfs and lfs.attributes and lfs.attributes(ds_dir, "mode") == "directory" then
@@ -993,6 +1109,7 @@ function ArchiverMgr.createBackup(options)
             fonts = f_list,
             dictionaries = d_list,
             books_dir = books_dir,
+            books_dirs = books_dirs,
         }
         writer:addMemory(Constants.MANIFEST_FILE_NAME, Manifest.serialize(manifest))
         writer:close()

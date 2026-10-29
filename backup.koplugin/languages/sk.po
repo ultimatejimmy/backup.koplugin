@@ -65,6 +65,10 @@ msgstr ".ZIP (Štandardná kompatibilita)"
 msgid "1 hour ago"
 msgstr "Pred 1 hodinou"
 
+# en-hash: 29597da70ef3d7d4826c6be85e7c529d
+msgid "Add Book Folder..."
+msgstr "Pridať priečinok s knihami..."
+
 # en-hash: 336f879eec1bf390db4fa65586734c78
 msgid "And enter this code:"
 msgstr "A zadajte tento kód:"
@@ -208,6 +212,10 @@ msgstr "Nahrávanie Beam zlyhalo:\n%s"
 # en-hash: a71eb14f4ac46cebafbd6098c789bf6a
 msgid "Books Folder: %s"
 msgstr "Priečinok kníh: %s"
+
+# en-hash: 29e9c929456b1c6cb74923876840707a
+msgid "Books Folder: %s (+%d more)"
+msgstr "Priečinok s knihami: %s (+%d ďalších)"
 
 # en-hash: dd221263f507d0afb75318382497db4e
 msgid "Browse Cloud Backups (%s) ▸"
@@ -429,6 +437,10 @@ msgstr "Vlastný limit..."
 msgid "Decrypting files..."
 msgstr "Dešifrujú sa súbory..."
 
+# en-hash: 59fa7b3a1726cf550f938af26599c91d
+msgid "Default home folder cannot be removed. Add another folder first."
+msgstr "Predvolený domovský priečinok sa nedá odstrániť. najprv pridajte iný priečinok."
+
 # en-hash: f2a6c498fb90ee345d997f888fce3b18
 msgid "Delete"
 msgstr "Odstrániť"
@@ -648,6 +660,10 @@ msgstr "Dokončuje sa..."
 # en-hash: b0f2b97dc5d2b76b26e040408bb1d8af
 msgid "Folder"
 msgstr "Priečinok"
+
+# en-hash: dd1a67a9684f0d0715c56ac995113bba
+msgid "Folder #%d: %s"
+msgstr "Priečinok č. %d: %s"
 
 # en-hash: 59c4ad3f3cb3d812d68fab7a354d4a63
 msgid "Fonts"
@@ -913,6 +929,10 @@ msgstr "Pripravuje sa obnova..."
 msgid "Preparing upload..."
 msgstr "Príprava nahrávania..."
 
+# en-hash: 27214e3415befed96dc2aa3c66436f33
+msgid "Primary: %s"
+msgstr "Primárny: %s"
+
 # en-hash: f262fae0a2f17e8c1eb4e9eddb0160e4
 msgid "Proceed"
 msgstr "Pokračovať"
@@ -961,6 +981,14 @@ msgstr "Priečinok vzdialenej zálohy"
 msgid "Remote Folder: %s"
 msgstr "Vzdialený priečinok: %s"
 
+# en-hash: 1063e38cb53d94d386f21227fcd84717
+msgid "Remove"
+msgstr "Odstrániť"
+
+# en-hash: e513f16b1cbfa6f21c2447c5aac5eb82
+msgid "Remove this book folder from backup?\n\n%s"
+msgstr "Odstrániť tento priečinok s knihami zo zálohy?\n\n%s"
+
 # en-hash: d6ed253ff449bbd9606eff83124f1f2e
 msgid "Reset Default"
 msgstr "Obnoviť predvolené"
@@ -968,6 +996,10 @@ msgstr "Obnoviť predvolené"
 # en-hash: ff5bcc0096b8c3ceb34137c7082a3fbf
 msgid "Reset Relay to Default"
 msgstr "Obnoviť predvolený server"
+
+# en-hash: 5920e2c262b126e82e3665b475b89060
+msgid "Reset to Default (Home Directory)"
+msgstr "Obnoviť predvolené (Domovský adresár)"
 
 # en-hash: 51cfbcff36da74a9fc47f3a5140f99f2
 msgid "Restart"
@@ -1093,6 +1125,10 @@ msgstr "Vybrať všetko"
 msgid "Select Backup Folder"
 msgstr "Vybrať priečinok záloh"
 
+# en-hash: 5f0e9acb2c1630beb06bcf301ce2e2b2
+msgid "Select Book Folder to Add"
+msgstr "Vyberte priečinok s knihami na pridanie"
+
 # en-hash: a7fad80dbd7a0ee23639d348f1dbd4a5
 msgid "Select Books Folder"
 msgstr "Vybrať priečinok kníh"
@@ -1192,6 +1228,10 @@ msgstr "Táto záloha je %s, čo presahuje limit prenosu Beam 100 MB.\n\nBeam je
 # en-hash: 74f11079fa87c6f76b2c6fdaa74aab3f
 msgid "This backup is %s. Large wireless transfers on Kindle can take several minutes.\n\nDo you want to proceed with Beaming?"
 msgstr "Táto záloha má %s. Veľké bezdrôtové prenosy na Kindle môžu trvať niekoľko minút.\n\nChcete pokračovať v odosielaní cez Beam?"
+
+# en-hash: 399f3490da464aa270fa7efd91d9e7f2
+msgid "This folder is already in the book folders list."
+msgstr "Tento priečinok sa už nachádza v zozname priečinkov s knihami."
 
 # en-hash: c7fcadfb9d8d33e697f394cf22598623
 msgid "Undo Last Restore"

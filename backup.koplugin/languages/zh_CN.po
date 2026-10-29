@@ -65,6 +65,10 @@ msgstr ".ZIP (标准兼容)"
 msgid "1 hour ago"
 msgstr "1 小时前"
 
+# en-hash: 29597da70ef3d7d4826c6be85e7c529d
+msgid "Add Book Folder..."
+msgstr "添加书籍文件夹..."
+
 # en-hash: 336f879eec1bf390db4fa65586734c78
 msgid "And enter this code:"
 msgstr "并输入此代码："
@@ -208,6 +212,10 @@ msgstr "Beam 上传失败:\n%s"
 # en-hash: a71eb14f4ac46cebafbd6098c789bf6a
 msgid "Books Folder: %s"
 msgstr "图书文件夹：%s"
+
+# en-hash: 29e9c929456b1c6cb74923876840707a
+msgid "Books Folder: %s (+%d more)"
+msgstr "书籍文件夹：%s（另有 +%d 个）"
 
 # en-hash: dd221263f507d0afb75318382497db4e
 msgid "Browse Cloud Backups (%s) ▸"
@@ -429,6 +437,10 @@ msgstr "自定义限制..."
 msgid "Decrypting files..."
 msgstr "正在解密文件..."
 
+# en-hash: 59fa7b3a1726cf550f938af26599c91d
+msgid "Default home folder cannot be removed. Add another folder first."
+msgstr "默认主文件夹无法删除。请先添加其他文件夹。"
+
 # en-hash: f2a6c498fb90ee345d997f888fce3b18
 msgid "Delete"
 msgstr "删除"
@@ -648,6 +660,10 @@ msgstr "正在完成..."
 # en-hash: b0f2b97dc5d2b76b26e040408bb1d8af
 msgid "Folder"
 msgstr "文件夹"
+
+# en-hash: dd1a67a9684f0d0715c56ac995113bba
+msgid "Folder #%d: %s"
+msgstr "文件夹 #%d：%s"
 
 # en-hash: 59c4ad3f3cb3d812d68fab7a354d4a63
 msgid "Fonts"
@@ -913,6 +929,10 @@ msgstr "正在准备恢复..."
 msgid "Preparing upload..."
 msgstr "正在准备上传..."
 
+# en-hash: 27214e3415befed96dc2aa3c66436f33
+msgid "Primary: %s"
+msgstr "主文件夹：%s"
+
 # en-hash: f262fae0a2f17e8c1eb4e9eddb0160e4
 msgid "Proceed"
 msgstr "继续"
@@ -961,6 +981,14 @@ msgstr "远程备份文件夹"
 msgid "Remote Folder: %s"
 msgstr "远程文件夹：%s"
 
+# en-hash: 1063e38cb53d94d386f21227fcd84717
+msgid "Remove"
+msgstr "移除"
+
+# en-hash: e513f16b1cbfa6f21c2447c5aac5eb82
+msgid "Remove this book folder from backup?\n\n%s"
+msgstr "从备份中移除此书籍文件夹吗？\n\n%s"
+
 # en-hash: d6ed253ff449bbd9606eff83124f1f2e
 msgid "Reset Default"
 msgstr "恢复默认"
@@ -968,6 +996,10 @@ msgstr "恢复默认"
 # en-hash: ff5bcc0096b8c3ceb34137c7082a3fbf
 msgid "Reset Relay to Default"
 msgstr "重置中继服务器为默认"
+
+# en-hash: 5920e2c262b126e82e3665b475b89060
+msgid "Reset to Default (Home Directory)"
+msgstr "恢复默认（主目录）"
 
 # en-hash: 51cfbcff36da74a9fc47f3a5140f99f2
 msgid "Restart"
@@ -1093,6 +1125,10 @@ msgstr "全选"
 msgid "Select Backup Folder"
 msgstr "选择备份文件夹"
 
+# en-hash: 5f0e9acb2c1630beb06bcf301ce2e2b2
+msgid "Select Book Folder to Add"
+msgstr "选择要添加的书籍文件夹"
+
 # en-hash: a7fad80dbd7a0ee23639d348f1dbd4a5
 msgid "Select Books Folder"
 msgstr "选择书籍文件夹"
@@ -1192,6 +1228,10 @@ msgstr "此备份为 %s，已超出 100 MB 的 Beam 传输限制。\n\nBeam 专�
 # en-hash: 74f11079fa87c6f76b2c6fdaa74aab3f
 msgid "This backup is %s. Large wireless transfers on Kindle can take several minutes.\n\nDo you want to proceed with Beaming?"
 msgstr "此备份大小为%s。Kindle上的大型无线传输可能需要几分钟。\n\n您想继续通过Beam传输吗？"
+
+# en-hash: 399f3490da464aa270fa7efd91d9e7f2
+msgid "This folder is already in the book folders list."
+msgstr "此文件夹已在书籍文件夹列表中。"
 
 # en-hash: c7fcadfb9d8d33e697f394cf22598623
 msgid "Undo Last Restore"

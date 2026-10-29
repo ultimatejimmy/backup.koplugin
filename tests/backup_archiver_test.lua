@@ -483,6 +483,74 @@ describe("backup_archiver", function()
             assert.is_nil(content:find("Android"))
         end)
 
+        it("archives sidecars across multiple book folders without path collisions", function()
+            local books_dir_1 = "/tmp/test_books_root1"
+            local books_dir_2 = "/tmp/test_books_root2"
+            os.execute("mkdir -p \"" .. books_dir_1 .. "/Articles/Research.sdr\"")
+            os.execute("mkdir -p \"" .. books_dir_2 .. "/Articles/Research.sdr\"")
+
+            local f1 = io.open(books_dir_1 .. "/Articles/Research.sdr/metadata.epub.lua", "w")
+            if f1 then f1:write("return { percent_finished = 0.50, note = 'from root 1' }"); f1:close() end
+
+            local f2 = io.open(books_dir_2 .. "/Articles/Research.sdr/metadata.epub.lua", "w")
+            if f2 then f2:write("return { percent_finished = 0.85, note = 'from root 2' }"); f2:close() end
+
+            local multi_out = "/tmp/test_multi_books_backup.tar"
+            local ok, res = ArchiverMgr.createBackup{
+                archive_path = multi_out,
+                format = "tar",
+                backup_name = "test_multi_books_backup",
+                data_dir = data_dir,
+                books_dirs = { books_dir_1, books_dir_2 },
+                components = {
+                    docsettings = true,
+                    history = false,
+                },
+            }
+            assert.is_true(ok)
+            assert.is_table(res)
+
+            local f = io.open(multi_out, "rb")
+            assert.is_not_nil(f)
+            local content = f:read("*all")
+            f:close()
+
+            -- Root 1 goes to docsettings/sidecars
+            assert.is_not_nil(content:find("docsettings/sidecars/Articles/Research.sdr/metadata.epub.lua", 1, true))
+            -- Root 2 goes to docsettings/sidecars_roots/2
+            assert.is_not_nil(content:find("docsettings/sidecars_roots/2/Articles/Research.sdr/metadata.epub.lua", 1, true))
+
+            -- Content from both sidecars must be present in archive
+            assert.is_not_nil(content:find("from root 1", 1, true))
+            assert.is_not_nil(content:find("from root 2", 1, true))
+
+            os.remove(multi_out)
+            os.execute("rm -rf \"" .. books_dir_1 .. "\"")
+            os.execute("rm -rf \"" .. books_dir_2 .. "\"")
+        end)
+
+        it("de-duplicates nested book folders and resolves effective books dirs", function()
+            local parent_dir = "/tmp/test_books_parent"
+            local sub_dir = parent_dir .. "/subfolder"
+            local standalone_dir = "/tmp/test_books_standalone"
+
+            os.execute("mkdir -p \"" .. sub_dir .. "\"")
+            os.execute("mkdir -p \"" .. standalone_dir .. "\"")
+
+            local resolved = ArchiverMgr.getEffectiveBooksDirs({ parent_dir, sub_dir, standalone_dir })
+            assert.is_table(resolved)
+            assert.are.equal(2, #resolved)
+            assert.are.equal(parent_dir, resolved[1])
+            assert.are.equal(standalone_dir, resolved[2])
+
+            -- Calling getEffectiveBooksDir returns the primary
+            local primary = ArchiverMgr.getEffectiveBooksDir({ parent_dir, sub_dir })
+            assert.are.equal(parent_dir, primary)
+
+            os.execute("rm -rf \"" .. parent_dir .. "\"")
+            os.execute("rm -rf \"" .. standalone_dir .. "\"")
+        end)
+
         it("omits sidecars when DOCSETTINGS is false", function()
             local ok, res = ArchiverMgr.createBackup{
                 archive_path = test_out,

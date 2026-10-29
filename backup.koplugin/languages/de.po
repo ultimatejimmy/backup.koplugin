@@ -65,6 +65,10 @@ msgstr ".ZIP (Standardkompatibilität)"
 msgid "1 hour ago"
 msgstr "vor 1 Stunde"
 
+# en-hash: 29597da70ef3d7d4826c6be85e7c529d
+msgid "Add Book Folder..."
+msgstr "Buchordner hinzufügen..."
+
 # en-hash: 336f879eec1bf390db4fa65586734c78
 msgid "And enter this code:"
 msgstr "Und geben Sie diesen Code ein:"
@@ -208,6 +212,10 @@ msgstr "Beam-Upload fehlgeschlagen:\n%s"
 # en-hash: a71eb14f4ac46cebafbd6098c789bf6a
 msgid "Books Folder: %s"
 msgstr "Bücherordner: %s"
+
+# en-hash: 29e9c929456b1c6cb74923876840707a
+msgid "Books Folder: %s (+%d more)"
+msgstr "Buchordner: %s (+%d weitere)"
 
 # en-hash: dd221263f507d0afb75318382497db4e
 msgid "Browse Cloud Backups (%s) ▸"
@@ -429,6 +437,10 @@ msgstr "Benutzerdefiniertes Limit..."
 msgid "Decrypting files..."
 msgstr "Dateien werden entschlüsselt..."
 
+# en-hash: 59fa7b3a1726cf550f938af26599c91d
+msgid "Default home folder cannot be removed. Add another folder first."
+msgstr "Der Standard-Home-Ordner kann nicht entfernt werden. Fügen Sie zuerst einen anderen Ordner hinzu."
+
 # en-hash: f2a6c498fb90ee345d997f888fce3b18
 msgid "Delete"
 msgstr "Löschen"
@@ -648,6 +660,10 @@ msgstr "Wird abgeschlossen..."
 # en-hash: b0f2b97dc5d2b76b26e040408bb1d8af
 msgid "Folder"
 msgstr "Ordner"
+
+# en-hash: dd1a67a9684f0d0715c56ac995113bba
+msgid "Folder #%d: %s"
+msgstr "Ordner #%d: %s"
 
 # en-hash: 59c4ad3f3cb3d812d68fab7a354d4a63
 msgid "Fonts"
@@ -913,6 +929,10 @@ msgstr "Bereite Wiederherstellung vor..."
 msgid "Preparing upload..."
 msgstr "Upload wird vorbereitet..."
 
+# en-hash: 27214e3415befed96dc2aa3c66436f33
+msgid "Primary: %s"
+msgstr "Primär: %s"
+
 # en-hash: f262fae0a2f17e8c1eb4e9eddb0160e4
 msgid "Proceed"
 msgstr "Fortfahren"
@@ -961,6 +981,14 @@ msgstr "Remote-Backup-Ordner"
 msgid "Remote Folder: %s"
 msgstr "Remote-Ordner: %s"
 
+# en-hash: 1063e38cb53d94d386f21227fcd84717
+msgid "Remove"
+msgstr "Entfernen"
+
+# en-hash: e513f16b1cbfa6f21c2447c5aac5eb82
+msgid "Remove this book folder from backup?\n\n%s"
+msgstr "Diesen Buchordner aus der Sicherung entfernen?\n\n%s"
+
 # en-hash: d6ed253ff449bbd9606eff83124f1f2e
 msgid "Reset Default"
 msgstr "Zurücksetzen"
@@ -968,6 +996,10 @@ msgstr "Zurücksetzen"
 # en-hash: ff5bcc0096b8c3ceb34137c7082a3fbf
 msgid "Reset Relay to Default"
 msgstr "Relay auf Standard zurücksetzen"
+
+# en-hash: 5920e2c262b126e82e3665b475b89060
+msgid "Reset to Default (Home Directory)"
+msgstr "Auf Standard zurücksetzen (Home-Verzeichnis)"
 
 # en-hash: 51cfbcff36da74a9fc47f3a5140f99f2
 msgid "Restart"
@@ -1093,6 +1125,10 @@ msgstr "Alle auswählen"
 msgid "Select Backup Folder"
 msgstr "Sicherungsordner wählen"
 
+# en-hash: 5f0e9acb2c1630beb06bcf301ce2e2b2
+msgid "Select Book Folder to Add"
+msgstr "Buchordner zum Hinzufügen auswählen"
+
 # en-hash: a7fad80dbd7a0ee23639d348f1dbd4a5
 msgid "Select Books Folder"
 msgstr "Bücherordner auswählen"
@@ -1192,6 +1228,10 @@ msgstr "Dieses Backup ist %s und überschreitet das 100-MB-Limit für die Beam-�
 # en-hash: 74f11079fa87c6f76b2c6fdaa74aab3f
 msgid "This backup is %s. Large wireless transfers on Kindle can take several minutes.\n\nDo you want to proceed with Beaming?"
 msgstr "Dieses Backup ist %s groß. Große drahtlose Übertragungen auf einem Kindle können mehrere Minuten dauern.\n\nMöchten Sie mit Beaming fortfahren?"
+
+# en-hash: 399f3490da464aa270fa7efd91d9e7f2
+msgid "This folder is already in the book folders list."
+msgstr "Dieser Ordner ist bereits in der Liste der Buchordner enthalten."
 
 # en-hash: c7fcadfb9d8d33e697f394cf22598623
 msgid "Undo Last Restore"

@@ -53,8 +53,13 @@ local function getTargetHomeDir(current_settings, target_options)
     if current_settings and current_settings.home_dir and current_settings.home_dir ~= "" then
         return current_settings.home_dir
     end
-    if target_options and target_options.books_dir and target_options.books_dir ~= "" then
-        return target_options.books_dir
+    if target_options then
+        if target_options.books_dirs and target_options.books_dirs[1] and target_options.books_dirs[1] ~= "" then
+            return target_options.books_dirs[1]
+        end
+        if target_options.books_dir and target_options.books_dir ~= "" then
+            return target_options.books_dir
+        end
     end
     local ok_dev, Device = pcall(require, "device")
     if ok_dev and Device and Device.home_dir and Device.home_dir ~= "" then

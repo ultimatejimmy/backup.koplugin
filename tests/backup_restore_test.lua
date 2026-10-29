@@ -313,6 +313,115 @@ describe("backup_restore", function()
             os.execute("rm -rf \"" .. kindle_books_dir .. "\"")
         end)
 
+        it("restores multi-root book folders to matching targets and translates multi-root history paths", function()
+            local archive_path = backup_dir .. "/multi_root_restore.tar"
+            local writer = ArchiverMgr.createWriter(archive_path, "tar")
+
+            local root1_sidecar = "return { percent_finished = 0.25, title = 'Paper 1' }"
+            local root2_sidecar = "return { percent_finished = 0.75, title = 'Paper 2' }"
+            local hist_content = "return { { file = \"/mnt/onboard/papers/Paper1.pdf\", time = 100 }, { file = \"/mnt/sdcard/articles/Paper2.pdf\", time = 200 } }"
+
+            writer:addMemory("settings/settings.reader.lua", "return {}")
+            writer:addMemory("docsettings/sidecars/papers/Paper1.sdr/metadata.pdf.lua", root1_sidecar)
+            writer:addMemory("docsettings/sidecars_roots/2/articles/Paper2.sdr/metadata.pdf.lua", root2_sidecar)
+            writer:addMemory("history/history.lua", hist_content)
+
+            local manifest = Manifest.create{
+                backup_name = "Multi-root Backup Test",
+                components = {
+                    [Constants.COMPONENTS.DOCSETTINGS] = true,
+                    [Constants.COMPONENTS.HISTORY] = true,
+                },
+                books_dir = "/mnt/onboard",
+                books_dirs = { "/mnt/onboard", "/mnt/sdcard" },
+            }
+            writer:addMemory(Constants.MANIFEST_FILE_NAME, Manifest.serialize(manifest))
+            writer:close()
+
+            local target_root1 = test_base .. "/target_lib1"
+            local target_root2 = test_base .. "/target_lib2"
+            os.execute("mkdir -p \"" .. target_root1 .. "\"")
+            os.execute("mkdir -p \"" .. target_root2 .. "\"")
+
+            local ok, msg, details = RestoreEngine.executeRestore(archive_path, {
+                mode = Sanitizer.MODE_SANITIZED,
+                books_dirs = { target_root1, target_root2 },
+                selected_components = {
+                    [Constants.COMPONENTS.DOCSETTINGS] = true,
+                    [Constants.COMPONENTS.HISTORY] = true,
+                },
+            })
+            assert.is_true(ok)
+
+            -- Verify root 1 sidecar was restored to target_root1
+            local r1_file = target_root1 .. "/papers/Paper1.sdr/metadata.pdf.lua"
+            local f1 = io.open(r1_file, "rb")
+            assert.is_not_nil(f1)
+            local c1 = f1:read("*all")
+            f1:close()
+            assert.are.equal(root1_sidecar, c1)
+
+            -- Verify root 2 sidecar was restored to target_root2
+            local r2_file = target_root2 .. "/articles/Paper2.sdr/metadata.pdf.lua"
+            local f2 = io.open(r2_file, "rb")
+            assert.is_not_nil(f2)
+            local c2 = f2:read("*all")
+            f2:close()
+            assert.are.equal(root2_sidecar, c2)
+
+            -- Verify history.lua had both paths translated
+            local hf = io.open(data_dir .. "/history.lua", "rb")
+            assert.is_not_nil(hf)
+            local h_data = hf:read("*all")
+            hf:close()
+            assert.is_not_nil(h_data:find(target_root1 .. "/papers/Paper1.pdf", 1, true))
+            assert.is_not_nil(h_data:find(target_root2 .. "/articles/Paper2.pdf", 1, true))
+
+            os.execute("rm -rf \"" .. target_root1 .. "\"")
+            os.execute("rm -rf \"" .. target_root2 .. "\"")
+        end)
+
+        it("falls back gracefully when target device has fewer configured book roots", function()
+            local archive_path = backup_dir .. "/fallback_root_restore.tar"
+            local writer = ArchiverMgr.createWriter(archive_path, "tar")
+
+            local extra_sidecar = "return { percent_finished = 0.99, title = 'Extra' }"
+            writer:addMemory("settings/settings.reader.lua", "return {}")
+            writer:addMemory("docsettings/sidecars_roots/2/doc.sdr/metadata.epub.lua", extra_sidecar)
+
+            local manifest = Manifest.create{
+                backup_name = "Fewer Roots Target Test",
+                components = {
+                    [Constants.COMPONENTS.DOCSETTINGS] = true,
+                },
+                books_dirs = { "/mnt/onboard", "/mnt/sdcard/extras" },
+            }
+            writer:addMemory(Constants.MANIFEST_FILE_NAME, Manifest.serialize(manifest))
+            writer:close()
+
+            local single_target = test_base .. "/single_target"
+            os.execute("mkdir -p \"" .. single_target .. "\"")
+
+            local ok, msg, details = RestoreEngine.executeRestore(archive_path, {
+                mode = Sanitizer.MODE_RAW,
+                books_dirs = { single_target },
+                selected_components = {
+                    [Constants.COMPONENTS.DOCSETTINGS] = true,
+                },
+            })
+            assert.is_true(ok)
+
+            -- Unpacked under single_target/extras/doc.sdr/metadata.epub.lua
+            local fallback_file = single_target .. "/extras/doc.sdr/metadata.epub.lua"
+            local f = io.open(fallback_file, "rb")
+            assert.is_not_nil(f)
+            local c = f:read("*all")
+            f:close()
+            assert.are.equal(extra_sidecar, c)
+
+            os.execute("rm -rf \"" .. single_target .. "\"")
+        end)
+
         it("treats archives without manifest.json as unknown cross-device archives", function()
             local archive_path = backup_dir .. "/no_manifest_backup.tar"
             local writer = ArchiverMgr.createWriter(archive_path, "tar")

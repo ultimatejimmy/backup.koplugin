@@ -151,6 +151,7 @@ Constants.DEFAULT_SETTINGS = {
     default_format = "zip", -- "zip" or "tar.gz"
     custom_backup_dir = nil, -- nil = use <DataStorage:getDataDir()>/backups
     custom_books_dir = nil, -- nil = use home_dir
+    custom_books_dirs = nil, -- nil or table: list of book root directories
     retention_limit = 5, -- number of rolling backups to keep (0 = unlimited)
     clean_slate_restore = false, -- whether to delete unlisted user plugins on restore
     auto_sanitize_cross_device = true, -- auto-detect and sanitize on cross-device restore
@@ -165,6 +166,11 @@ Constants.DEFAULT_SETTINGS = {
     auto_backup_cloud_upload = false, -- automatically upload scheduled backup to cloud if connected
     auto_backup_components = nil, -- nil = defaults to copy of DEFAULT_COMPONENT_SELECTION
     auto_backup_last_time = 0, -- timestamp of last backup
+    manual_backup_components = nil, -- nil = defaults to copy of DEFAULT_COMPONENT_SELECTION
+    manual_backup_selected_plugins = nil, -- nil = select all available
+    manual_backup_selected_patches = nil,
+    manual_backup_selected_fonts = nil,
+    manual_backup_selected_dicts = nil,
 }
 
 -- Scheduled backup interval presets (in seconds)
@@ -208,6 +214,7 @@ Constants.ROLLBACK_FILE_NAME = "rollback_before_restore"
 Constants.STAGING_DIR_NAME = "backup_staging"
 Constants.MANIFEST_FILE_NAME = "manifest.json"
 Constants.ARCHIVE_SIDECARS_PREFIX = "docsettings/sidecars"
+Constants.ARCHIVE_SIDECARS_ROOTS_PREFIX = "docsettings/sidecars_roots"
 Constants.ARCHIVE_SIDECARS_ABS_PREFIX = "docsettings/sidecars_abs"
 
 -- Directory names to prune/skip when scanning library folders for .sdr sidecars

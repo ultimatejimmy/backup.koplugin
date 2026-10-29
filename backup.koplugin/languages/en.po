@@ -50,6 +50,9 @@ msgstr ".ZIP (Standard compatibility)"
 msgid "1 hour ago"
 msgstr "1 hour ago"
 
+msgid "Add Book Folder..."
+msgstr "Add Book Folder..."
+
 msgid "And enter this code:"
 msgstr "And enter this code:"
 
@@ -157,6 +160,9 @@ msgstr "Beam upload failed:\n%s"
 
 msgid "Books Folder: %s"
 msgstr "Books Folder: %s"
+
+msgid "Books Folder: %s (+%d more)"
+msgstr "Books Folder: %s (+%d more)"
 
 msgid "Browse Cloud Backups (%s) ▸"
 msgstr "Browse Cloud Backups (%s) ▸"
@@ -323,6 +329,9 @@ msgstr "Custom Limit..."
 msgid "Decrypting files..."
 msgstr "Decrypting files..."
 
+msgid "Default home folder cannot be removed. Add another folder first."
+msgstr "Default home folder cannot be removed. Add another folder first."
+
 msgid "Delete"
 msgstr "Delete"
 
@@ -487,6 +496,9 @@ msgstr "Finalizing..."
 
 msgid "Folder"
 msgstr "Folder"
+
+msgid "Folder #%d: %s"
+msgstr "Folder #%d: %s"
 
 msgid "Fonts"
 msgstr "Fonts"
@@ -686,6 +698,9 @@ msgstr "Preparing restore..."
 msgid "Preparing upload..."
 msgstr "Preparing upload..."
 
+msgid "Primary: %s"
+msgstr "Primary: %s"
+
 msgid "Proceed"
 msgstr "Proceed"
 
@@ -722,11 +737,20 @@ msgstr "Remote Backup Folder"
 msgid "Remote Folder: %s"
 msgstr "Remote Folder: %s"
 
+msgid "Remove"
+msgstr "Remove"
+
+msgid "Remove this book folder from backup?\n\n%s"
+msgstr "Remove this book folder from backup?\n\n%s"
+
 msgid "Reset Default"
 msgstr "Reset Default"
 
 msgid "Reset Relay to Default"
 msgstr "Reset Relay to Default"
+
+msgid "Reset to Default (Home Directory)"
+msgstr "Reset to Default (Home Directory)"
 
 msgid "Restart"
 msgstr "Restart"
@@ -821,6 +845,9 @@ msgstr "Select All"
 msgid "Select Backup Folder"
 msgstr "Select Backup Folder"
 
+msgid "Select Book Folder to Add"
+msgstr "Select Book Folder to Add"
+
 msgid "Select Books Folder"
 msgstr "Select Books Folder"
 
@@ -895,6 +922,9 @@ msgstr "This backup is %s, which exceeds the 100MB Beam transfer limit.\n\nBeam 
 
 msgid "This backup is %s. Large wireless transfers on Kindle can take several minutes.\n\nDo you want to proceed with Beaming?"
 msgstr "This backup is %s. Large wireless transfers on Kindle can take several minutes.\n\nDo you want to proceed with Beaming?"
+
+msgid "This folder is already in the book folders list."
+msgstr "This folder is already in the book folders list."
 
 msgid "Undo Last Restore"
 msgstr "Undo Last Restore"

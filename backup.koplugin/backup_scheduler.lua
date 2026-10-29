@@ -267,7 +267,8 @@ function BackupScheduler.executeQuickBackup(opts, on_finish_cb)
             selected_dictionaries = selected_dicts,
             backup_name = archive_name,
             data_dir = data_dir,
-            books_dir = s.custom_books_dir or ArchiverMgr.getEffectiveBooksDir(),
+            books_dirs = s.custom_books_dirs or ArchiverMgr.getEffectiveBooksDirs(),
+            books_dir = (s.custom_books_dirs and s.custom_books_dirs[1]) or s.custom_books_dir or ArchiverMgr.getEffectiveBooksDir(),
             is_canceled = function() return progress_dlg and progress_dlg:isCanceled() end,
             on_progress = function(curr_files, total_files, curr_bytes, total_bytes, current_path)
                 setPbarProgress(curr_files, total_files, curr_bytes, total_bytes, current_path)

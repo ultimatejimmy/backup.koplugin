@@ -328,8 +328,10 @@ function RestoreEngine.executeRestore(archive_path, options)
                     cur_settings_tbl = {}
                 end
             end
+            local target_books_dirs = options.books_dirs or (options.books_dir and { options.books_dir }) or ArchiverMgr.getEffectiveBooksDirs()
             local target_options = {
-                books_dir = options.books_dir or ArchiverMgr.getEffectiveBooksDir(),
+                books_dir = target_books_dirs[1] or ArchiverMgr.getEffectiveBooksDir(),
+                books_dirs = target_books_dirs,
             }
             local sanitized_data, stripped, reset = Sanitizer.sanitizeFile(staged_settings, mode, cur_settings_tbl, target_options)
 
@@ -459,34 +461,60 @@ function RestoreEngine.executeRestore(archive_path, options)
 
     -- 10. Process reading progress & annotations (docsettings)
     if selected_components[Constants.COMPONENTS.DOCSETTINGS] then
-        local target_books_dir = options.books_dir or ArchiverMgr.getEffectiveBooksDir()
+        local target_books_dirs = options.books_dirs or (options.books_dir and { options.books_dir }) or ArchiverMgr.getEffectiveBooksDirs()
+        local primary_books_dir = target_books_dirs[1] or ArchiverMgr.getEffectiveBooksDir()
 
-        -- 10a. Restore sidecars relative to books_dir
+        -- 10a. Restore sidecars relative to primary books_dir
         local staged_sidecars = staging_dir .. "/" .. Constants.ARCHIVE_SIDECARS_PREFIX
         if lfs.attributes(staged_sidecars, "mode") == "directory" then
-            RestoreEngine.copyDir(staged_sidecars, target_books_dir)
+            RestoreEngine.copyDir(staged_sidecars, primary_books_dir)
         end
 
-        -- 10b. Restore sidecars with absolute paths
+        -- 10b. Restore sidecars from additional book folder roots
+        local staged_roots = staging_dir .. "/" .. Constants.ARCHIVE_SIDECARS_ROOTS_PREFIX
+        if lfs.attributes(staged_roots, "mode") == "directory" then
+            local origin_dirs = (manifest and manifest.device and manifest.device.books_dirs)
+            for entry in lfs.dir(staged_roots) do
+                if entry ~= "." and entry ~= ".." then
+                    local idx = tonumber(entry)
+                    local root_dir = staged_roots .. "/" .. entry
+                    if idx and lfs.attributes(root_dir, "mode") == "directory" then
+                        local target_dest = target_books_dirs[idx]
+                        if not target_dest or target_dest == "" then
+                            -- Target device has fewer roots: fallback to <primary>/<basename of original root>
+                            local origin_name = nil
+                            if origin_dirs and origin_dirs[idx] then
+                                origin_name = origin_dirs[idx]:match("([^/\\]+)[/\\]*$")
+                            end
+                            origin_name = origin_name or ("folder_" .. entry)
+                            target_dest = primary_books_dir .. "/" .. origin_name
+                        end
+                        RestoreEngine.copyDir(root_dir, target_dest)
+                    end
+                end
+            end
+        end
+
+        -- 10c. Restore sidecars with absolute paths
         local staged_abs = staging_dir .. "/" .. Constants.ARCHIVE_SIDECARS_ABS_PREFIX
         if lfs.attributes(staged_abs, "mode") == "directory" then
             if mode == Sanitizer.MODE_RAW then
                 RestoreEngine.copyDir(staged_abs, "/")
             else
-                RestoreEngine.copyDir(staged_abs, target_books_dir)
+                RestoreEngine.copyDir(staged_abs, primary_books_dir)
             end
         end
 
-        -- 10c. Restore centralized docsettings (skipping sidecars/sidecars_abs)
+        -- 10d. Restore centralized docsettings (skipping sidecars, sidecars_roots, sidecars_abs)
         local staged_docsettings = staging_dir .. "/docsettings"
         if lfs.attributes(staged_docsettings, "mode") == "directory" then
             local exclude_sidecars = function(name)
-                return name == "sidecars" or name == "sidecars_abs"
+                return name == "sidecars" or name == "sidecars_roots" or name == "sidecars_abs"
             end
             RestoreEngine.copyDir(staged_docsettings, data_dir .. "/docsettings", exclude_sidecars)
         end
 
-        -- 10d. Restore hashdocsettings
+        -- 10e. Restore hashdocsettings
         local staged_hashdoc = staging_dir .. "/hashdocsettings"
         if lfs.attributes(staged_hashdoc, "mode") == "directory" then
             RestoreEngine.copyDir(staged_hashdoc, data_dir .. "/hashdocsettings")
@@ -495,7 +523,8 @@ function RestoreEngine.executeRestore(archive_path, options)
 
     -- 11. Process reading history & stats
     if selected_components[Constants.COMPONENTS.HISTORY] then
-        local target_books_dir = options.books_dir or ArchiverMgr.getEffectiveBooksDir()
+        local target_books_dirs = options.books_dirs or (options.books_dir and { options.books_dir }) or ArchiverMgr.getEffectiveBooksDirs()
+        local primary_books_dir = target_books_dirs[1] or ArchiverMgr.getEffectiveBooksDir()
 
         -- 11a. Restore modern history.lua
         local staged_hist_path = nil
@@ -506,30 +535,64 @@ function RestoreEngine.executeRestore(archive_path, options)
         end
 
         if staged_hist_path then
-            local origin_books = (manifest and manifest.device and manifest.device.books_dir) and manifest.device.books_dir:gsub("[/\\]+$", "")
-            local new_books = target_books_dir:gsub("[/\\]+$", "")
-            local path_translated = false
+            local origin_books_dirs = (manifest and manifest.device and manifest.device.books_dirs)
+            if not origin_books_dirs or #origin_books_dirs == 0 then
+                local legacy_origin = manifest and manifest.device and manifest.device.books_dir
+                if legacy_origin and legacy_origin ~= "" then
+                    origin_books_dirs = { legacy_origin }
+                else
+                    origin_books_dirs = {}
+                end
+            end
 
-            if mode ~= Sanitizer.MODE_RAW and origin_books and new_books and origin_books ~= "" and new_books ~= "" and origin_books ~= new_books then
+            local mappings = {}
+            for idx, origin_dir in ipairs(origin_books_dirs) do
+                local origin_norm = origin_dir:gsub("[/\\]+$", "")
+                local target_dest = target_books_dirs[idx]
+                if not target_dest or target_dest == "" then
+                    local origin_name = origin_norm:match("([^/\\]+)[/\\]*$") or ("folder_" .. idx)
+                    target_dest = primary_books_dir .. "/" .. origin_name
+                end
+                local target_norm = target_dest:gsub("[/\\]+$", "")
+                if origin_norm ~= "" and target_norm ~= "" and origin_norm ~= target_norm then
+                    table.insert(mappings, { origin = origin_norm, target = target_norm })
+                end
+            end
+
+            -- Sort mappings descending by origin length so more specific/longer paths match first
+            table.sort(mappings, function(a, b) return #a.origin > #b.origin end)
+
+            local path_translated = false
+            if mode ~= Sanitizer.MODE_RAW and #mappings > 0 then
                 local ok_load, hist_tbl = pcall(dofile, staged_hist_path)
                 if ok_load and type(hist_tbl) == "table" then
                     for _, item in ipairs(hist_tbl) do
-                        if item.file and item.file:sub(1, #origin_books) == origin_books then
-                            item.file = new_books .. item.file:sub(#origin_books + 1)
+                        if item.file then
+                            for _, map in ipairs(mappings) do
+                                if item.file:sub(1, #map.origin) == map.origin and
+                                   (item.file:sub(#map.origin + 1, #map.origin + 1) == "/" or
+                                    item.file:sub(#map.origin + 1, #map.origin + 1) == "\\" or
+                                    #item.file == #map.origin) then
+                                    item.file = map.target .. item.file:sub(#map.origin + 1)
+                                    path_translated = true
+                                    break
+                                end
+                            end
                         end
                     end
-                    local ok_dump, dump = pcall(require, "dump")
-                    local serialized
-                    if ok_dump and dump then
-                        serialized = "return " .. dump(hist_tbl)
-                    else
-                        serialized = "return " .. Sanitizer.dumpSettings(hist_tbl)
-                    end
-                    local hf = io.open(data_dir .. "/history.lua", "wb")
-                    if hf then
-                        hf:write(serialized)
-                        hf:close()
-                        path_translated = true
+                    if path_translated then
+                        local ok_dump, dump = pcall(require, "dump")
+                        local serialized
+                        if ok_dump and dump then
+                            serialized = "return " .. dump(hist_tbl)
+                        else
+                            serialized = "return " .. Sanitizer.dumpSettings(hist_tbl)
+                        end
+                        local hf = io.open(data_dir .. "/history.lua", "wb")
+                        if hf then
+                            hf:write(serialized)
+                            hf:close()
+                        end
                     end
                 end
             end
